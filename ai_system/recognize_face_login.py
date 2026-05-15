@@ -34,21 +34,60 @@ app = FaceAnalysis(name='buffalo_l', providers=['CPUExecutionProvider'])
 app.prepare(ctx_id=-1, det_size=(320, 320))
 
 # =========================
-# LOAD USERS
+# LOAD USERS (from both users AND employees tables)
 # =========================
 def load_users():
-    cursor.execute("SELECT email, embedding FROM users WHERE embedding IS NOT NULL")
-    data = cursor.fetchall()
-    users = []
-    for row in data:
-        email = row[0]
-        emb = np.array(json.loads(row[1]))
-        emb = emb / np.linalg.norm(emb)
-        users.append((email, emb))
-    return users
+    all_users = []
+    emails_seen = set()
+
+    # 1) Try loading from users table
+    try:
+        cursor.execute("SELECT email, embedding FROM users WHERE embedding IS NOT NULL AND embedding != ''")
+        data = cursor.fetchall()
+        for row in data:
+            email = row[0]
+            try:
+                emb = np.array(json.loads(row[1]))
+                emb = emb / np.linalg.norm(emb)
+                all_users.append((email, emb))
+                emails_seen.add(email)
+            except (json.JSONDecodeError, ValueError):
+                continue
+        print(f"Loaded {len(data)} from users table", file=sys.stderr)
+    except Exception as e:
+        print(f"Warning: could not load from users table: {e}", file=sys.stderr)
+
+    # 2) Also try loading from employees table (fallback)
+    try:
+        cursor.execute("SELECT email, embedding FROM employees WHERE embedding IS NOT NULL AND embedding != '' AND email IS NOT NULL")
+        data = cursor.fetchall()
+        count = 0
+        for row in data:
+            email = row[0]
+            if email in emails_seen:
+                continue  # already loaded from users table
+            try:
+                emb = np.array(json.loads(row[1]))
+                emb = emb / np.linalg.norm(emb)
+                all_users.append((email, emb))
+                emails_seen.add(email)
+                count += 1
+            except (json.JSONDecodeError, ValueError):
+                continue
+        print(f"Loaded {count} additional from employees table", file=sys.stderr)
+    except Exception as e:
+        print(f"Warning: could not load from employees table: {e}", file=sys.stderr)
+
+    return all_users
 
 users = load_users()
-print(f"Loaded {len(users)} users", file=sys.stderr)
+print(f"Total loaded: {len(users)} face embeddings", file=sys.stderr)
+
+if len(users) == 0:
+    print("NO_MATCH", file=sys.stderr)
+    print("NO_MATCH")
+    db.close()
+    sys.exit(0)
 
 # =========================
 # OPEN CAMERA (FIXED VERSION)
@@ -67,7 +106,9 @@ for i in range(3):  # try indices 0,1,2
 
 if cap is None or not cap.isOpened():
     print("ERROR_CAMERA", file=sys.stderr)
-    sys.exit(1)
+    print("ERROR_CAMERA")
+    db.close()
+    sys.exit(0)
 
 # Configure camera to minimize latency
 cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
@@ -131,4 +172,4 @@ if best_id is not None and best_dist < 0.85:
 
 print("NO_MATCH")
 db.close()
-sys.exit(1)
+sys.exit(0)

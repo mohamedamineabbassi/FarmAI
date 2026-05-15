@@ -1,0 +1,567 @@
+% ============================================================
+% SECTIONS MANQUANTES À INTÉGRER DANS LE RAPPORT PFE
+% Farm AI — Éléments identifiés après analyse du code source
+% ============================================================
+
+% ============================================================
+% 1. REMPLACER la section "Présentation des acteurs" (Chapitre 2)
+%    par cette version corrigée avec les 4 rôles
+% ============================================================
+
+\subsection{Présentation des acteurs}
+
+Le système Farm AI repose sur un modèle multi-rôles avec quatre types d'acteurs distincts,
+chacun disposant d'un niveau d'accès et de responsabilités spécifiques :
+
+\begin{itemize}
+  \item \textbf{Administrateur (ROLE\_ADMIN) :} acteur principal du système. Il dispose d'un
+    accès complet à l'ensemble des fonctionnalités : gestion des employés, des gestionnaires,
+    des observateurs, des départements, des caméras, consultation du tableau de bord analytique,
+    gestion des alertes et configuration de son compte. Il peut s'authentifier par email/mot de
+    passe ou par reconnaissance faciale biométrique.
+  \item \textbf{Gestionnaire (ROLE\_MANAGER) :} responsable d'un département spécifique. Il
+    accède à un tableau de bord dédié affichant les employés assignés à son département, les
+    caméras associées et les alertes. Il peut valider ou modifier la composition de son équipe
+    via un système de suggestion automatique. Son compte est créé par l'administrateur et
+    activé par email.
+  \item \textbf{Observateur (ROLE\_VIEWER) :} acteur disposant d'un accès en lecture seule.
+    Il consulte la liste des employés enregistrés, les départements configurés et peut
+    déclencher l'enregistrement facial d'un employé. Son compte est créé par l'administrateur
+    et activé par email.
+  \item \textbf{Service IA Python :} acteur secondaire automatisé. Une fois activé, il traite
+    les flux vidéo de manière autonome (détection YOLO, reconnaissance faciale FaceNet) et
+    envoie les résultats au backend sans intervention humaine.
+\end{itemize}
+
+% ============================================================
+% 2. TABLEAU DES BESOINS FONCTIONNELS ET NON FONCTIONNELS
+%    Remplacer les listes à puces existantes
+% ============================================================
+
+\subsection{Besoins fonctionnels et non fonctionnels}
+
+Le tableau~\ref{tab:besoins_fonctionnels} récapitule l'ensemble des besoins fonctionnels
+identifiés, classés par module et par acteur concerné.
+
+\begin{longtable}{|c|>{\raggedright\arraybackslash}p{5cm}|>{\raggedright\arraybackslash}p{6cm}|l|}
+  \caption{Besoins fonctionnels du système Farm AI} \label{tab:besoins_fonctionnels} \\
+  \hline
+  \rowcolor{gray!20}
+  \textbf{ID} & \textbf{Besoin fonctionnel} & \textbf{Description} & \textbf{Acteur} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{gray!20}
+  \textbf{ID} & \textbf{Besoin fonctionnel} & \textbf{Description} & \textbf{Acteur} \\
+  \hline
+  \endhead
+  \hline
+  \endfoot
+
+  BF01 & Authentification classique &
+    Se connecter via email et mot de passe sécurisé avec génération de token JWT. &
+    Tous \\
+  \hline
+  BF02 & Authentification biométrique &
+    Se connecter par reconnaissance faciale en temps réel sans saisie de mot de passe. &
+    Tous \\
+  \hline
+  BF03 & Gérer les employés &
+    Ajouter, modifier, supprimer et consulter les fiches des employés avec leur métier, email et statut. &
+    Admin \\
+  \hline
+  BF04 & Enregistrer un Face ID employé &
+    Capturer et enregistrer l'encodage biométrique du visage d'un employé pour le pointage automatique. &
+    Admin \\
+  \hline
+  BF05 & Approuver/Rejeter un employé &
+    Valider ou refuser un employé nouvellement créé avant son affectation à un département. &
+    Admin \\
+  \hline
+  BF06 & Gérer les gestionnaires &
+    Créer, modifier et supprimer des comptes gestionnaires. Un email d'activation avec mot de passe est envoyé automatiquement via Gmail. &
+    Admin \\
+  \hline
+  BF07 & Gérer les observateurs &
+    Créer, modifier et supprimer des comptes observateurs. Un email d'activation est envoyé automatiquement via Gmail. &
+    Admin \\
+  \hline
+  BF08 & Gérer les départements &
+    Créer, modifier et supprimer des départements avec nom, horaires, responsable (manager) et besoins en personnel par métier. &
+    Admin \\
+  \hline
+  BF09 & Activer un compte par email &
+    Cliquer sur le lien d'activation reçu par Gmail pour activer son compte et enregistrer son visage. &
+    Manager / Viewer \\
+  \hline
+  BF10 & Enregistrer son visage (onboarding) &
+    Enregistrer ses données biométriques lors de la première connexion après activation du compte. &
+    Manager / Viewer \\
+  \hline
+  BF11 & Gérer les caméras &
+    Consulter la liste des caméras, vérifier leur statut (active/inactive) et déclencher l'analyse IA. &
+    Admin \\
+  \hline
+  BF12 & Lancer la surveillance IA &
+    Activer l'analyse intelligente sur une caméra : détection de personnes (YOLO), reconnaissance faciale (FaceNet) et analyse vestimentaire. &
+    Admin \\
+  \hline
+  BF13 & Pointage automatique &
+    Enregistrer automatiquement les entrées et sorties des employés identifiés avec horodatage précis. &
+    Service IA \\
+  \hline
+  BF14 & Consulter le tableau de bord &
+    Visualiser les KPIs (présents, heures travaillées, entrées, caméras actives), les graphiques de présence et les insights IA. &
+    Admin \\
+  \hline
+  BF15 & Gérer les alertes &
+    Consulter les alertes générées lors de détections d'anomalies (personne non identifiée, intrusion). &
+    Admin \\
+  \hline
+  BF16 & Suggestion d'équipe &
+    Recevoir une proposition automatique d'équipe basée sur les besoins en personnel du département et la disponibilité des employés. &
+    Manager \\
+  \hline
+  BF17 & Valider/Modifier l'équipe &
+    Accepter la suggestion d'équipe ou la modifier manuellement avant validation. Un email de confirmation est envoyé à l'admin et aux employés. &
+    Manager \\
+  \hline
+  BF18 & Tableau de bord manager &
+    Consulter un tableau de bord dédié avec les employés du département, les caméras associées et les alertes. &
+    Manager \\
+  \hline
+  BF19 & Tableau de bord observateur &
+    Consulter en lecture seule la liste des employés et des départements. &
+    Viewer \\
+  \hline
+  BF20 & Notifications par email (Gmail) &
+    Envoyer automatiquement des emails via Gmail SMTP pour : création de compte, activation, affectation, validation d'équipe et suppression. &
+    Système \\
+  \hline
+  BF21 & Gérer son compte &
+    Modifier ses informations personnelles, changer son mot de passe et gérer ses données biométriques. &
+    Tous \\
+  \hline
+  BF22 & Changer la langue &
+    Basculer l'interface entre le français et l'anglais. &
+    Tous \\
+  \hline
+\end{longtable}
+
+Le tableau~\ref{tab:besoins_non_fonctionnels} présente les besoins non fonctionnels qui ont
+guidé les choix techniques tout au long du développement.
+
+\begin{table}[H]
+  \centering
+  \caption{Besoins non fonctionnels du système Farm AI}
+  \label{tab:besoins_non_fonctionnels}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabularx}{\textwidth}{|c|l|X|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{ID} & \textbf{Catégorie} & \textbf{Description} \\
+    \hline
+    BNF01 & Performance &
+      Le traitement du flux vidéo doit s'effectuer avec une latence inférieure à 2 secondes entre la capture et l'affichage du résultat. \\
+    \hline
+    BNF02 & Sécurité &
+      Toutes les requêtes sont authentifiées par JWT. Les données biométriques sont stockées sous forme d'encodages mathématiques. Les mots de passe sont hachés avec BCrypt. \\
+    \hline
+    BNF03 & Fiabilité IA &
+      Le taux d'identification correcte doit être supérieur à 90\,\%. Le modèle FaceNet retenu atteint 97,2\,\%. \\
+    \hline
+    BNF04 & Ergonomie &
+      L'interface doit être intuitive pour un utilisateur non technicien. Toutes les actions critiques sont confirmées par une fenêtre de validation. \\
+    \hline
+    BNF05 & Évolutivité &
+      L'architecture micro-services permet de faire évoluer chaque composant indépendamment. \\
+    \hline
+    BNF06 & Contrôle d'accès &
+      Le système applique un contrôle d'accès basé sur les rôles (RBAC) avec redirection automatique selon le rôle de l'utilisateur connecté. \\
+    \hline
+    BNF07 & Disponibilité &
+      Le service de notification par email doit fonctionner de manière asynchrone pour ne pas bloquer les opérations principales. \\
+    \hline
+    BNF08 & Internationalisation &
+      L'interface supporte le français et l'anglais avec basculement dynamique sans rechargement. \\
+    \hline
+    BNF09 & Compatibilité &
+      L'application est compatible avec les navigateurs modernes (Chrome, Firefox, Edge). \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+% ============================================================
+% 3. SECTION GMAIL / NOTIFICATIONS PAR EMAIL
+%    À ajouter dans le Chapitre 2, section Environnement logiciel
+% ============================================================
+
+\subsection{Service de notification par email (Gmail SMTP)}
+
+Le système Farm AI intègre un service de notification par email utilisant le protocole
+\textbf{Gmail SMTP}. Ce service, implémenté dans le backend Spring Boot via la classe
+\texttt{EmailService}, utilise l'API \texttt{JavaMailSender} de Spring pour envoyer des
+emails de manière asynchrone (annotation \texttt{@Async}).
+
+La configuration dans le fichier \texttt{application.properties} utilise le serveur
+SMTP de Google (\texttt{smtp.gmail.com}, port 587) avec l'authentification TLS activée.
+Un mot de passe d'application Google est utilisé pour sécuriser la connexion.
+
+Le service gère huit types de notifications automatiques :
+
+\begin{enumerate}
+  \item \textbf{Création d'un compte employé :} notification informant l'employé que son
+    profil a été créé dans le système.
+  \item \textbf{Validation d'un employé :} email de bienvenue envoyé après approbation par
+    l'administrateur.
+  \item \textbf{Activation de compte gestionnaire :} email contenant le mot de passe
+    généré et un lien d'activation unique avec token.
+  \item \textbf{Activation de compte observateur :} même mécanisme que pour les gestionnaires,
+    avec un lien d'activation dédié.
+  \item \textbf{Affectation à un département :} notification envoyée à l'employé lors de
+    son assignation, incluant le nom du département, le responsable et les horaires.
+  \item \textbf{Validation d'équipe (vers l'admin) :} récapitulatif envoyé à l'administrateur
+    lorsqu'un gestionnaire valide la composition de son équipe.
+  \item \textbf{Confirmation d'équipe (vers le manager) :} confirmation envoyée au
+    gestionnaire après validation réussie.
+  \item \textbf{Suppression de département :} notification informant le gestionnaire
+    de la suppression de son département.
+\end{enumerate}
+
+% ============================================================
+% 4. SECTION GESTION DES GESTIONNAIRES (Managers)
+%    À ajouter comme spécification fonctionnelle
+% ============================================================
+
+\subsection{Gérer les gestionnaires}
+
+\begin{table}[H]
+  \centering
+  \caption{Description textuelle du cas d'utilisation « Gérer les gestionnaires »}
+  \label{tab:cu_managers}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabularx}{\textwidth}{|>{\bfseries}l|L|}
+    \hline
+    \rowcolor{gray!20}
+    \multicolumn{2}{|c|}{\textbf{Créer un gestionnaire}} \\
+    \hline
+    Nom C.U & Créer un gestionnaire \\
+    \hline
+    Acteur & Administrateur \\
+    \hline
+    Description & L'administrateur crée un compte gestionnaire. Un mot de passe est généré
+      automatiquement et un email d'activation est envoyé via Gmail. \\
+    \hline
+    Précondition & L'administrateur est authentifié et se trouve sur le module de gestion
+      des gestionnaires. \\
+    \hline
+    Postcondition & Le compte gestionnaire est créé en base de données avec le rôle
+      ROLE\_MANAGER, le statut désactivé, et un email d'activation est envoyé. \\
+    \hline
+    Scénario nominal &
+      1. L'administrateur saisit le prénom, nom, email et téléphone.\newline
+      2. Il clique sur « Enregistrer ».\newline
+      3. Le backend génère un mot de passe aléatoire et un token d'activation.\newline
+      4. Le compte est créé avec \texttt{enabled = false}.\newline
+      5. Un email contenant le mot de passe et le lien d'activation est envoyé via Gmail SMTP.\newline
+      6. Le gestionnaire apparaît dans la liste avec le statut « En attente d'activation ». \\
+    \hline
+    Scénarios alternatifs &
+      -- Si l'email existe déjà, une erreur 400 est retournée.\newline
+      -- Si le service email est indisponible, le compte est créé mais l'email n'est pas envoyé. \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+% ============================================================
+% 5. SECTION GESTION DES DÉPARTEMENTS
+% ============================================================
+
+\subsection{Gérer les départements}
+
+\begin{table}[H]
+  \centering
+  \caption{Description textuelle du cas d'utilisation « Créer un département »}
+  \label{tab:cu_departments}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabularx}{\textwidth}{|>{\bfseries}l|L|}
+    \hline
+    \rowcolor{gray!20}
+    \multicolumn{2}{|c|}{\textbf{Créer un département}} \\
+    \hline
+    Nom C.U & Créer un département \\
+    \hline
+    Acteur & Administrateur \\
+    \hline
+    Description & L'administrateur crée un département en définissant son nom, ses horaires
+      de travail, le gestionnaire responsable et les besoins en personnel par métier. \\
+    \hline
+    Précondition & L'administrateur est authentifié. Au moins un gestionnaire existe
+      dans le système. \\
+    \hline
+    Postcondition & Le département est enregistré en base avec les besoins en docteurs,
+      électriciens et ouvriers. \\
+    \hline
+    Scénario nominal &
+      1. L'administrateur saisit le nom du département.\newline
+      2. Il sélectionne un gestionnaire responsable dans la liste déroulante.\newline
+      3. Il définit les horaires d'ouverture et de fermeture.\newline
+      4. Il précise les besoins en personnel : nombre de docteurs, d'électriciens et d'ouvriers requis.\newline
+      5. Il clique sur « Enregistrer ».\newline
+      6. Le département est créé et affiché sous forme de carte avec les détails. \\
+    \hline
+    Scénarios alternatifs &
+      -- Si aucun gestionnaire n'est sélectionné, un avertissement s'affiche.\newline
+      -- Si les nombres d'employés sont négatifs, une validation empêche la soumission. \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+% ============================================================
+% 6. SECTION ACTIVATION DE COMPTE ET FACE SETUP
+% ============================================================
+
+\subsection{Activer un compte et enregistrer son visage}
+
+\begin{table}[H]
+  \centering
+  \caption{Description textuelle du cas d'utilisation « Activer un compte »}
+  \label{tab:cu_activate}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabularx}{\textwidth}{|>{\bfseries}l|L|}
+    \hline
+    \rowcolor{gray!20}
+    \multicolumn{2}{|c|}{\textbf{Activer un compte par email}} \\
+    \hline
+    Nom C.U & Activer un compte par email \\
+    \hline
+    Acteur & Gestionnaire / Observateur \\
+    \hline
+    Description & Le gestionnaire ou l'observateur clique sur le lien d'activation reçu
+      par email pour activer son compte, puis enregistre son visage. \\
+    \hline
+    Précondition & Un email d'activation a été envoyé. Le token est valide et non expiré. \\
+    \hline
+    Postcondition & Le compte est activé (\texttt{enabled = true}) et l'utilisateur est
+      redirigé vers la page d'enregistrement facial. \\
+    \hline
+    Scénario nominal &
+      1. L'utilisateur clique sur le lien d'activation dans l'email reçu.\newline
+      2. L'application Angular extrait le token de l'URL.\newline
+      3. Une requête POST est envoyée au backend pour valider le token.\newline
+      4. Le backend active le compte et retourne un token JWT.\newline
+      5. L'utilisateur est redirigé vers la page « Face Setup ».\newline
+      6. Il enregistre son visage via la caméra.\newline
+      7. Après succès, il est redirigé vers son tableau de bord dédié. \\
+    \hline
+    Scénarios alternatifs &
+      -- Si le token est invalide ou expiré, un message d'erreur s'affiche.\newline
+      -- Si la caméra est indisponible, l'enregistrement facial échoue. \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+% ============================================================
+% 7. SECTION SUGGESTION ET VALIDATION D'ÉQUIPE
+% ============================================================
+
+\subsection{Suggestion et validation d'équipe}
+
+\begin{table}[H]
+  \centering
+  \caption{Description textuelle du cas d'utilisation « Valider une équipe »}
+  \label{tab:cu_team}
+  \renewcommand{\arraystretch}{1.4}
+  \begin{tabularx}{\textwidth}{|>{\bfseries}l|L|}
+    \hline
+    \rowcolor{gray!20}
+    \multicolumn{2}{|c|}{\textbf{Valider une équipe}} \\
+    \hline
+    Nom C.U & Valider une équipe \\
+    \hline
+    Acteur & Gestionnaire \\
+    \hline
+    Description & Le gestionnaire consulte la proposition automatique d'équipe générée
+      par le système, la modifie si nécessaire, puis la valide pour affecter les employés
+      à son département. \\
+    \hline
+    Précondition & Le gestionnaire est authentifié. Son département a des besoins en
+      personnel définis. Des employés disponibles et approuvés existent en base. \\
+    \hline
+    Postcondition & Les employés sélectionnés sont affectés au département. Des emails
+      de confirmation sont envoyés au gestionnaire, à l'administrateur et aux employés. \\
+    \hline
+    Scénario nominal &
+      1. Le gestionnaire accède à son tableau de bord.\newline
+      2. Le système affiche une suggestion d'équipe basée sur les besoins du département
+         et la disponibilité des employés (visage enregistré, statut APPROVED, non assigné).\newline
+      3. Le gestionnaire peut ajouter ou retirer des employés de la sélection.\newline
+      4. Il clique sur « Valider l'équipe ».\newline
+      5. Le backend vérifie que chaque employé est disponible et validé.\newline
+      6. Les employés sont assignés au département (\texttt{available = false}).\newline
+      7. Un email de confirmation est envoyé au gestionnaire, à l'admin et à chaque employé. \\
+    \hline
+    Scénarios alternatifs &
+      -- Si un employé n'est pas approuvé ou n'a pas de visage enregistré, la validation échoue.\newline
+      -- Le gestionnaire peut modifier l'équipe après validation initiale. \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+% ============================================================
+% 8. ENTRÉES DU BACKLOG MANQUANTES
+%    À ajouter au tableau du Product Backlog
+% ============================================================
+
+% Lignes à AJOUTER dans le tableau \ref{tab:backlog} :
+%
+%    Gérer les gestionnaires &
+%      En tant qu'administrateur, je peux créer, modifier et supprimer des comptes
+%      gestionnaires. Un email d'activation est envoyé automatiquement via Gmail. &
+%      Administrateur \\
+%    \hline
+%    Gérer les observateurs &
+%      En tant qu'administrateur, je peux créer, modifier et supprimer des comptes
+%      observateurs en lecture seule. Un email d'activation est envoyé via Gmail. &
+%      Administrateur \\
+%    \hline
+%    Gérer les départements &
+%      En tant qu'administrateur, je peux créer des départements avec horaires,
+%      responsable et besoins en personnel par métier. &
+%      Administrateur \\
+%    \hline
+%    Activer un compte &
+%      En tant que gestionnaire/observateur, je peux activer mon compte en cliquant
+%      sur le lien reçu par email et en enregistrant mon visage. &
+%      Manager / Viewer \\
+%    \hline
+%    Suggestion d'équipe &
+%      En tant que gestionnaire, je reçois une proposition automatique d'équipe et
+%      je peux la valider ou la modifier. &
+%      Gestionnaire \\
+%    \hline
+%    Tableau de bord manager &
+%      En tant que gestionnaire, je peux consulter un tableau de bord dédié à mon département. &
+%      Gestionnaire \\
+%    \hline
+%    Tableau de bord observateur &
+%      En tant qu'observateur, je peux consulter en lecture seule la liste des employés
+%      et des départements. &
+%      Observateur \\
+%    \hline
+%    Notifications Gmail &
+%      En tant que système, j'envoie automatiquement des emails via Gmail SMTP pour
+%      chaque événement important. &
+%      Système \\
+%    \hline
+
+% ============================================================
+% 9. CORRECTION : La base de données est MySQL, pas PostgreSQL
+%    Remplacer toute mention de PostgreSQL par MySQL
+% ============================================================
+
+% AVANT : PostgreSQL est la base de données relationnelle utilisée...
+% APRÈS :
+\subsection{MySQL (correction)}
+
+MySQL est la base de données relationnelle utilisée pour la persistance de toutes
+les données du système : utilisateurs (administrateurs, gestionnaires, observateurs),
+employés, départements, pointages, caméras et alertes. La connexion est configurée
+dans le fichier \texttt{application.properties} avec le driver JDBC MySQL sur le
+port 3306, et Hibernate gère automatiquement le schéma via \texttt{ddl-auto=update}.
+
+% ============================================================
+% 10. INTERFACES MANQUANTES À DOCUMENTER
+%     Ajouter dans les sections Réalisation des sprints concernés
+% ============================================================
+
+% --- Interface de gestion des gestionnaires ---
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.90\textwidth]{images/managers.png}
+%   \caption{Interface de gestion des gestionnaires}
+%   \label{fig:managers}
+% \end{figure}
+%
+% Description : Cette interface permet à l'administrateur de créer, modifier et supprimer
+% des comptes gestionnaires. Le formulaire collecte le prénom, nom, email et téléphone.
+% La liste affiche le statut d'activation (ACTIF / EN ATTENTE) et l'état de
+% l'enregistrement facial (VISAGE OK / VISAGE MANQUANT) pour chaque gestionnaire.
+
+% --- Interface de gestion des observateurs ---
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.90\textwidth]{images/viewers.png}
+%   \caption{Interface de gestion des observateurs}
+%   \label{fig:viewers}
+% \end{figure}
+
+% --- Interface de gestion des départements ---
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.90\textwidth]{images/departments.png}
+%   \caption{Interface de gestion des départements}
+%   \label{fig:departments}
+% \end{figure}
+%
+% Description : Cette interface permet de créer des départements en définissant le nom,
+% les horaires de travail (heure d'ouverture/fermeture), le gestionnaire responsable et
+% les besoins exacts en personnel par métier (docteurs, électriciens, ouvriers). Les
+% départements sont affichés sous forme de cartes avec le nombre d'employés affectés.
+
+% --- Interface du tableau de bord gestionnaire ---
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.90\textwidth]{images/manager_dashboard.png}
+%   \caption{Tableau de bord du gestionnaire}
+%   \label{fig:manager_dashboard}
+% \end{figure}
+%
+% Description : Ce tableau de bord dédié affiche les informations du département du
+% gestionnaire : employés assignés, caméras associées, alertes actives. Le système de
+% suggestion d'équipe propose automatiquement des employés disponibles, que le gestionnaire
+% peut accepter, modifier ou valider.
+
+% --- Interface d'activation de compte ---
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.90\textwidth]{images/activate.png}
+%   \caption{Page d'activation de compte}
+%   \label{fig:activate}
+% \end{figure}
+
+% --- Interface d'enregistrement facial (Face Setup) ---
+% \begin{figure}[H]
+%   \centering
+%   \includegraphics[width=0.90\textwidth]{images/face_setup.png}
+%   \caption{Page d'enregistrement facial (onboarding)}
+%   \label{fig:face_setup}
+% \end{figure}
+
+% ============================================================
+% 11. PLANIFICATION DES SPRINTS MISE À JOUR
+%     Remplacer le tableau existant
+% ============================================================
+
+\begin{table}[H]
+  \centering
+  \caption{Planification des sprints (mise à jour)}
+  \label{tab:sprints_v2}
+  \renewcommand{\arraystretch}{1.5}
+  \begin{tabularx}{\textwidth}{|c|X|c|}
+    \hline
+    \rowcolor{gray!20}
+    \textbf{Sprint} & \textbf{Contenu} & \textbf{Durée} \\
+    \hline
+    Sprint 0 & Spécification des besoins, backlog produit, planification, environnement technique, architecture & 1 semaine \\
+    \hline
+    Sprint 1 & Authentification (classique et biométrique), gestion des employés, enregistrement Face ID, gestion des gestionnaires et observateurs, activation de compte par email, notifications Gmail & 2 semaines \\
+    \hline
+    Sprint 2 & Gestion des départements, gestion des caméras, surveillance IA, pointage automatique, centre d'alertes, suggestion et validation d'équipe & 2 semaines \\
+    \hline
+    Sprint 3 & Tableau de bord analytique (admin), tableau de bord gestionnaire, tableau de bord observateur, paramètres du compte, tests de validation & 2 semaines \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\end{document}

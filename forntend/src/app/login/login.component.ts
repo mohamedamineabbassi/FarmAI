@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewEncapsulation, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { LanguageService } from '../services/language.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   error = '';
   success = '';
 
+  // Camera Modal State
+  showCamera = false;
+  cameraStatus = '';
+
   private cursorGlow: HTMLElement | null = null;
   private cursorTrail: HTMLElement | null = null;
   private particles: HTMLElement[] = [];
@@ -28,7 +33,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   private glowX = 0;
   private glowY = 0;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, public langService: LanguageService) {}
 
   ngOnInit() {
     this.createCursorEffects();
@@ -162,10 +167,24 @@ export class LoginComponent implements OnInit, OnDestroy {
   // =========================
   // 🤖 LOGIN PAR VISAGE
   // =========================
-  faceLogin() {
+  openCamera() {
+    this.showCamera = true;
+    this.error = '';
+    this.cameraStatus = this.langService.t(
+      'Caméra prête — Cliquez sur SCANNER',
+      'Camera ready — Click SCAN'
+    );
+  }
 
+  stopCamera() {
+    this.showCamera = false;
+    this.faceLoading = false;
+  }
+
+  faceLogin() {
     this.faceLoading = true;
     this.error = '';
+    this.cameraStatus = this.langService.t('Analyse en cours...', 'Analyzing...');
 
     this.http.post<any>('http://localhost:8081/api/auth/face-login', {})
       .subscribe({
@@ -199,12 +218,15 @@ export class LoginComponent implements OnInit, OnDestroy {
 
           } else {
             this.error = res.message || "Face non reconnue ❌";
+            this.cameraStatus = this.error;
+            this.faceLoading = false;
           }
         },
 
-        error: () => {
+        error: (err) => {
           this.faceLoading = false;
-          this.error = "Erreur reconnaissance ❌";
+          this.error = err.error?.message || "Erreur reconnaissance ❌";
+          this.cameraStatus = this.error;
         }
       });
   }

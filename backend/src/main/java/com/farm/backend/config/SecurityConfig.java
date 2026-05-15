@@ -38,10 +38,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
-                // 🔓 PUBLIC
+                // 🔓 PUBLIC - DASHBOARD & ANALYTICS
                 .requestMatchers("/api/departments/public").permitAll()
                 .requestMatchers("/api/department-status/**").permitAll()
                 .requestMatchers("/api/attendance/**").permitAll()
+                .requestMatchers("/api/employees").permitAll()
+                .requestMatchers("/api/cameras").permitAll()
+                .requestMatchers("/api/alerts").permitAll()
                 .requestMatchers("/api/upload/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers("/api/alerts/ai-detection").permitAll()

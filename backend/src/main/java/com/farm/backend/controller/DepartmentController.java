@@ -146,7 +146,7 @@ public class DepartmentController {
     // =========================
     // 🔒 GET ALL
     // =========================
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_VIEWER')")
     @GetMapping
     public List<Department> getAllDepartments() {
         List<Department> list;

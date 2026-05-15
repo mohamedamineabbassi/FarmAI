@@ -11,9 +11,9 @@ export class EmployeesComponent implements OnInit {
   // ── Data ──────────────────────────────────────────────────────────────────
   employees: Employee[] = [];
   jobs = [
-    { value: 'DOCTOR', label: 'Docteur' },
-    { value: 'ELECTRICIAN', label: 'Electricien' },
-    { value: 'WORKER', label: 'Ouvrier' }
+    { value: 'DOCTOR', label: 'Vétérinaire' },
+    { value: 'ELECTRICIAN', label: 'Technicien Électrique' },
+    { value: 'WORKER', label: 'Ouvrier Agricole' }
   ];
 
   // ── Form ──────────────────────────────────────────────────────────────────
@@ -32,7 +32,7 @@ export class EmployeesComponent implements OnInit {
   // ── Email regex ───────────────────────────────────────────────────────────
   private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  constructor(private service: EmployeeService) {}
+  constructor(private service: EmployeeService) { }
 
   ngOnInit(): void {
     this.applyTheme();
@@ -101,13 +101,26 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
+  // ── Approve Employee (ADMIN action) ───────────────────────────────────────
+  approve(id?: number) {
+    if (!id) return;
+
+    this.service.approve(id).subscribe({
+      next: () => {
+        this.toast('Employé approuvé avec succès ✅', 'success');
+        this.load();
+      },
+      error: () => this.toast('Erreur lors de l\'approbation.', 'error')
+    });
+  }
+
   // ── Validate face (VIEWER action) ─────────────────────────────────────────
   validateFace(id?: number) {
     if (!id) return;
 
     this.service.validateFace(id).subscribe({
       next: () => {
-        this.toast('Visage validé — statut APPROVED ✅', 'success');
+        this.toast('Visage validé ✅', 'success');
         this.load();
       },
       error: () => this.toast('Erreur lors de la validation.', 'error')

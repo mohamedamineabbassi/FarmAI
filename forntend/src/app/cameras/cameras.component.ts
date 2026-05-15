@@ -166,6 +166,86 @@ export class CamerasComponent implements OnInit, OnDestroy {
   }
 
   // =========================
+  // 📹 AUTO ADD WEBCAM
+  // =========================
+  addingWebcam = false;
+
+  addWebcamAuto() {
+    this.addingWebcam = true;
+
+    // Check if webcam camera already exists (source = '0' or 'local')
+    const existing = this.cameras.find(c => c.source === '0' || c.source === 'local');
+    
+    if (existing) {
+      // Camera already exists — just start AI on it
+      if (existing.id && !this.aiStatus[existing.id]) {
+        this.http.post<{running: boolean}>('http://localhost:8081/api/ai/start', {
+          cameraId: existing.id,
+          source: existing.source,
+          type: existing.type || 'FACE'
+        }).subscribe({
+          next: (res) => {
+            this.addingWebcam = false;
+            this.aiStatus[existing.id!] = res.running;
+            alert('✅ Webcam activée ! L\'IA démarre le flux vidéo...');
+            this.loadCameras();
+          },
+          error: (err) => {
+            this.addingWebcam = false;
+            alert('❌ Erreur activation IA: ' + (err.error?.message || err.message));
+          }
+        });
+      } else {
+        this.addingWebcam = false;
+        alert('⚠️ La webcam est déjà en cours d\'exécution !');
+      }
+      return;
+    }
+
+    // Create new webcam camera entry
+    const payload: Camera = {
+      name: 'WEBCAM-LOCAL',
+      type: 'FACE',
+      source: '0',
+      status: 'OFF',
+      location: 'Poste Principal',
+      department: this.departments.length > 0 ? { id: this.departments[0].id } : undefined as any
+    };
+
+    this.cameraService.create(payload).subscribe({
+      next: (created) => {
+        // Now start AI stream for this camera
+        if (created.id) {
+          this.http.post<{running: boolean}>('http://localhost:8081/api/ai/start', {
+            cameraId: created.id,
+            source: '0',
+            type: 'FACE'
+          }).subscribe({
+            next: (res) => {
+              this.addingWebcam = false;
+              this.aiStatus[created.id!] = res.running;
+              alert('✅ Webcam ajoutée et activée ! Le flux démarre...');
+              this.loadCameras();
+            },
+            error: () => {
+              this.addingWebcam = false;
+              alert('✅ Webcam ajoutée. Cliquez sur le bouton IA (🧠) pour activer le flux.');
+              this.loadCameras();
+            }
+          });
+        } else {
+          this.addingWebcam = false;
+          this.loadCameras();
+        }
+      },
+      error: (err) => {
+        this.addingWebcam = false;
+        alert('❌ Erreur: ' + (err.error?.message || 'Impossible d\'ajouter la webcam'));
+      }
+    });
+  }
+
+  // =========================
   // RESET
   // =========================
   resetForm() {

@@ -1,0 +1,112 @@
+% ===========================================================
+% SECTION À AJOUTER DANS RAPPORT_PFE_IMPROVED.tex
+% Après: \subsection{Tableau de bord analytique}
+% Avant: \subsection{Gestion des employés}
+% ===========================================================
+
+\subsection{Interface des paramètres du compte}
+
+La figure \ref{fig:settings} illustre la page de paramètres accessible depuis le menu latéral de la plateforme Farm AI. Cette interface regroupe l'ensemble des réglages liés au compte de l'administrateur et se divise en quatre blocs fonctionnels distincts.
+
+\medskip
+
+\textbf{Informations personnelles :} Ce bloc (figure \ref{fig:settings-personal}) permet à l'administrateur de renseigner et de modifier ses coordonnées : prénom, nom et numéro de téléphone. Le champ de l'adresse électronique est affiché en lecture seule, car il constitue l'identifiant unique du compte et ne peut pas être modifié directement. Un bouton de validation permet d'enregistrer les changements apportés. La modification des données personnelles entraîne une mise à jour instantanée dans la base de données via un appel HTTP POST vers le backend.
+
+\medskip
+
+\textbf{Sécurité du compte :} Ce bloc (figure \ref{fig:settings-security}) offre à l'utilisateur la possibilité de changer son mot de passe en saisissant l'ancien mot de passe, puis en confirmant le nouveau. Cette procédure renforce la protection de l'accès à la plateforme et s'appuie sur le mécanisme d'authentification par JWT (JSON Web Token) mis en place côté backend. Le système valide que les deux saisies du nouveau mot de passe correspondent avant d'envoyer la requête au serveur.
+
+\medskip
+
+\textbf{Préférences de l'application :} Ce bloc (figure \ref{fig:settings-preferences}) propose un commutateur de langue permettant de basculer l'interface entre le français et l'anglais, offrant ainsi une accessibilité élargie aux différents profils d'utilisateurs. La modification de la langue est instantanée et affecte l'ensemble de l'application en temps réel via le service \texttt{LanguageService}.
+
+\medskip
+
+\textbf{Reconnaissance faciale :} Ce bloc (figure \ref{fig:settings-face}) indique l'état du visage enregistré pour l'administrateur connecté. Lorsqu'un visage est déjà enregistré, une confirmation verte est affichée avec la mention \og Visage enregistré \fg{} accompagnée d'une icône \og check-circle \fg{}. Deux boutons permettent respectivement de mettre à jour les données biométriques ou de les supprimer. 
+
+Le système de reconnaissance faciale s'appuie sur un flux vidéo en direct provenant du serveur IA Python, qui utilise le modèle YOLO pour la détection des visages. Lorsque l'administrateur clique sur \og Enregistrer mon visage \fg{} ou \og Mettre à jour \fg{}, une modalité de caméra s'ouvre (figure \ref{fig:settings-camera}) affichant le flux vidéo en direct. L'interface guide l'utilisateur pour positionner son visage dans un cercle de référence. Une fois la capture effectuée, le serveur IA extrait les caractéristiques biométriques du visage et enregistre les données localement avec un score de confiance.
+
+Un message informatif rappelle à l'utilisateur que ces données biométriques sont stockées localement et sécurisées. De plus, une confirmation est exigée avant la suppression d'un visage enregistré.
+
+\medskip
+
+L'ensemble de cette page adopte le thème sombre de la plateforme, avec des accents violets (\texttt{couleur: \#9c27b0}) pour les boutons d'action principaux et les titres de section, ce qui assure une cohérence visuelle avec le reste de l'application. Les cartes (cards) utilisent un effet de glassmorphism avec une légère transparence et un flou d'arrière-plan, créant une interface moderne et élégante.
+
+% ===========================================================
+% FIGURES À AJOUTER
+% ===========================================================
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.95\textwidth]{settings-overview.png}
+%   \caption{Page complète des paramètres du compte}
+%   \label{fig:settings}
+% \end{figure}
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.9\textwidth]{settings-personal.png}
+%   \caption{Bloc Informations personnelles}
+%   \label{fig:settings-personal}
+% \end{figure}
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.9\textwidth]{settings-security.png}
+%   \caption{Bloc Sécurité du compte}
+%   \label{fig:settings-security}
+% \end{figure}
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.95\textwidth]{settings-preferences.png}
+%   \caption{Bloc Préférences de l'application}
+%   \label{fig:settings-preferences}
+% \end{figure}
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.9\textwidth]{settings-face.png}
+%   \caption{Bloc Reconnaissance faciale avec indicateur d'état}
+%   \label{fig:settings-face}
+% \end{figure}
+
+% \begin{figure}[h]
+%   \centering
+%   \includegraphics[width=0.85\textwidth]{settings-camera-modal.png}
+%   \caption{Modal de capture faciale avec flux vidéo en direct}
+%   \label{fig:settings-camera}
+% \end{figure}
+
+% ===========================================================
+% DÉTAILS D'IMPLÉMENTATION À DOCUMENTER
+% ===========================================================
+
+% Architecture Frontend (Angular)
+% - Component: SettingsComponent
+% - Services: UserService, FaceService, LanguageService
+% - Endpoints API: 
+%   GET /api/users/profile (récupérer le profil)
+%   POST /api/users/profile (mettre à jour profil)
+%   POST /api/users/password (changer mot de passe)
+%   GET /api/face/status (vérifier visage enregistré)
+%   POST /api/face/register-latest-frame (enregistrer visage)
+%   DELETE /api/face (supprimer visage)
+%   GET /api/face/stream (flux vidéo en direct)
+
+% Validation Frontend
+% - Vérification que newPassword === confirmPassword
+% - Désactivation des boutons pendant le chargement
+% - Messages d'alerte bilingues (FR/EN) pour succès/erreurs
+
+% Intégration Backend
+% - Authentification JWT pour les modifications
+% - Hashage sécurisé des mots de passe
+% - Gestion des erreurs et des cas limite
+
+% Intégration IA (Python)
+% - Serveur FastAPI sur localhost:8000
+% - Flux vidéo en temps réel via endpoint /api/face/stream
+% - Détection des visages avec YOLO
+% - Extraction des embeddings biométriques
+% - Calculation du confidence score

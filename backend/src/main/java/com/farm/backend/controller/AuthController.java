@@ -122,12 +122,8 @@ public class AuthController {
         }
 
         User user = userOpt.get();
-        var employeeOpt = employeeRepository.findByEmail(user.getEmail()).stream().findFirst();
-        if (employeeOpt.isEmpty()) {
-            return Map.of("error", "Employee not found for this user");
-        }
 
-        Employee employee = employeeOpt.get();
+        // Call FaceService to register face (it will sync to Employee if it exists)
         faceService.registerFace(user.getId());
 
         return Map.of(

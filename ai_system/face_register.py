@@ -33,7 +33,9 @@ def main():
         cap = open_camera()
         if cap is None:
             print("ERROR: Camera initialization failed", file=sys.stderr)
-            sys.exit(1)
+            # Exit 0 so Java can read stdout
+            print("ERROR_CAMERA")
+            sys.exit(0)
 
         print("DEBUG: Capturing frame...", file=sys.stderr)
         start_time = time.time()
@@ -60,7 +62,8 @@ def main():
 
         if embedding is None:
             print("ERROR: No face detected", file=sys.stderr)
-            sys.exit(2)
+            print("NO_FACE")
+            sys.exit(0)
 
         # Output exactly one line of JSON (the array) to stdout
         print(json.dumps(embedding))
@@ -70,7 +73,8 @@ def main():
         print(f"ERROR: {str(e)}", file=sys.stderr)
         if 'cap' in locals() and cap is not None:
             cap.release()
-        sys.exit(3)
+        print("ERROR")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

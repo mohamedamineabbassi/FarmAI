@@ -2,12 +2,15 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
-        <h2 class="section-title"><i class="material-icons">settings</i> PARAMÈTRES DU COMPTE</h2>
+        <h2 class="section-title"><i class="material-icons">settings</i> {{ langService.t('PARAMÈTRES DU COMPTE', 'ACCOUNT SETTINGS') }}</h2>
       </div>
     </div>
 
-    <div *ngIf="message" class="alert" [ngClass]="isError ? 'alert-danger' : 'alert-success'">
-      {{ message }}
+    <!-- ALERT MESSAGE -->
+    <div *ngIf="message" class="alert-banner" [ngClass]="isError ? 'alert-error' : 'alert-success'" (click)="message = ''">
+      <i class="material-icons">{{ isError ? 'error_outline' : 'check_circle' }}</i>
+      <span>{{ message }}</span>
+      <i class="material-icons close-btn">close</i>
     </div>
 
     <div class="row">
@@ -15,29 +18,29 @@
       <div class="col-md-6">
         <div class="card glass-card fade-in">
           <div class="card-header">
-            <h4 class="card-title">INFORMATIONS PERSONNELLES</h4>
-            <p class="category">Mettez à jour vos coordonnées</p>
+            <h4 class="card-title">{{ langService.t('INFORMATIONS PERSONNELLES', 'PERSONAL INFORMATION') }}</h4>
+            <p class="category">{{ langService.t('Mettez à jour vos coordonnées', 'Update your contact details') }}</p>
           </div>
           <div class="card-body">
             <form (ngSubmit)="updateProfile()">
               <div class="form-group">
-                <label>PRÉNOM</label>
+                <label>{{ langService.t('PRÉNOM', 'FIRST NAME') }}</label>
                 <input type="text" class="form-control" [(ngModel)]="user.firstName" name="firstName">
               </div>
               <div class="form-group mt-3">
-                <label>NOM</label>
+                <label>{{ langService.t('NOM', 'LAST NAME') }}</label>
                 <input type="text" class="form-control" [(ngModel)]="user.lastName" name="lastName">
               </div>
               <div class="form-group mt-3">
-                <label>TÉLÉPHONE</label>
+                <label>{{ langService.t('TÉLÉPHONE', 'PHONE') }}</label>
                 <input type="text" class="form-control" [(ngModel)]="user.phone" name="phone">
               </div>
               <div class="form-group mt-3">
-                <label>EMAIL (NON MODIFIABLE)</label>
+                <label>{{ langService.t('EMAIL (NON MODIFIABLE)', 'EMAIL (READ ONLY)') }}</label>
                 <input type="email" class="form-control" [(ngModel)]="user.email" name="email" readonly>
               </div>
               <button type="submit" class="btn btn-primary mt-4 w-100" [disabled]="loading">
-                ENREGISTRER LES MODIFICATIONS
+                {{ langService.t('ENREGISTRER LES MODIFICATIONS', 'SAVE CHANGES') }}
               </button>
             </form>
           </div>
@@ -48,65 +51,89 @@
       <div class="col-md-6">
         <div class="card glass-card fade-in">
           <div class="card-header">
-            <h4 class="card-title">SÉCURITÉ</h4>
-            <p class="category">Changer votre mot de passe</p>
+            <h4 class="card-title">{{ langService.t('SÉCURITÉ', 'SECURITY') }}</h4>
+            <p class="category">{{ langService.t('Changer votre mot de passe', 'Change your password') }}</p>
           </div>
           <div class="card-body">
             <form (ngSubmit)="changePassword()">
               <div class="form-group">
-                <label>ANCIEN MOT DE PASSE</label>
+                <label>{{ langService.t('ANCIEN MOT DE PASSE', 'OLD PASSWORD') }}</label>
                 <input type="password" class="form-control" [(ngModel)]="passwords.oldPassword" name="oldPass">
               </div>
               <div class="form-group mt-3">
-                <label>NOUVEAU MOT DE PASSE</label>
+                <label>{{ langService.t('NOUVEAU MOT DE PASSE', 'NEW PASSWORD') }}</label>
                 <input type="password" class="form-control" [(ngModel)]="passwords.newPassword" name="newPass">
               </div>
               <div class="form-group mt-3">
-                <label>CONFIRMER LE MOT DE PASSE</label>
+                <label>{{ langService.t('CONFIRMER LE MOT DE PASSE', 'CONFIRM PASSWORD') }}</label>
                 <input type="password" class="form-control" [(ngModel)]="passwords.confirmPassword" name="confirmPass">
               </div>
-              <button type="submit" class="btn btn-warning mt-4 w-100" [disabled]="loading">
-                METTRE À JOUR LE MOT DE PASSE
+              <button type="submit" class="btn btn-primary mt-4 w-100" [disabled]="loading">
+                {{ langService.t('METTRE À JOUR LE MOT DE PASSE', 'UPDATE PASSWORD') }}
               </button>
             </form>
           </div>
         </div>
       </div>
     </div>
+    
+    <div class="row mt-4">
+      <!-- 🌐 PRÉFÉRENCES -->
+      <div class="col-md-12">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">{{ langService.t('PRÉFÉRENCES', 'PREFERENCES') }}</h4>
+            <p class="category">{{ langService.t('Gérez les paramètres de l\'application', 'Manage application settings') }}</p>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h5 class="text-white mb-0"><i class="material-icons" style="vertical-align: middle; margin-right: 10px;">language</i> {{ langService.t('Langue de l\'interface', 'Interface Language') }}</h5>
+                <p class="text-muted mt-1 mb-0">{{ langService.t('Choisissez la langue d\'affichage de l\'application.', 'Choose the display language for the application.') }}</p>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-primary" (click)="langService.toggleLanguage()">
+                  <i class="material-icons">translate</i> 
+                  {{ langService.t('PASSER EN ANGLAIS', 'SWITCH TO FRENCH') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row mt-4">
       <!-- 👤 RECONNAISSANCE FACIALE -->
       <div class="col-md-12">
         <div class="card glass-card fade-in">
           <div class="card-header">
-            <h4 class="card-title">RECONNAISSANCE FACIALE</h4>
-            <p class="category">Gérez vos données biométriques pour une connexion sécurisée</p>
+            <h4 class="card-title">{{ langService.t('RECONNAISSANCE FACIALE', 'FACE RECOGNITION') }}</h4>
+            <p class="category">{{ langService.t('Gérez vos données biométriques pour une connexion sécurisée', 'Manage your biometric data for secure login') }}</p>
           </div>
           <div class="card-body">
             <div class="row align-items-center">
               <div class="col-md-6">
                 <div class="status-box" [ngClass]="faceRegistered ? 'status-registered' : 'status-not-registered'">
                   <i class="material-icons">{{ faceRegistered ? 'check_circle' : 'error' }}</i>
-                  <span>{{ faceRegistered ? 'VISAGE ENREGISTRÉ' : 'AUCUN VISAGE ENREGISTRÉ' }}</span>
+                  <span>{{ faceRegistered 
+                    ? langService.t('VISAGE ENREGISTRÉ', 'FACE REGISTERED') 
+                    : langService.t('AUCUN VISAGE ENREGISTRÉ', 'NO FACE REGISTERED') }}</span>
                 </div>
               </div>
               <div class="col-md-6 text-end">
-                <button *ngIf="!faceRegistered" (click)="onRegisterFace()" class="btn btn-primary" [disabled]="loading || faceLoading">
-                  <i class="material-icons">face</i> ENREGISTRER MON VISAGE
+                <button *ngIf="!faceRegistered" (click)="onRegisterFace()" class="btn btn-primary btn-face" [disabled]="loading || faceLoading">
+                  <i class="material-icons">face</i> {{ langService.t('ENREGISTRER MON VISAGE', 'REGISTER MY FACE') }}
                 </button>
                 <div *ngIf="faceRegistered" class="btn-group-custom">
-                  <button (click)="onUpdateFace()" class="btn btn-info me-2" [disabled]="loading || faceLoading">
-                    <i class="material-icons">cached</i> METTRE À JOUR
+                  <button (click)="onUpdateFace()" class="btn btn-primary btn-face me-2" [disabled]="loading || faceLoading">
+                    <i class="material-icons">cached</i> {{ langService.t('METTRE À JOUR', 'UPDATE') }}
                   </button>
-                  <button (click)="onDeleteFace()" class="btn btn-danger" [disabled]="loading || faceLoading">
-                    <i class="material-icons">delete</i> SUPPRIMER
+                  <button (click)="onDeleteFace()" class="btn btn-danger btn-face" [disabled]="loading || faceLoading">
+                    <i class="material-icons">delete</i> {{ langService.t('SUPPRIMER', 'DELETE') }}
                   </button>
                 </div>
               </div>
-            </div>
-            
-            <div class="mt-4 info-alert">
-              <i class="material-icons">info</i>
-              <p>La reconnaissance faciale vous permet de vous connecter sans mot de passe. Vos données sont sécurisées et stockées localement.</p>
             </div>
           </div>
         </div>
@@ -115,120 +142,65 @@
   </div>
 </div>
 
-<!-- 🌀 LOADING OVERLAY -->
-<div *ngIf="faceLoading" class="face-loader-overlay">
-  <div class="loader-content">
-    <div class="spinner-border text-primary" role="status"></div>
-    <h3>{{ cameraStatus }}</h3>
-    <p>Ne fermez pas cette fenêtre</p>
+<!-- 📷 CAMERA PREVIEW MODAL -->
+<div *ngIf="showCamera" class="camera-overlay" (click)="$event.target === $event.currentTarget && stopCamera()">
+  <div class="camera-modal">
+    <div class="camera-header">
+      <h3>
+        <i class="material-icons">face</i>
+        {{ langService.t('ENREGISTREMENT DU VISAGE', 'FACE REGISTRATION') }}
+      </h3>
+      <button class="close-camera" (click)="stopCamera()">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+
+    <div class="camera-body">
+      <!-- Status bar -->
+      <div class="camera-status" [ngClass]="{'status-ok': cameraReady && !capturing, 'status-busy': capturing}">
+        <i class="material-icons pulse-icon">{{ capturing ? 'hourglass_top' : (cameraReady ? 'videocam' : 'videocam_off') }}</i>
+        <span>{{ cameraStatus }}</span>
+      </div>
+
+      <!-- Video feed / captured image -->
+      <div class="camera-view">
+        <div class="face-guide">
+          <div class="guide-circle" [ngClass]="{'face-detected': faceDetected}"></div>
+        </div>
+
+        <img *ngIf="!capturedImage"
+               src="http://localhost:8000/api/face/stream" 
+               class="camera-feed"
+               alt="Live Camera Feed"
+               (error)="cameraStatus = 'Flux caméra non disponible'" />
+
+        <img *ngIf="capturedImage" [src]="capturedImage" class="captured-preview" />
+      </div>
+
+      <!-- Action buttons -->
+      <div class="camera-actions">
+        <ng-container *ngIf="!capturedImage">
+          <button class="btn-capture" (click)="captureAndRegister()" [disabled]="!cameraReady || capturing">
+            <div class="capture-ring">
+              <div class="capture-inner" [ngClass]="{'capturing': capturing}"></div>
+            </div>
+          </button>
+          <p class="capture-hint">{{ langService.t('Appuyez pour capturer', 'Press to capture') }}</p>
+        </ng-container>
+
+        <ng-container *ngIf="capturedImage && !capturing">
+          <div class="captured-actions">
+            <button class="btn btn-outline-light me-3" (click)="retakePhoto()">
+              <i class="material-icons">replay</i> {{ langService.t('REPRENDRE', 'RETAKE') }}
+            </button>
+          </div>
+        </ng-container>
+
+        <div *ngIf="capturing" class="capturing-indicator">
+          <div class="spinner-border text-primary" role="status"></div>
+          <span>{{ langService.t('Analyse IA en cours...', 'AI analysis in progress...') }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-
-<style>
-.section-title {
-  color: #9c27b0;
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-}
-.section-title i { margin-right: 10px; font-size: 32px; }
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  color: white;
-  margin-bottom: 30px;
-}
-
-.card-title {
-  color: #9c27b0;
-  font-weight: bold;
-}
-
-.form-control {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.form-control:focus {
-  background: rgba(0, 0, 0, 0.3);
-  border-color: #9c27b0;
-  color: white;
-}
-
-.category {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.status-box {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.status-box i { margin-right: 15px; font-size: 30px; }
-
-.status-registered {
-  background: rgba(76, 175, 80, 0.1);
-  color: #4caf50;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-}
-
-.status-not-registered {
-  background: rgba(244, 67, 54, 0.1);
-  color: #f44336;
-  border: 1px solid rgba(244, 67, 54, 0.3);
-}
-
-.info-alert {
-  background: rgba(33, 150, 243, 0.05);
-  border-left: 4px solid #2196f3;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-}
-
-.info-alert i { color: #2196f3; margin-right: 15px; }
-.info-alert p { margin: 0; font-size: 14px; color: rgba(255, 255, 255, 0.8); }
-
-.face-loader-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(5px);
-}
-
-.loader-content {
-  text-align: center;
-  color: white;
-}
-
-.loader-content .spinner-border {
-  width: 4rem;
-  height: 4rem;
-  margin-bottom: 20px;
-}
-
-.loader-content h3 { font-weight: bold; margin-bottom: 10px; }
-.loader-content p { color: rgba(255, 255, 255, 0.6); }
-
-.btn-group-custom {
-  display: flex;
-  justify-content: flex-end;
-}
-</style>
-

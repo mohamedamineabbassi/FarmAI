@@ -1,7 +1,22 @@
 <div class="logo">
   <a class="simple-text logo-normal text-white">
     <div class="logo-container">
-      <i class="material-icons cyber-glow-text">security</i>
+      <svg width="60" height="60" viewBox="0 0 60 60" style="color: #7b1fa2;" xmlns="http://www.w3.org/2000/svg">
+        <!-- Head -->
+        <circle cx="30" cy="18" r="8" fill="#7b1fa2"/>
+        <!-- Beak -->
+        <polygon points="38,18 48,16 38,20" fill="#7b1fa2"/>
+        <!-- Eye -->
+        <circle cx="32" cy="17" r="2" fill="white"/>
+        <!-- Left Wing -->
+        <path d="M 22 25 Q 12 30 10 45" stroke="#7b1fa2" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Right Wing -->
+        <path d="M 38 25 Q 48 30 50 45" stroke="#7b1fa2" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- Body -->
+        <ellipse cx="30" cy="35" rx="7" ry="12" fill="#7b1fa2"/>
+        <!-- Tail feathers -->
+        <polygon points="25,47 30,55 35,47" fill="#7b1fa2"/>
+      </svg>
       <span>FARM<span class="purple-text">AI</span></span>
     </div>
   </a>
@@ -12,49 +27,49 @@
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/analytics">
         <i class="material-icons">analytics</i>
-        <p>Analyses AI</p>
+        <p>{{ langService.t('Analyses AI', 'AI Analytics') }}</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/departments">
         <i class="material-icons">apartment</i>
-        <p>Départements</p>
+        <p>{{ langService.t('Départements', 'Departments') }}</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/managers">
         <i class="material-icons">supervisor_account</i>
-        <p>Gestionnaires</p>
+        <p>{{ langService.t('Gestionnaires', 'Managers') }}</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/viewers">
         <i class="material-icons">visibility</i>
-        <p>Observateurs</p>
+        <p>{{ langService.t('Observateurs', 'Viewers') }}</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/employees">
         <i class="material-icons">people</i>
-        <p>Employés</p>
+        <p>{{ langService.t('Employés', 'Employees') }}</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/cameras">
         <i class="material-icons">videocam</i>
-        <p>Caméras</p>
+        <p>{{ langService.t('Caméras', 'Cameras') }}</p>
       </a>
     </li>
 
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/alerts">
         <i class="material-icons">notifications_active</i>
-        <p>Centre d'Alertes</p>
+        <p>{{ langService.t('Centre d\'Alertes', 'Alert Center') }}</p>
         <span class="sidebar-badge" *ngIf="false">5</span> <!-- Mock badge -->
       </a>
     </li>
@@ -62,14 +77,14 @@
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/settings">
         <i class="material-icons">settings</i>
-        <p>Paramètres</p>
+        <p>{{ langService.t('Paramètres', 'Settings') }}</p>
       </a>
     </li>
 
     <li class="nav-item mt-auto" style="position: absolute; bottom: 20px; width: 100%;">
       <a class="nav-link logout-link" (click)="logout()">
         <i class="material-icons">power_settings_new</i>
-        <p>Déconnexion</p>
+        <p>{{ langService.t('Déconnexion', 'Logout') }}</p>
       </a>
     </li>
   </ul>

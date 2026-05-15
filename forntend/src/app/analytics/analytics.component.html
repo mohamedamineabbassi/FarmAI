@@ -1,17 +1,29 @@
 <div class="main-content">
   <div class="container-fluid">
-    
-    <!-- 📊 ANALYSE AI HAUTE PERFORMANCE -->
-    <div class="row">
-      <div class="col-md-12">
+
+    <!-- 🔁 EN-TÊTE avec statut de rafraîchissement -->
+    <div class="row mb-2">
+      <div class="col-md-8">
         <h2 class="section-title"><i class="material-icons">analytics</i> ANALYSES PRÉDICTIVES AI</h2>
+      </div>
+      <div class="col-md-4 text-right d-flex align-items-center justify-content-end">
+        <span *ngIf="loading" class="badge badge-warning px-3 py-2 mr-2">
+          <i class="material-icons" style="font-size:14px; vertical-align:middle;">sync</i> Chargement...
+        </span>
+        <span *ngIf="error" class="badge badge-danger px-3 py-2 mr-2">
+          <i class="material-icons" style="font-size:14px; vertical-align:middle;">error</i> Erreur backend
+        </span>
+        <span *ngIf="!loading && !error" class="badge badge-success px-3 py-2">
+          <i class="material-icons" style="font-size:14px; vertical-align:middle;">check_circle</i>
+          Live · {{ lastUpdated }}
+        </span>
       </div>
     </div>
 
-    <!-- 📈 KPIs SUPÉRIEURS -->
+    <!-- 📊 KPI CARDS -->
     <div class="row">
       <div class="col-lg-3 col-md-6 col-sm-6" *ngFor="let kpi of kpis">
-        <div class="card glass-card fade-in">
+        <div class="card glass-card fade-in" [class]="'neon-' + kpi.color">
           <div class="card-body d-flex align-items-center">
             <div class="kpi-icon mr-3" [style.background]="kpi.iconColor + '20'" [style.color]="kpi.iconColor">
               <i class="material-icons">{{ kpi.icon }}</i>
@@ -25,8 +37,9 @@
       </div>
     </div>
 
+    <!-- 📈 GRAPHIQUES -->
     <div class="row mt-4">
-      <!-- 📉 GRAPHIQUE PRÉSENCE HORAIRE -->
+      <!-- Graphique présence horaire -->
       <div class="col-md-8">
         <div class="card glass-card fade-in">
           <div class="card-header d-flex justify-content-between align-items-center">
@@ -44,7 +57,7 @@
         </div>
       </div>
 
-      <!-- 🥧 ANALYSE DES COULEURS (IA) -->
+      <!-- Graphique uniforme couleur -->
       <div class="col-md-4">
         <div class="card glass-card fade-in">
           <div class="card-header">
@@ -64,19 +77,24 @@
       </div>
     </div>
 
-    <!-- 🤖 AI INSIGHTS & METRICS -->
+    <!-- 🤖 INSIGHTS AI + PRÉCISION -->
     <div class="row mt-4">
       <div class="col-md-12">
-        <div class="card glass-card fade-in" style="background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%) !important;">
+        <div class="card glass-card fade-in"
+          style="background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%) !important;">
           <div class="card-body p-4">
             <div class="row align-items-center">
               <div class="col-md-8">
-                <h4 class="text-white font-weight-bold mb-3"><i class="material-icons mr-2" style="vertical-align: middle; color: #9c27b0;">psychology</i> INSIGHTS GÉNÉRÉS PAR L'IA</h4>
-                <ul class="insight-list">
-                  <li *ngFor="let insight of aiInsights" class="text-white mb-2">
-                    {{ insight }}
-                  </li>
+                <h4 class="text-white font-weight-bold mb-3">
+                  <i class="material-icons mr-2" style="vertical-align: middle; color: #9c27b0;">psychology</i>
+                  INSIGHTS GÉNÉRÉS PAR L'IA
+                </h4>
+                <ul class="insight-list" *ngIf="aiInsights.length > 0; else noInsights">
+                  <li *ngFor="let insight of aiInsights" class="text-white mb-2">{{ insight }}</li>
                 </ul>
+                <ng-template #noInsights>
+                  <p class="text-muted">Aucune donnée disponible pour générer des insights.</p>
+                </ng-template>
               </div>
               <div class="col-md-4 border-left border-dark">
                 <div class="d-flex justify-content-between mb-3">
@@ -90,10 +108,118 @@
                   <span class="text-muted">Capacité Détection</span>
                   <span class="text-white font-weight-bold">High</span>
                 </div>
-                <div class="progress progress-xs">
+                <div class="progress progress-xs mb-4">
                   <div class="progress-bar bg-info" style="width: 85%"></div>
                 </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <span class="text-muted">Refresh Auto</span>
+                  <span class="text-success font-weight-bold">✓ Actif (10s)</span>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📋 TABLE PRÉSENCE + 🚨 ALERTES -->
+    <div class="row mt-4">
+      <!-- Table des présences -->
+      <div class="col-md-8">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">JOURNAL DES PRÉSENCES</h4>
+            <p class="category">Dernières détections enregistrées</p>
+          </div>
+          <div class="card-body">
+            <div *ngIf="attendanceData.length > 0; else noAttendance">
+              <table class="table custom-table">
+                <thead>
+                  <tr>
+                    <th>Employé</th>
+                    <th>Date</th>
+                    <th>Heure</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of attendanceData">
+                    <td>
+                      <span *ngIf="row.unknown" class="badge badge-danger mr-1">INCONNU</span>
+                      {{ row.name }}
+                    </td>
+                    <td>{{ row.date }}</td>
+                    <td>{{ row.in !== '--' ? row.in : row.out }}</td>
+                    <td>
+                      <span class="badge" [class.badge-success]="row.status === 'PRESENT'"
+                        [class.badge-secondary]="row.status === 'FINISHED'">
+                        {{ row.status }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #noAttendance>
+              <div class="text-center text-muted py-4">
+                <i class="material-icons" style="font-size: 48px; opacity:0.3;">event_busy</i>
+                <p class="mt-2">Aucun enregistrement de présence</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertes de sécurité -->
+      <div class="col-md-4">
+        <div class="card glass-card fade-in">
+          <div class="card-header">
+            <h4 class="card-title">🚨 ALERTES SÉCURITÉ</h4>
+            <p class="category">Dernières alertes détectées</p>
+          </div>
+          <div class="card-body">
+            <div *ngIf="alerts.length > 0; else noAlerts">
+              <div *ngFor="let alert of alerts" class="security-alert" [class.medium]="alert.level === 'medium'" [class.low]="alert.level === 'low'">
+                <div class="d-flex justify-content-between">
+                  <span class="text-white font-weight-bold small">{{ alert.title }}</span>
+                  <span class="badge" [class.badge-danger]="alert.level === 'high'"
+                    [class.badge-warning]="alert.level === 'medium'"
+                    [class.badge-secondary]="alert.level === 'low'">
+                    {{ alert.level | uppercase }}
+                  </span>
+                </div>
+                <div class="text-muted small mt-1" *ngIf="alert.message">{{ alert.message }}</div>
+                <div class="text-muted small mt-1">
+                  <i class="material-icons" style="font-size:12px; vertical-align:middle;">schedule</i> {{ alert.time }}
+                  &nbsp;&middot;&nbsp;
+                  <i class="material-icons" style="font-size:12px; vertical-align:middle;">videocam</i> {{ alert.location }}
+                </div>
+              </div>
+            </div>
+            <ng-template #noAlerts>
+              <div class="text-center text-muted py-4">
+                <i class="material-icons" style="font-size: 48px; color: #4caf50; opacity:0.6;">verified_user</i>
+                <p class="mt-2 text-success">Aucune alerte active ✓</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Activité Caméras -->
+        <div class="card glass-card fade-in mt-4" *ngIf="cameraActivity.length > 0">
+          <div class="card-header">
+            <h4 class="card-title">🎥 CAMÉRAS</h4>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let cam of cameraActivity" class="camera-item">
+              <div class="d-flex align-items-center">
+                <span class="status-indicator" [class.status-online]="cam.online" [class.status-offline]="!cam.online"></span>
+                <div>
+                  <div class="text-white small">{{ cam.name }}</div>
+                  <div class="text-muted" style="font-size:11px;">{{ cam.location }}</div>
+                </div>
+              </div>
+              <span class="text-muted small">{{ cam.detections }} dét.</span>
             </div>
           </div>
         </div>
@@ -104,38 +230,91 @@
 </div>
 
 <style>
-.section-title {
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-}
-.section-title i { margin-right: 10px; font-size: 32px; }
+  .section-title {
+    color: var(--primary);
+    font-weight: 800;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+  }
 
-.kpi-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  .section-title i {
+    margin-right: 10px;
+    font-size: 32px;
+  }
 
-.ct-chart { margin: 0 auto; }
+  .kpi-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-/* Customizing Chartist for Dark Theme */
-::ng-deep .ct-label { color: rgba(255, 255, 255, 0.8) !important; font-size: 11px !important; }
-::ng-deep .ct-grid { stroke: rgba(255, 255, 255, 0.05) !important; stroke-dasharray: 2px; }
-::ng-deep .ct-series-a .ct-line { stroke: #9c27b0 !important; stroke-width: 4px; }
-::ng-deep .ct-series-a .ct-point { stroke: #9c27b0 !important; stroke-width: 10px; }
-::ng-deep .ct-series-a .ct-area { fill: #9c27b0 !important; fill-opacity: 0.1 !important; }
+  .ct-chart {
+    margin: 0 auto;
+  }
 
-.color-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  /* Chartist Dark Theme */
+  ::ng-deep .ct-label {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 11px !important;
+  }
 
-.insight-list { list-style: none; padding: 0; }
-.insight-list li::before { content: "•"; color: #9c27b0; font-weight: bold; display: inline-block; width: 1em; margin-left: -1em; }
+  ::ng-deep .ct-grid {
+    stroke: rgba(255, 255, 255, 0.05) !important;
+    stroke-dasharray: 2px;
+  }
 
-.progress-xs { height: 6px; background: rgba(0,0,0,0.3); }
-.bg-purple { background-color: #9c27b0 !important; }
+  ::ng-deep .ct-series-a .ct-line {
+    stroke: #9c27b0 !important;
+    stroke-width: 4px;
+  }
+
+  ::ng-deep .ct-series-a .ct-point {
+    stroke: #9c27b0 !important;
+    stroke-width: 10px;
+  }
+
+  ::ng-deep .ct-series-a .ct-area {
+    fill: #9c27b0 !important;
+    fill-opacity: 0.1 !important;
+  }
+
+  .color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .insight-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .insight-list li::before {
+    content: "•";
+    color: #9c27b0;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+  }
+
+  .progress-xs {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .bg-purple {
+    background-color: #9c27b0 !important;
+  }
+
+  .badge-success {
+    background-color: rgba(76, 175, 80, 0.2) !important;
+    color: #4caf50 !important;
+    border: 1px solid #4caf50;
+  }
 </style>

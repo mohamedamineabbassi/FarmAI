@@ -22,14 +22,14 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>NOM COMPLET</label>
-                    <input type="text" class="form-control" [(ngModel)]="form.name" name="name" placeholder="Ex: Jean Dupont" required>
+                    <input type="text" class="form-control" [(ngModel)]="form.name" name="name" placeholder="" required>
                     <small class="text-danger" *ngIf="submitted && !nameValid">Le nom est obligatoire.</small>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>ADRESSE EMAIL</label>
-                    <input type="email" class="form-control" [(ngModel)]="form.email" name="email" placeholder="jean.dupont@entreprise.com">
+                    <input type="email" class="form-control" [(ngModel)]="form.email" name="email" placeholder="">
                     <small class="text-danger" *ngIf="submitted && !emailValid">Format d'email invalide.</small>
                   </div>
                 </div>
@@ -39,7 +39,7 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>NUMÉRO DE TÉLÉPHONE</label>
-                    <input type="text" class="form-control" [(ngModel)]="form.phone" name="phone" placeholder="+33 6 00 00 00 00">
+                    <input type="text" class="form-control" [(ngModel)]="form.phone" name="phone" placeholder="">
                   </div>
                 </div>
                 <div class="col-md-6">
@@ -112,10 +112,10 @@
                       </span>
                     </td>
                     <td class="text-right pr-4">
-                      <button class="btn btn-link btn-success btn-sm" (click)="validateFace(emp.id)" *ngIf="emp.status !== 'APPROVED'">
+                      <button class="btn btn-link btn-success btn-sm" (click)="approve(emp.id)" *ngIf="emp.status !== 'APPROVED'" title="Approuver l'employé">
                         <i class="material-icons">verified</i>
                       </button>
-                      <button class="btn btn-link btn-danger btn-sm" (click)="delete(emp.id)">
+                      <button class="btn btn-link btn-danger btn-sm" (click)="delete(emp.id)" title="Supprimer l'employé">
                         <i class="material-icons">delete</i>
                       </button>
                     </td>

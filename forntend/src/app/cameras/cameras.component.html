@@ -80,9 +80,15 @@
       <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h3 class="text-white font-weight-bold mb-0">UNITÉS CONNECTÉES</h3>
-          <button class="btn btn-primary" (click)="resetForm()">
-            <i class="material-icons">add</i> AJOUTER CAMÉRA
-          </button>
+          <div class="d-flex" style="gap: 10px;">
+            <button class="btn btn-webcam" (click)="addWebcamAuto()" [disabled]="addingWebcam">
+              <i class="material-icons">linked_camera</i>
+              {{ addingWebcam ? 'DÉTECTION...' : 'AUTO-DÉTECTER WEBCAM' }}
+            </button>
+            <button class="btn btn-primary" (click)="resetForm()">
+              <i class="material-icons">add</i> AJOUTER CAMÉRA
+            </button>
+          </div>
         </div>
 
         <div class="row">
@@ -227,4 +233,35 @@
 }
 
 .x-small { font-size: 14px !important; vertical-align: middle; }
+
+.btn-webcam {
+  background: linear-gradient(135deg, #00c853, #00897b) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+}
+
+.btn-webcam:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(0, 200, 83, 0.4);
+  filter: brightness(1.1);
+}
+
+.btn-webcam:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-webcam i {
+  font-size: 20px;
+}
 </style>

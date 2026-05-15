@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
 
 @Service
 public class FaceService {
@@ -30,23 +32,36 @@ public class FaceService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new FaceException("Utilisateur non trouvé"));
 
-        String output = runPythonScript("face_register.py", userId.toString());
-        
-        if (output == null || !output.startsWith("[")) {
-            throw new FaceException("Erreur lors de l'enregistrement du visage : sortie invalide");
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8000/api/face/register-latest-frame";
+            
+            // Call the python API which reads from the shared camera frame
+            Map<String, String> requestBody = Map.of("email", user.getEmail());
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, requestBody, Map.class);
+            Map<String, Object> body = response.getBody();
+            
+            if (body == null || !"success".equals(body.get("status"))) {
+                String msg = body != null && body.containsKey("message") ? (String) body.get("message") : "Inconnue";
+                throw new FaceException("Erreur lors de l'enregistrement du visage : " + msg);
+            }
+            
+            // The Python API already saved the embedding in the database!
+            // We just need to update our JPA cache/entity state.
+            user.setFaceRegistered(true);
+            userRepository.save(user);
+
+            // Sync to Employee if exists (for attendance/tracking)
+            employeeRepository.findByEmail(user.getEmail()).stream().findFirst().ifPresent(employee -> {
+                employee.setFaceRegistered(true);
+                employeeRepository.save(employee);
+            });
+
+        } catch (FaceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FaceException("Erreur de connexion au serveur IA : " + e.getMessage());
         }
-
-        // Save to User
-        user.setEmbedding(output);
-        user.setFaceRegistered(true);
-        userRepository.save(user);
-
-        // Sync to Employee if exists (for attendance/tracking)
-        employeeRepository.findByEmail(user.getEmail()).stream().findFirst().ifPresent(employee -> {
-            employee.setEmbedding(output);
-            employee.setFaceRegistered(true);
-            employeeRepository.save(employee);
-        });
     }
 
     @Transactional
@@ -82,10 +97,42 @@ public class FaceService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new FaceException("Employé non trouvé"));
 
-        User user = userRepository.findByEmail(employee.getEmail())
-                .orElseThrow(() -> new FaceException("Utilisateur non trouvé pour cet employé"));
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8000/api/face/register-latest-frame";
+            
+            // Pass employeeId directly to the python API
+            java.util.Map<String, Object> requestBody = new java.util.HashMap<>();
+            requestBody.put("employeeId", employee.getId());
+            if (employee.getEmail() != null && !employee.getEmail().isEmpty()) {
+                requestBody.put("email", employee.getEmail());
+            }
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, requestBody, Map.class);
+            Map<String, Object> body = response.getBody();
+            
+            if (body == null || !"success".equals(body.get("status"))) {
+                String msg = body != null && body.containsKey("message") ? (String) body.get("message") : "Inconnue";
+                throw new FaceException("Erreur lors de l'enregistrement du visage : " + msg);
+            }
+            
+            // Update JPA state
+            employee.setFaceRegistered(true);
+            employeeRepository.save(employee);
 
-        registerFace(user.getId());
+            // Sync to User if they have an account
+            if (employee.getEmail() != null && !employee.getEmail().isEmpty()) {
+                userRepository.findByEmail(employee.getEmail()).ifPresent(user -> {
+                    user.setFaceRegistered(true);
+                    userRepository.save(user);
+                });
+            }
+
+        } catch (FaceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FaceException("Erreur de connexion au serveur IA : " + e.getMessage());
+        }
     }
 
     @Transactional
@@ -100,14 +147,34 @@ public class FaceService {
     }
 
     public Map<String, Object> recognizeFace() {
-        String output = runPythonScript("recognize_face_login.py", null);
-
-        if (output == null || output.trim().isEmpty() || output.equals("NO_MATCH") || output.equals("ERROR_CAMERA")) {
-            throw new FaceException("Face login failed: identification échouée");
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8000/api/face/recognize-latest-frame";
+            
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, null, Map.class);
+            Map<String, Object> body = response.getBody();
+            
+            if (body == null || !body.containsKey("status")) {
+                return Map.of("status", "error", "message", "Face recognition returned no result");
+            }
+            
+            String status = (String) body.get("status");
+            
+            if ("no_match".equals(status)) {
+                return Map.of("status", "error", "message", "No matching face found. Make sure your face is registered.");
+            } else if ("error".equals(status)) {
+                String errorMsg = body.containsKey("message") ? (String) body.get("message") : "Camera not available.";
+                return Map.of("status", "error", "message", errorMsg);
+            } else if ("success".equals(status)) {
+                String email = (String) body.get("email");
+                return Map.of("status", "success", "email", email);
+            }
+            
+            return Map.of("status", "error", "message", "Unknown status returned");
+        } catch (Exception e) {
+            System.err.println("Face recognition error: " + e.getMessage());
+            return Map.of("status", "error", "message", "Face recognition failed: " + e.getMessage());
         }
-
-        // Output is now an email (since we updated recognize_face_login.py)
-        return Map.of("status", "success", "email", output.trim());
     }
 
     private String runPythonScript(String scriptName, String arg) {

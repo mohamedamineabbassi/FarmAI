@@ -48,7 +48,7 @@ export class EmployeeService {
 
   // ✅ DELETE
   delete(id: number) {
-    return this.http.delete(`${this.API}/${id}`);
+    return this.http.delete(`${this.API}/${id}`, { responseType: 'text' });
   }
 
   registerFace(id: number) {
@@ -62,5 +62,10 @@ export class EmployeeService {
   // ✅ VALIDATE FACE
   validateFace(id: number) {
     return this.http.put(`${this.API}/validate-face/${id}`, {});
+  }
+
+  // ✅ APPROVE EMPLOYEE
+  approve(id: number) {
+    return this.http.post(`${this.API}/approve/${id}`, {});
   }
 }

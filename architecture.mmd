@@ -1,0 +1,51 @@
+graph TD
+    %% Styling
+    classDef frontend fill:#dd0031,stroke:#c3002f,stroke-width:2px,color:#fff;
+    classDef backend fill:#6db33f,stroke:#5fa038,stroke-width:2px,color:#fff;
+    classDef ai fill:#3776ab,stroke:#2b5b84,stroke-width:2px,color:#fff;
+    classDef database fill:#00758f,stroke:#005c70,stroke-width:2px,color:#fff;
+    classDef hardware fill:#444,stroke:#222,stroke-width:2px,color:#fff;
+
+    %% Components
+    subgraph Frontend [Couche Client / Navigateur Web]
+        A1[Application Angular] ::: frontend
+        A2[Tableaux de bord (Admin, Manager, Viewer)] ::: frontend
+    end
+
+    subgraph Backend [Couche Serveur Central / Logique Métier]
+        B1[Spring Boot REST API] ::: backend
+        B2[Spring Security & JWT] ::: backend
+        B3[Service Email Gmail SMTP] ::: backend
+        B4[Serveur WebSocket - Alertes temps réel] ::: backend
+    end
+
+    subgraph AI [Couche Intelligence Artificielle / Traitement]
+        C1[Serveur Python / FastAPI] ::: ai
+        C2[OpenCV - Traitement Vidéo] ::: ai
+        C3[YOLOv8 - Détection de personnes] ::: ai
+        C4[FaceNet / InsightFace - Reconnaissance faciale] ::: ai
+    end
+
+    subgraph Data [Couche Données]
+        D1[(Base de données MySQL)] ::: database
+    end
+
+    subgraph Hardware [Matériel / Réseau]
+        H1((Caméras IP / Webcams)) ::: hardware
+        H2((Utilisateurs)) ::: hardware
+    end
+
+    %% Connections
+    H2 -->|Interagit avec| A1
+    A1 -->|Requêtes HTTP (JSON)| B1
+    A1 -->|Connexion WebSocket| B4
+
+    B1 -->|Authentification| B2
+    B1 -->|Requêtes de données (SQL)| D1
+    B1 -.->|Envoi Notifications| B3
+
+    H1 -->|Flux RTSP / Vidéo| C2
+    C2 -->|Détection| C3
+    C2 -->|Extraction visages| C4
+
+    C1 -->|Requêtes API REST| B1

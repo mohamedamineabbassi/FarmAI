@@ -1,44 +1,115 @@
 <div class="login-wrapper">
+  <div class="language-toggle-container" style="position: absolute; top: 20px; right: 20px; z-index: 100;">
+    <button class="cyber-btn secondary" style="padding: 10px 15px; font-size: 12px; width: auto; margin-bottom: 0;" (click)="langService.toggleLanguage()">
+      <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">language</i>
+      {{ langService.t('EN', 'FR') }}
+    </button>
+  </div>
   <div class="login-card">
     <div class="header">
       <div class="logo">
-        <i class="material-icons" style="font-size: 60px; color: #4db8ff;">security</i>
+        <svg width="60" height="60" viewBox="0 0 60 60" style="color: #7b1fa2;" xmlns="http://www.w3.org/2000/svg">
+          <!-- Head -->
+          <circle cx="30" cy="18" r="8" fill="#7b1fa2"/>
+          <!-- Beak -->
+          <polygon points="38,18 48,16 38,20" fill="#7b1fa2"/>
+          <!-- Eye -->
+          <circle cx="32" cy="17" r="2" fill="white"/>
+          <!-- Left Wing -->
+          <path d="M 22 25 Q 12 30 10 45" stroke="#7b1fa2" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Right Wing -->
+          <path d="M 38 25 Q 48 30 50 45" stroke="#7b1fa2" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Body -->
+          <ellipse cx="30" cy="35" rx="7" ry="12" fill="#7b1fa2"/>
+          <!-- Tail feathers -->
+          <polygon points="25,47 30,55 35,47" fill="#7b1fa2"/>
+        </svg>
       </div>
-      <h1>CYBER SECURITY</h1>
-      <p>Secure Access Control</p>
+      <h1>{{ langService.t('FARM AI', 'FARM AI') }}</h1>
+      <p>{{ langService.t('Surveillance & Sécurité', 'Surveillance & Security') }}</p>
     </div>
 
     <form #loginForm="ngForm" (ngSubmit)="login()">
       <div class="input-group">
-        <label>EMAIL ADDRESS</label>
-        <input type="text" class="cyber-input" name="username" [(ngModel)]="email" placeholder="admin@secure.com" required>
+        <label>{{ langService.t('EMAIL', 'EMAIL') }}</label>
+        <input type="text" class="cyber-input" name="username" [(ngModel)]="email" placeholder="admin@farmai.com" required>
       </div>
 
       <div class="input-group">
-        <label>ACCESS KEY</label>
+        <label>{{ langService.t('MOT DE PASSE', 'ACCESS KEY') }}</label>
         <input type="password" class="cyber-input" name="password" [(ngModel)]="password" placeholder="********" required>
       </div>
 
       <button type="submit" class="cyber-btn primary" [disabled]="loading">
-        <span *ngIf="!loading">SYSTEM LOGIN</span>
+        <span *ngIf="!loading">{{ langService.t('CONNEXION', 'LOGIN') }}</span>
         <div class="spinner" *ngIf="loading"></div>
       </button>
     </form>
 
     <div class="divider">
-      <span>OU BIOMÉTRIQUE</span>
+      <span>{{ langService.t('OU BIOMÉTRIQUE', 'OR BIOMETRIC') }}</span>
     </div>
 
-    <button class="cyber-btn secondary" (click)="faceLogin()" [disabled]="faceLoading">
-      <span *ngIf="!faceLoading">IDENTIFY WITH FACE</span>
-      <div class="spinner" *ngIf="faceLoading"></div>
+    <button type="button" class="cyber-btn secondary" (click)="openCamera()">
+      <span>{{ langService.t('RECONNAISSANCE FACIALE', 'IDENTIFY WITH FACE') }}</span>
     </button>
 
-    <div *ngIf="error" class="error-msg">
+    <div *ngIf="error && !showCamera" class="error-msg">
       {{ error }}
     </div>
     <div *ngIf="success" class="success-msg">
       {{ success }}
+    </div>
+  </div>
+</div>
+
+<!-- 📷 CAMERA PREVIEW MODAL -->
+<div *ngIf="showCamera" class="camera-overlay" (click)="$event.target === $event.currentTarget && stopCamera()">
+  <div class="camera-modal">
+    <div class="camera-header">
+      <h3>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px; color: #ce93d8;">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+          <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+          <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+          <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        {{ langService.t('SCAN DU VISAGE', 'FACE SCAN') }}
+      </h3>
+      <button class="close-camera" (click)="stopCamera()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="camera-body">
+      <!-- Status bar -->
+      <div class="camera-status" [ngClass]="{'status-error': error, 'status-busy': faceLoading, 'status-ok': !error && !faceLoading}">
+        <span>{{ cameraStatus }}</span>
+      </div>
+
+      <!-- Video feed / shared stream -->
+      <div class="camera-view">
+        <div class="face-guide">
+          <div class="guide-circle" [ngClass]="{'face-scanning': faceLoading}"></div>
+        </div>
+
+        <img src="http://localhost:8000/api/face/stream" 
+             class="camera-feed"
+             alt="Live Camera Feed"
+             (error)="cameraStatus = 'Flux caméra non disponible'" />
+      </div>
+
+      <!-- Action buttons -->
+      <div class="camera-actions">
+        <button class="cyber-btn primary" (click)="faceLogin()" [disabled]="faceLoading">
+          <span *ngIf="!faceLoading">{{ langService.t('SCANNER LE VISAGE', 'SCAN FACE') }}</span>
+          <div class="spinner" *ngIf="faceLoading"></div>
+        </button>
+      </div>
     </div>
   </div>
 </div>

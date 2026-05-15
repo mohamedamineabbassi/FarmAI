@@ -1,0 +1,202 @@
+[Normal] Table des matières
+[toc 1] I.	Généralités	2
+[toc 1] II.	Page de garde	3
+[toc 1] III.	Table des matières ou Sommaire	5
+[toc 1] IV.	Corps du rapport	5
+[toc 2] IV.1.	Introduction	5
+[toc 2] IV.2.	Développement	5
+[toc 2] IV.3.	Conclusion	6
+[toc 1] V.	Mise en forme du rapport	6
+[toc 2] V.4.	Conseils à appliquer	6
+[toc 2] V.5.	Mise en page	6
+[toc 3] a	Marges	6
+[toc 3] b	Police	8
+[toc 3] c	Tailles et styles	8
+[toc 3] d	En-tête	10
+[toc 3] e	Pied de page	10
+[toc 2] V.6.	Pagination	11
+[toc 2] V.7.	Tableaux, Figures et Courbes	11
+[toc 2] V.8.	Dessins techniques	12
+[toc 1] VI.	Ponctuation	12
+[toc 1] VII.	Rédaction	12
+[toc 1] VIII.	Grammaire et Orthographe	13
+[toc 1] IX.	Annexes	13
+[toc 1] X.	Bibliographie	14
+[Heading 1] Généralités
+[Normal] La mise en forme et la présentation d’un rapport doivent faire l’objet d’une attention particulière car ce sont deux éléments sur lesquels reposera, en partie, l’évaluation du jury.
+[Normal] La première impression que donnera l’aspect général de votre rapport est donc très importante et il faut éviter que cette impression soit négative. L’objectif est que votre rapport soit clairement présenté, agréable à lire, soigné, aéré, illustré et surtout structuré.
+[Normal] Les correcteurs doivent pouvoir comprendre rapidement votre travail et votre cheminement jusqu’à la conclusion du rapport. Ainsi ils pourront avoir une idée rapide de la qualité du contenu et de la pertinence de votre travail.
+[Normal] Le rapport se compose de 40 à 60 pages (hors annexes) environ, et doit nécessairement comporter les éléments suivants :
+[Normal] Une page de garde
+[Normal] Une table des matières ou Sommaire
+[Normal] Une liste des figures (n’est pas obligatoire)
+[Normal] Une liste des tableaux (n’est pas obligatoire)
+[Normal] Le corps du rapport qui comprend :
+[Normal] Une introduction
+[Normal] Le développement
+[Normal] Une conclusion
+[Normal] Les annexes
+[Normal] La bibliographie.
+[Heading 1] Page de garde
+[Normal] L’en-tête de l’ISET de Siliana et du département de Génie Electrique
+[Normal] Le titre du projet au centre de la page (le titre ne doit pas dépasser 10 mots)
+[Normal] Les prénoms et les noms des étudiants.
+[Normal] L’année universitaire (centrée et en bas de la page).
+[Normal] Nota : Nous tenons à ce que le modèle suivant de la page de garde soit respecté.
+[Normal] Stage (ou projet) de fin d’études
+[Normal] Titre titre titre titre titre titre
+[Normal] Année universitaire : --------------------------
+[Normal] GE…/2023_S2
+[Heading 1] Table des matières ou Sommaire
+[Normal] La table des matières doit faire apparaître les numéros et les intitulés des titres et leur pagination. Par souci de lisibilité, il est souhaitable de présenter les titres de 4ème niveau au maximum.
+[Normal] L’intitulé des annexes et leur pagination doivent être présents dans le sommaire.
+[Normal] Liste des figures et liste des tableaux sont des éléments optionnels.
+[Normal] La table des matières doit être faite d’une manière automatique. Pour ce faire il faut définir correctement les styles des différents titres.
+[Heading 1] Corps du rapport
+[Heading 2] Introduction
+[Normal] L’introduction a trois objectifs :
+[Normal] Elle introduit le sujet. Ceci signifie qu’il faut présenter succinctement le contexte général du travail accompli, par exemple l’environnement professionnel et puis définir le sujet en termes précis et concis ;
+[Normal] Elle énonce ensuite succinctement les objectifs du travail personnel, et les moyens mis en œuvre pour tenter de les atteindre ;
+[Normal] Elle s’achève sur une présentation claire des différentes parties traitées dans la suite du rapport.
+[Normal] L’introduction doit rester accessible à un lecteur non spécialiste du sujet. Si nécessaire, on y fournira une définition brève des termes techniques utilisés.
+[Heading 2] Développement
+[Normal] Nous n’allons pas imposer une structure uniforme au développement du rapport. Chaque projet est un cas particulier. Toutefois, l’articulation du développement peut suivre la logique suivante :
+[Normal] Problématique : Ce chapitre devra exposer de façon détaillée la problématique du projet. Il présentera succinctement l’entreprise, puis de manière détaillée la mission confiée au stagiaire ;
+[Normal] Travail réalisé (étude, réalisation, etc.) : Ce chapitre pourra présenter les démarches, les méthodes et les matériels utilisés dans le projet (logiciels, banc d’essai, relevés, mesures, etc.). Dans cette partie l’étudiant doit bien présenter son travail et le mettre en valeur.
+[Normal] Résultats et Discussions : Ce chapitre servira à exposer et à discuter les résultats élaborés par l’étudiant. Il ne faut pas introduire de nouvelles notions ou problématiques à ce stade du rapport.
+[Heading 2] Conclusion
+[Normal] La conclusion résume le travail réalisé et fait apparaître clairement si les objectifs ont été atteints. Si des difficultés nouvelles ont été soulevées, il convient d’expliquer pourquoi et éventuellement de proposer des solutions.
+[Normal] La conclusion peut présenter des perspectives à la suite du travail effectué et une opinion personnelle de l’étudiant sur son projet.
+[Normal] La conclusion ne doit pas dépasser une page. Elle doit permettre au lecteur pressé de répondre à cette simple et unique question : Que dois-je retenir de ce travail ?
+[Heading 1] Mise en forme du rapport
+[Normal] Les règles de présentation sont des conventions édictées pour obtenir une certaine uniformité et pour améliorer la lisibilité d’un rapport. Le non respect de ces règles peut conduire à un document désagréable à lire, donc pénalisant pour son auteur.
+[Heading 2] Conseils à appliquer
+[Normal] Ne pas changer de logiciel en cours de rédaction ;
+[Normal] Veiller accéder à la même version du logiciel en cas de travail sur différents postes ;
+[Heading 2] Mise en page
+[Heading 3] Marges
+[Normal] On fixe les marges suivantes pour le rapport par la fonction Mise en page qui se trouve dans le menu Fichier du menu principal de Word :
+[Normal] Les marges doivent demeurer uniformes pour l’ensemble du document, y compris les annexes.
+[Heading 3] Police
+[Normal] On adopte la police Times New Roman pour tout le document.
+[Heading 3] Tailles et styles
+[Normal] Corps du texte :
+[Normal] Taille : 12 points
+[Normal] Alignement : Justifié
+[Normal] Interligne : 1,5 ligne
+[Normal] Nota : l’Alignement et l’Interligne figure dans la fonction Paragraphe du menu Format du menu principal de Word.
+[Normal] Style Titre 1 :
+[Normal] Police : Taille : 20 points ; Gras et minuscule (que la 1ère lettre est en majuscule)
+[Normal] Alignement : Justifié
+[Normal] Retrait Après le texte : 35 points
+[Normal] Interligne : 1,5 ligne
+[Normal] Numérotation : en chapitre (Chapitre 1 ; Chapitre 2 ; etc.)
+[Titre1] Chapitre 1 : Titre 1
+[Titre1] Chapitre 2 : Titre 2
+[Normal] Chaque chapitre doit commencer sur une nouvelle page.
+[Normal] Style Titre 2 :
+[Normal] Police : Taille : 16 points ; Gras et minuscule (que la 1ère lettre est en majuscule)
+[Normal] Alignement : Justifié
+[Normal] Retrait Avant le texte : 20 points
+[Normal] Retrait Après le texte : 10 points
+[Normal] Interligne : 1,5 ligne
+[Normal] Numérotation : En chiffre (1. Définitions ; 2. Présentation de la société ; etc.)
+[Titre 2.] Titre 2
+[Titre 2.] Titre 2
+[Normal] Style Titre 3 :
+[Normal] Police : Taille : 14 points ; Gras et minuscule (que la 1ère lettre est en majuscule)
+[Normal] Alignement : Justifié
+[Normal] Retrait Avant le texte : 10 points
+[Normal] Retrait Après le texte : 5 points
+[Normal] Interligne : 1,5 ligne
+[Normal] Numérotation : En chiffre avec hiérarchie avec le Titre 2 (1.1 Données du problème ; 1.2. Hypothèses de calcul ; etc.)
+[Titre3] Titre 3
+[Titre3] Titre 3
+[Normal] Style Titre 4 :
+[Normal] Police : Taille : 12 points ; Gras ; Italique et minuscule
+[Normal] Alignement : Justifié
+[Normal] Retrait Avant le texte : 5 points
+[Normal] Retrait Après le texte : 0 points
+[Normal] Interligne : 1,5 ligne
+[Normal] Numérotation : En lettre sans hiérarchie (a. Premier cas ; b. Deuxième cas : etc.)
+[Titre4] Titre 4
+[Titre4] Titre 4
+[Normal] Afin de pouvoir insérer une table des matières automatique (sous Formats : Officiel) il faut définir le style de chaque titre par la fonction Style et mise en forme du menu Format du menu principal de Word.
+[Normal] Table des matières
+[toc 1] Chapitre 1 : Titre 1	8
+[toc 1] Chapitre 2 : Titre 2	8
+[toc 2] 1	Titre 2	9
+[toc 2] 2	Titre 2	9
+[toc 3] 2. 1.	Titre 3	9
+[toc 3] 2. 2.	Titre 3	9
+[Heading 3] En-tête
+[Normal] Dans l’en-tête on affiche le titre du projet avec les caractères suivants :
+[Normal] Taille : 10 points ; Italique et minuscule (que la 1ère lettre est en majuscule)
+[Normal] Interligne : Simple
+[Normal] Souligné sur tout l’en-tête. Ceci par la fonction Bordure du menu Format du menu principal de Word.
+[Normal] Exemple
+[Normal] Conception d’une installation hydraulique
+[Heading 3] Pied de page
+[Normal] Dans le pied de page on affiche le nom l’institut, le nom de la société éventuellement et le numéro de page. Pour ce faire on insère un tableau dans le pied de page composé de 3 colonnes et 1 ligne.
+[Normal] Dans la 1ère colonne on affiche le nom de L’ISET aligné à gauche
+[Normal] Dans la 2ème colonne on affiche le numéro de la page centré dans la cellule (voir le paragraphe de La pagination).
+[Normal] Dans la 3ème colonne on affiche le nom de la société dans la quelle a était effectué le projet, aligné à droite.
+[Normal] Les caractères du texte sont les suivants :
+[Normal] Taille : 10 points ; Italique et minuscule (que la 1ère lettre est en majuscule)
+[Normal] Interligne : simple
+[Normal] Souligné sur tout le pied de page. Ceci par la fonction Bordure du menu Format du menu principal de Word.
+[Normal] Exemple
+[Heading 2] Pagination
+[Normal] La pagination numérique est obligatoire. Elle commence immédiatement après la page de garde. Donc la première page numérotée sera le sommaire.
+[Normal] Les annexes éventuelles doivent être paginées dans la continuité du document, sauf si elles sont rassemblées dans un document séparé.
+[Heading 2] Tableaux, Figures et Courbes
+[Normal] Les tableaux, les figures et les courbes doivent être numérotés et posséder un titre positionné de préférence en-dessous. Le titre doit avoir les caractères suivants :
+[Normal] Taille : 12 points ; Italique et minuscule (que la 1ère lettre est en majuscule)
+[Normal] Interligne : 1,5 ligne
+[Normal] Alignement : Centré par rapport au tableau
+[Normal] Exemple
+[Normal] Tableau 2.1: Exemple d’insertion de tableau possédant un titre
+[Normal] Note : Pour les tableaux et les courbes qui représentent des résultats ou des données il est obligatoirement de mentionner les unités correspondantes (m, kg, m/s, etc.)
+[Normal] Figure 1.5 : Compresseur à piston
+[Heading 2] Dessins techniques
+[Normal] Les planches de dessin technique (dessin de définition ou d’ensemble) doivent être représentées obligatoirement selon le format normalisé. Ils doivent contenir le cadre, la cartouche normalisée, la nomenclature, etc.
+[Heading 1] Ponctuation
+[Normal] Voici quelques règles simples à respecter impérativement :
+[Normal] Il n'y a pas d'espace après une parenthèse ouverte, avant une virgule, avant un point, avant et après un tiret d'un nom composé (ex : un porte-monnaie) ;
+[Normal] Il y a toujours un espace après un point, une virgule, le signe %, le guillemet de fermeture ;
+[Normal] Il n'y a pas de point après un titre ;
+[Normal] Il y a un espace avant et après un guillemet d'ouverture, deux points, le point-virgule, un point d'interrogation et d'exclamation ;
+[Normal] D'ordinaire les lettres en majuscule ne sont pas accentuées ;
+[Normal] On ne débute jamais une ligne par un signe de ponctuation (exception faite des énumérations).
+[Heading 1] Rédaction
+[Normal] La synthèse est une des qualités primordiales d'un rapport. Chaque phrase doit avoir un intérêt et être insérée dans un ensemble logique. Les phrases doivent être courtes, précises et compréhensibles (15 à 20 mots) et les paragraphes seront justifiés et non alignés à gauche. Pensez à aérer vos pages en sautant des lignes. Une page contient généralement 35 à 45 lignes. Au-delà, elle devient péniblement lisible.
+[Normal] Les généralités ainsi que tous les passages intégralement repris qui proviennent de sources extérieures (téléchargés, recopiés, photocopiés, etc.) doivent donc être renvoyées en annexes. Il est déconseillé de rédiger des phrases avant d'avoir construit un plan détaillé pour organiser les idées.
+[Normal] Le style doit rester sobre : les superlatifs, les tournures passives, les formes négatives, le point d'exclamation, certains adverbes (très, beaucoup, toujours, jamais, etc.) et certains adjectifs (incroyable, formidable, énorme, etc.) témoignant de l'enthousiasme de l'étudiant sont à éviter. L'emploi d'acronymes (ANPE, CCI, GPAO...) doit rester modéré et ceux-ci doivent être expliqués lors de leur premier usage ainsi que dans une table des abréviations, le cas échéant.
+[Normal] Hormis pendant la soutenance ou en conclusion, les jugements de valeur et les formes normatives (il faut, nous devons, etc.) sont à éviter et doivent dans tous les cas être accompagné d'argumentations. L'emploi du "je" et les récits d'expériences personnelles ne sont possibles que lors de la soutenance.
+[Heading 1] Grammaire et Orthographe
+[Normal] L'utilisation des correcteurs d'orthographe des outils bureautiques est bien entendu indispensable. Cependant, il faut obligatoirement relire et de faire relire son rapport par des personnes extérieures qui apporteront un regard plus critique sur la syntaxe et la grammaire.
+[Normal] Voici quelques fautes courantes à éviter :
+[Normal] L'utilisation de Nous ou Il / Elle beaucoup plus corrects que Je.
+[Normal] Deuxième et non 2e ou 2ème ;
+[Normal] etc. et non etc... ;
+[Normal] Comme suite à, et non suite à ;
+[Normal] M. et non Mr...
+[Normal] l'Union européenne et non l'Union Européenne (la première lettre des noms est en majuscule, mais les adjectifs ne prennent de majuscule que s'ils sont placés en début de l'acronyme) ;
+[Normal] Munissez-vous au minimum d'un manuel de grammaire, d'un dictionnaire et d'un dictionnaire des synonymes lors de la rédaction de votre travail.
+[Heading 1] Annexes
+[Normal] Les annexes ont pour but d’alléger le corps du rapport d’informations pointues ou de résultats intermédiaires, ou secondaires, mais néanmoins strictement nécessaires (exemple : listing de programme, des plans, des schémas fonctionnels, etc.)
+[Normal] Il convient d’éviter toute disproportion entre les annexes et le corps du rapport. Les annexes n’ont pas pour but d’augmenter artificiellement l’épaisseur du rapport.
+[Normal] Les annexes doivent être rédigées et présentées avec la même rigueur que le reste du document. Ainsi, elles doivent posséder un numéro d’ordre et un titre qui apparaitront dans la table des matières (exemple : Annexe 1 : Devis des fournisseurs, Annexe 2 : Listing du programme, etc.).
+[Heading 1] Bibliographie
+[Normal (Web)] La liste des références bibliographiques clôture le rapport. Elle regroupe l’ensemble des sources de documentation ayant servi à la rédaction du rapport et qui ont été citées explicitement dans le texte. Le lecteur doit pouvoir consulter tout document cité afin de lui permettre de remonter à l’information d’origine.
+[Normal] Les références seront rangées par ordre alphabétique du nom d’auteur, ou du premier auteur s’il y en a plusieurs.
+[Normal] Toutes les entrées de la liste des références bibliographiques doivent correspondre aux références citées dans le texte et vice versa.
+[Normal (Web)] Le format de cette liste obéit à des règles précises :
+[Normal] Pour une référence d’un livre
+[Normal] Pour une référence d’un rapport
+[Normal] Pour une référence d’un article
+[Normal] Exemple
+[Normal] Pour un site web
+[Normal] Pour une ressource internet
+[Normal] Exemple
+[Normal] [1] Caleffi Hydronic solutions. Distributeur de composants pour installations hydrauliques d’eau froide et eau chaude sanitaire (Robinets, raccords mécaniques, collecteurs de séparation, soupapes de sécurité, etc.). (Page consulté le 14 Novembre 2008) Revues hydrauliques : Hydraulique 2 : Les pertes de charge dans les installations – Les dimensionnements des mitigeurs, [En ligne]. Adresse URL : http://www.Caleffi.fr

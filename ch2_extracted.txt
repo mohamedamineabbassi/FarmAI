@@ -1,0 +1,365 @@
+Chapitre 2 : État de l’art 
+2.1 Introduc Ɵon 
+Avec l’évolu Ɵon rapide des technologies de l’intelligence ar Ɵﬁcielle et des systèmes intelligents, les 
+soluƟons modernes de surveillance reposent aujourd’hui sur plusieurs domaines tels que la vision par 
+ordinateur, le Deep Learning, le traitement des ﬂux vidéo temps réel ainsi que les architectures web 
+modernes. 
+Dans le cadre de notre projet, plusieurs technologies et ou Ɵls ont été u Ɵlisés aﬁn de concevoir une 
+plateforme intelligente capable d’améliorer la surveillance, le contrôle d’accès ainsi que la ges Ɵon des 
+employés grâce à l’intelligence ar Ɵﬁcielle et à la vision par ordinateur. 
+Dans ce chapitre, nous présentons le domaine d’applica Ɵon de notre projet ainsi que les principaux 
+concepts, architectures, technologies et ou Ɵls uƟlisés pour la réalisa Ɵon de la plateforme.  
+ 
+2.2 Domaine de l’applica Ɵon 
+Notre projet s’inscrit dans le domaine de la surveillance intelligente et des systèmes de sécurité basés 
+sur l’intelligence ar Ɵﬁcielle. Avec l’augmenta Ɵon des besoins en sécurité au sein des entreprises, les 
+systèmes tradi Ɵonnels de surveillance devien nent insuﬃsants face aux nouveaux déﬁs liés au 
+contrôle d’accès, à la supervision des infrastructures et à la ges Ɵon des employés.  
+Les technologies modernes perme Ʃent aujourd’hui de développer des plateformes intelligentes 
+capables d’automa Ɵser plusieurs opéra Ɵons de sécurité telles que la reconnaissance faciale, la 
+détecƟon des personnes, l’analyse des ﬂux vidéo ainsi que la généra Ɵon d’alertes en temps réel.  
+L’objecƟf principal de notre projet est de proposer une solu Ɵon intelligente perme Ʃant d’améliorer la 
+surveillance et la ges Ɵon de la sécurité grâce aux technologies de vision par ordinateur et 
+d’intelligence ar Ɵﬁcielle. 
+ 
+2.3 Intelligence ar Ɵﬁcielle et vision par ordinateur  
+2.3.1 Intelligence ar Ɵﬁcielle 
+DéﬁniƟon 
+L’intelligence ar Ɵﬁcielle désigne l’ensemble des techniques perme Ʃant à une machine de simuler 
+certaines capacités humaines telles que l’appren Ɵssage, l’analyse, la reconnaissance et la prise de 
+décision. 
+Rôle dans le projet 
+Dans notre projet, l’intelligence ar Ɵﬁcielle joue un rôle essen Ɵel dans l’analyse des ﬂux vidéo, la 
+reconnaissance faciale ainsi que la détec Ɵon intelligente des événements de sécurité.  
+Avantages 
+ AutomaƟsaƟon des tâches de surveillance ;  
+ RéducƟon des erreurs humaines ;  
+ Analyse intelligente des données ;  
+
+ AmélioraƟon de la sécurité.  
+Figure 
+Figure : Schéma représentant le fonc Ɵonnement général de l’intelligence ar Ɵﬁcielle. 
+ 
+2.3.2 Vision par ordinateur 
+DéﬁniƟon 
+La vision par ordinateur est un domaine de l’intelligence ar Ɵﬁcielle perme Ʃant aux machines 
+d’interpréter et d’analyser les images et les vidéos. 
+Rôle dans le projet 
+Elle permet d’exploiter les ﬂux vidéo provenant des caméras aﬁn de détecter les personnes, analyser 
+les mouvements et iden Ɵﬁer les visages en temps réel.  
+Avantages 
+ Analyse automa Ɵque des vidéos ;  
+ DétecƟon rapide des objets ;  
+ Surveillance intelligente des infrastructures.  
+Figure 
+Figure : Illustra Ɵon de la vision par ordinateur.  
+ 
+2.3.3 Deep Learning 
+DéﬁniƟon 
+Le Deep Learning est une branche du Machine Learning basée sur les réseaux de neurones profonds 
+permeƩant d’eﬀectuer des traitements complexes sur les données.  
+Rôle dans le projet 
+Les modèles de Deep Learning sont u Ɵlisés pour la reconnaissance faciale, la détec Ɵon des objets 
+ainsi que l’analyse intelligente des ﬂux vidéo. 
+Avantages 
+ Haute précision ;  
+ Excellentes performances ;  
+ ApprenƟssage automa Ɵque.  
+Figure 
+Figure : Architecture simpliﬁée d’un réseau de neurones profond. 
+ 
+
+2.3.4 Reconnaissance faciale 
+DéﬁniƟon 
+La reconnaissance faciale est une technologie perme Ʃant d’iden Ɵﬁer ou de vériﬁer l’iden Ɵté d’une 
+personne à par Ɵr de son visage.  
+Rôle dans le projet 
+Dans notre plateforme, elle permet : 
+ l’authenƟﬁcaƟon des employés ;  
+ le contrôle d’accès intelligent ;  
+ la détecƟon des personnes inconnues ;  
+ le suivi des entrées et sor Ɵes.  
+Avantages 
+ Sécurité renforcée ;  
+ AuthenƟﬁcaƟon rapide ;  
+ RéducƟon des accès non autorisés.  
+Figure 
+Figure : Exemple d’un système de reconnaissance faciale. 
+ 
+2.4 Technologies de détec Ɵon et d’analyse  
+2.4.1 YOLOv8 
+DéﬁniƟon 
+YOLOv8 (You Only Look Once) est un modèle de Deep Learning spécialisé dans la détec Ɵon d’objets 
+en temps réel. 
+Rôle dans le projet 
+YOLOv8 permet de détecter les personnes présentes dans les ﬂux vidéo aﬁn d’améliorer la 
+surveillance intelligente des infrastructures. 
+Avantages 
+ Rapidité de traitement ;  
+ Haute précision ;  
+ FoncƟonnement en temps réel.  
+Figure 
+Figure : Logo YOLOv8. 
+ 
+
+2.4.2 OpenCV 
+DéﬁniƟon 
+OpenCV est une bibliothèque open source u Ɵlisée dans le domaine de la vision par ordinateur et du 
+traitement d’images. 
+Rôle dans le projet 
+OpenCV est u Ɵlisé pour :  
+ capturer les ﬂux vidéo ;  
+ traiter les images ;  
+ prétraiter les données avant leur analyse par les modèles d’intelligence ar Ɵﬁcielle.  
+Avantages 
+ CompaƟble avec Python ;  
+ Très performante ;  
+ Large communauté.  
+Figure 
+Figure : Logo OpenCV. 
+ 
+2.4.3 InsightFace 
+DéﬁniƟon 
+InsightFace est une bibliothèque spécialisée dans la reconnaissance faciale basée sur le Deep 
+Learning. 
+Rôle dans le projet 
+Elle permet : 
+ l’idenƟﬁcaƟon des visages ;  
+ la comparaison faciale ;  
+ la gesƟon des embeddings faciaux.  
+Avantages 
+ Haute précision ;  
+ CompaƟble avec les systèmes temps réel ;  
+ Excellentes performances.  
+Figure 
+Figure : Logo InsightFace. 
+ 
+
+2.4.4 Streaming vidéo temps réel 
+DéﬁniƟon 
+Le streaming vidéo temps réel permet la transmission con Ɵnue des ﬂux vidéo avec une faible latence.  
+Rôle dans le projet 
+Il permet d’aﬃcher les ﬂux des caméras directement dans la plateforme aﬁn d’assurer une 
+surveillance instantanée. 
+Avantages 
+ Surveillance en direct ;  
+ RéacƟvité rapide ;  
+ Mise à jour instantanée des vidéos.  
+Figure 
+Figure : Architecture du streaming vidéo temps réel. 
+ 
+2.4.5 Caméras IP et protocole RTSP 
+DéﬁniƟon 
+Les caméras IP sont des disposi Ɵfs de surveillance connectés au réseau. Le protocole RTSP permet la 
+transmission des ﬂux vidéo en temps réel. 
+Rôle dans le projet 
+Les caméras IP fournissent les ﬂux vidéo u Ɵlisés par les modules d’intelligence ar Ɵﬁcielle pour 
+l’analyse et la détec Ɵon. 
+Avantages 
+ Transmission temps réel ;  
+ Bonne qualité vidéo ;  
+ CompaƟbilité avec plusieurs systèmes.  
+Figure 
+Figure : Communica Ɵon RTSP entre caméra et serveur.  
+ 
+2.5 Architecture logicielle 
+2.5.1 Architecture Client/Serveur 
+DéﬁniƟon 
+L’architecture client/serveur est un modèle informa Ɵque séparant les traitements entre le client et le 
+serveur. 
+
+Rôle dans le projet 
+Dans notre plateforme : 
+ Angular représente la par Ɵe client ;  
+ Spring Boot représente le serveur principal ;  
+ Python assure les traitements d’intelligence ar Ɵﬁcielle.  
+Avantages 
+ Bonne organisa Ɵon ;  
+ SéparaƟon des responsabilités ;  
+ Facilité de maintenance.  
+Figure 
+Figure : Architecture client/serveur du système. 
+ 
+2.5.2 Architecture MVC 
+DéﬁniƟon 
+Le modèle MVC (Model View Controller) est une architecture logicielle perme Ʃant de séparer les 
+diﬀérentes couches d’une applica Ɵon aﬁn d’améliorer l’organisa Ɵon et la maintenabilité du code.  
+Rôle dans le projet 
+Dans notre projet, l’architecture MVC a été adoptée au niveau du Back-End Spring Boot aﬁn de 
+séparer : 
+ la couche présenta Ɵon ;  
+ la logique mé Ɵer ;  
+ l’accès aux données.  
+Structure u Ɵlisée 
+ Controller : ges Ɵon des requêtes HTTP ;  
+ Service : traitement de la logique mé Ɵer ;  
+ Repository : communica Ɵon avec la base de données ;  
+ EnƟty : représenta Ɵon des données.  
+Avantages 
+ Bonne organisa Ɵon du code ;  
+ Facilité de maintenance ;  
+ RéuƟlisaƟon des composants.  
+Figure 
+
+Figure : Architecture MVC sous Spring Boot. 
+ 
+2.5.3 API REST 
+DéﬁniƟon 
+Une API REST est une interface perme Ʃant la communica Ɵon entre diﬀérentes applica Ɵons via le 
+protocole HTTP. 
+Rôle dans le projet 
+Les API REST assurent la communica Ɵon entre Angular, Spring Boot et les diﬀérents services de la 
+plateforme. 
+Avantages 
+ Simplicité ;  
+ Flexibilité ;  
+ Facilité d’intégra Ɵon.  
+Figure 
+Figure : Architecture de communica Ɵon REST. 
+ 
+2.5.4 WebSocket 
+DéﬁniƟon 
+WebSocket est un protocole de communica Ɵon perme Ʃant des échanges bidirec Ɵonnels en temps 
+réel entre le client et le serveur. 
+Rôle dans le projet 
+WebSocket permet : 
+ l’envoi des alertes en temps réel ;  
+ la mise à jour instantanée des no ƟﬁcaƟons ;  
+ la synchronisa Ɵon des données de surveillance.  
+Avantages 
+ Communica Ɵon rapide ;  
+ Faible latence ;  
+ ActualisaƟon en temps réel.  
+Figure 
+Figure : Logo WebSocket. 
+ 
+
+2.6 Choix des technologies 
+2.6.1 Angular 
+DéﬁniƟon 
+Angular est un framework Front- End développé par Google perme Ʃant de créer des applica Ɵons web 
+modernes et dynamiques. 
+Rôle dans le projet 
+Angular est u Ɵlisé pour développer :  
+ l’interface u Ɵlisateur ;  
+ les tableaux de bord ;  
+ les pages de ges Ɵon ;  
+ les staƟsƟques et visualisa Ɵons.  
+Avantages 
+ Interface moderne ;  
+ Architecture modulaire ;  
+ Bonne performance.  
+Figure 
+Figure : Logo Angular. 
+ 
+2.6.2 Spring Boot 
+DéﬁniƟon 
+Spring Boot est un framework Java u Ɵlisé pour le développement des applica Ɵons Back-End et des 
+API REST. 
+Rôle dans le projet 
+Spring Boot assure : 
+ la gesƟon des uƟlisateurs ;  
+ les API REST ;  
+ la sécurité ;  
+ la communica Ɵon avec la base de données.  
+Avantages 
+ Développement rapide ;  
+ Sécurité intégrée ;  
+ CompaƟble avec MySQL.  
+
+Figure 
+Figure : Logo Spring Boot. 
+ 
+2.6.3 Python 
+DéﬁniƟon 
+Python est un langage de programma Ɵon largement u Ɵlisé dans les domaines de l’intelligence 
+arƟﬁcielle et du traitement des données.  
+Rôle dans le projet 
+Python est u Ɵlisé pour :  
+ l’analyse vidéo ;  
+ la reconnaissance faciale ;  
+ l’intégraƟon des modèles d’intelligence ar Ɵﬁcielle ;  
+ le traitement des ﬂux vidéo.  
+Avantages 
+ Simplicité ;  
+ Large bibliothèque IA ;  
+ CompaƟble avec OpenCV et YOLOv8.  
+Figure 
+Figure : Logo Python. 
+ 
+2.6.4 MySQL 
+DéﬁniƟon 
+MySQL est un système de ges Ɵon de bases de données rela Ɵonnelles open source u Ɵlisé dans les 
+applicaƟons web. 
+Rôle dans le projet 
+MySQL permet de stocker : 
+ les employés ;  
+ les départements ;  
+ les rôles ;  
+ les alertes ;  
+ les historiques ;  
+ les informa Ɵons des caméras.  
+
+Avantages 
+ Bonne performance ;  
+ Facilité d’u ƟlisaƟon ;  
+ IntégraƟon simple avec Spring Boot.  
+Figure 
+Figure : Logo MySQL. 
+ 
+2.6.5 GitHub 
+DéﬁniƟon 
+GitHub est une plateforme de ges Ɵon et d’hébergement de projets u Ɵlisant le système de contrôle de 
+version Git. 
+Rôle dans le projet 
+GitHub a été u Ɵlisé pour :  
+ sauvegarder le code source ;  
+ gérer les versions du projet ;  
+ suivre les modiﬁca Ɵons ;  
+ organiser le développement de la plateforme.  
+Avantages 
+ GesƟon des versions ;  
+ Sauvegarde sécurisée ;  
+ Collabora Ɵon simpliﬁée.  
+Figure 
+Figure : Logo GitHub. 
+ 
+2.6.6 Visual Studio Code 
+DéﬁniƟon 
+Visual Studio Code est un éditeur de code source u Ɵlisé pour le développement des applica Ɵons web 
+et logicielles. 
+Rôle dans le projet 
+Il a été uƟlisé pour développer les diﬀérentes par Ɵes de la plateforme.  
+Avantages 
+ Léger et rapide ;  
+
+ CompaƟble avec plusieurs langages ;  
+ Large choix d’extensions.  
+Figure 
+Figure : Logo Visual Studio Code. 
+2.6.7 Thunder Client 
+DéﬁniƟon 
+Thunder Client est une extension légère intégrée à Visual Studio Code perme Ʃant de tester et de 
+gérer les API REST directement depuis l’environnement de développement. 
+Rôle dans le projet 
+Dans notre projet, Thunder Client a été u Ɵlisé pour tester les diﬀérentes API développées avec Spring 
+Boot, vériﬁer les requêtes HTTP ainsi que valider les réponses du serveur. 
+Avantages 
+ Interface simple et intui Ɵve ;  
+ IntégraƟon directe dans Visual Studio Code ;  
+ Facilité de test des API REST ;  
+ Gain de temps durant le développement.  
+Figure 
+Figure : Logo Thunder Client. 
+ 
+ 
+ 
+2.7 Conclusion 
+Dans ce chapitre, nous avons présenté le domaine d’applica Ɵon de notre projet ainsi que les 
+principaux concepts, architectures, technologies et ou Ɵls uƟlisés dans le développement de notre 
+plateforme intelligente de surveillance et de sécurité. 
+Les technologies choisies, telles qu’Angular, Spring Boot, Python, MySQL, YOLOv8, OpenCV et 
+InsightFace, perme Ʃent de développer une solu Ɵon performante, intelligente et adaptée aux besoins 
+des entreprises modernes. 
+Dans le chapitre suivant, nous présenterons l’analyse et la spéciﬁca Ɵon des besoins fonc Ɵonnels et 
+non foncƟonnels du système ainsi que les diﬀérents diagrammes de concep Ɵon. 

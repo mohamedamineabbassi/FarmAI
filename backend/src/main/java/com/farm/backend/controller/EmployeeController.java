@@ -177,7 +177,13 @@ public class EmployeeController {
     // =====================================================
     @GetMapping
     public List<Employee> getAll() {
-        return employeeRepository.findAll();
+        try {
+            return employeeRepository.findAll();
+        } catch (Exception e) {
+            System.err.println("ERROR IN GET ALL EMPLOYEES: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Server error: " + e.getMessage(), e);
+        }
     }
 
     // 🔥 NEW: GET MY PROFILE (Find or create for Admin/User)

@@ -23,12 +23,7 @@ public class AIService {
         try {
             String rootPath = System.getProperty("user.dir");
             
-            String scriptName = "camera_ai_stream.py"; // Default
-            if ("FACE".equalsIgnoreCase(type)) {
-                scriptName = "face_ai.py";
-            } else if ("COLOR".equalsIgnoreCase(type)) {
-                scriptName = "color_ai.py";
-            }
+            String scriptName = "camera_ai_stream.py"; // Always use the main stream script
 
             ProcessBuilder pb = new ProcessBuilder(
                 PYTHON_PATH, 

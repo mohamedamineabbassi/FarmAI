@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, forkJoin, interval, of, combineLatest } from 'rxjs';
+import { map, switchMap, startWith, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,21 +12,46 @@ export class AnalyticsService {
 
   constructor(private http: HttpClient) { }
 
+  // ✅ ROBUSTE : chaque appel est protégé individuellement — si un échoue, les autres continuent
   getDashboardData(): Observable<any> {
+    const employees$ = this.http.get<any[]>(`${this.baseUrl}/employees`).pipe(
+      catchError(err => { console.warn('[Analytics] /employees error:', err); return of([]); })
+    );
+    const cameras$ = this.http.get<any[]>(`${this.baseUrl}/cameras`).pipe(
+      catchError(err => { console.warn('[Analytics] /cameras error:', err); return of([]); })
+    );
+    const alerts$ = this.http.get<any[]>(`${this.baseUrl}/alerts`).pipe(
+      catchError(err => { console.warn('[Analytics] /alerts error:', err); return of([]); })
+    );
+    const attendance$ = this.http.get<any[]>(`${this.baseUrl}/attendance`).pipe(
+      catchError(err => { console.warn('[Analytics] /attendance error:', err); return of([]); })
+    );
+
     return forkJoin({
-      employees: this.http.get<any[]>(`${this.baseUrl}/employees`),
-      cameras: this.http.get<any[]>(`${this.baseUrl}/cameras`),
-      alerts: this.http.get<any[]>(`${this.baseUrl}/alerts`),
-      attendance: this.http.get<any[]>(`${this.baseUrl}/attendance`)
+      employees: employees$,
+      cameras: cameras$,
+      alerts: alerts$,
+      attendance: attendance$
     });
   }
 
-  // Specific analytics methods if needed
+  // ✅ AUTO-REFRESH : polling toutes les 10 secondes (5s était trop agressif)
+  getDashboardDataWithPolling(pollIntervalMs: number = 10000): Observable<any> {
+    return interval(pollIntervalMs).pipe(
+      startWith(0),
+      switchMap(() => this.getDashboardData())
+    );
+  }
+
   getAlerts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/alerts`);
+    return this.http.get<any[]>(`${this.baseUrl}/alerts`).pipe(
+      catchError(() => of([]))
+    );
   }
 
   getAttendance(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/attendance`);
+    return this.http.get<any[]>(`${this.baseUrl}/attendance`).pipe(
+      catchError(() => of([]))
+    );
   }
 }

@@ -31,7 +31,7 @@ export class ViewerDashboardComponent implements OnInit {
     this.loading = true;
     
     // Load Employees
-    this.employeeService.getAll().subscribe({
+    this.employeeService.getEmployees().subscribe({
       next: (data) => {
         this.employees = data;
         this.loading = false;

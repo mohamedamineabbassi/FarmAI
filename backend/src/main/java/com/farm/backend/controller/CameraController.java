@@ -31,15 +31,19 @@ public class CameraController {
     @PostMapping
     public CameraEntity addCamera(@RequestBody CameraEntity camera) {
 
-        if (camera.getDepartment() != null) {
+        if (camera.getDepartment() != null && camera.getDepartment().getId() != null) {
             Department dept = departmentRepository
                     .findById(camera.getDepartment().getId())
-                    .orElseThrow(() -> new RuntimeException("Department not found"));
+                    .orElse(null);
 
             camera.setDepartment(dept);
+        } else {
+            camera.setDepartment(null);
         }
 
-        camera.setStatus("OFF");
+        if (camera.getStatus() == null || camera.getStatus().isEmpty()) {
+            camera.setStatus("OFF");
+        }
 
         return cameraRepository.save(camera);
     }
