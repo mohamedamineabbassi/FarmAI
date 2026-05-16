@@ -29,12 +29,16 @@ REM ============================================================
 echo  [STEP 1/5]  Checking prerequisites ...
 echo  ------------------------------------------------------------
 
-where mvn >nul 2>&1
-if errorlevel 1 (
-    echo   [X] Maven not found in PATH!
-    pause & exit /b 1
+if exist "%PROJECT_ROOT%\backend\mvnw.cmd" (
+    echo   [OK] Maven Wrapper found
+) else (
+    where mvn >nul 2>&1
+    if errorlevel 1 (
+        echo   [X] Maven not found in PATH and no Maven Wrapper!
+        pause & exit /b 1
+    )
+    echo   [OK] Maven found
 )
-echo   [OK] Maven found
 
 where node >nul 2>&1
 if errorlevel 1 (
@@ -51,7 +55,7 @@ if errorlevel 1 (
 echo   [OK] Python found
 
 echo   [..] Testing MySQL connection ...
-mysql -u root -proot123 -e "SELECT 1;" >nul 2>&1
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -proot123 -e "SELECT 1;" >nul 2>&1
 if errorlevel 1 (
     echo   [!] Cannot connect to MySQL. Continuing anyway...
 ) else (
@@ -71,11 +75,11 @@ REM -- Backend launcher --
 (
 echo @echo off
 echo title Farm-AI Backend [8081]
-echo cd /d "%PROJECT_ROOT%\backend"
+echo cd /d "%%~dp0backend"
 echo echo.
 echo echo  *** Starting Spring Boot on port 8081 ***
 echo echo.
-echo call mvn spring-boot:run
+echo call .\mvnw.cmd spring-boot:run
 echo echo.
 echo echo  Backend has stopped.
 echo pause
@@ -85,7 +89,7 @@ REM -- Frontend launcher --
 (
 echo @echo off
 echo title Farm-AI Frontend [4200]
-echo cd /d "%PROJECT_ROOT%\forntend"
+echo cd /d "%%~dp0forntend"
 echo echo.
 echo echo  *** Installing npm dependencies ***
 echo call npm install
@@ -101,7 +105,7 @@ REM -- AI Server launcher --
 (
 echo @echo off
 echo title Farm-AI AI Server [8000]
-echo cd /d "%PROJECT_ROOT%\ai_system"
+echo cd /d "%%~dp0ai_system"
 echo echo.
 echo echo  *** Installing Python dependencies ***
 echo pip install -r requirements.txt
@@ -117,7 +121,7 @@ REM -- Camera launcher --
 (
 echo @echo off
 echo title Farm-AI Camera Stream
-echo cd /d "%PROJECT_ROOT%\ai_system"
+echo cd /d "%%~dp0ai_system"
 echo echo.
 echo echo  *** Launching camera stream ***
 echo python camera_ai_stream.py --source 0 --camera_id 1

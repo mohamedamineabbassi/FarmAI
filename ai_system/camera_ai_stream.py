@@ -78,23 +78,37 @@ except Exception as e:
 # =========================
 def load_employees():
     try:
-        cursor.execute("SELECT id, name, embedding FROM employees WHERE embedding IS NOT NULL")
-        data = cursor.fetchall()
         employees = {}
-        for emp_id, name, emb_json in data:
+        
+        # 1. Load from employees table
+        cursor.execute("SELECT id, name, embedding FROM employees WHERE embedding IS NOT NULL")
+        data_emp = cursor.fetchall()
+        for emp_id, name, emb_json in data_emp:
             try:
                 emb = np.array(json.loads(emb_json))
                 emb = emb / np.linalg.norm(emb)
-                employees[name] = emb
-            except (json.JSONDecodeError, TypeError) as je:
-                logger.warning(f"Embedding invalide pour {name}: {je}")
-                continue
-        logger.info(f"✓ {len(employees)} employé(s) chargé(s) avec embeddings")
+                if name: employees[name.strip()] = emb
+            except Exception:
+                pass
+
+        # 2. Load from users table (managers/admins)
+        cursor.execute("SELECT id, CONCAT(first_name, ' ', last_name), embedding FROM users WHERE embedding IS NOT NULL")
+        data_users = cursor.fetchall()
+        for user_id, name, emb_json in data_users:
+            try:
+                emb = np.array(json.loads(emb_json))
+                emb = emb / np.linalg.norm(emb)
+                if name and name.strip() not in employees:
+                    employees[name.strip()] = emb
+            except Exception:
+                pass
+
+        logger.info(f"✓ {len(employees)} visage(s) chargé(s) avec embeddings")
         if len(employees) == 0:
-            logger.warning("⚠️ AUCUN EMPLOYÉ AVEC EMBEDDINGS! Enregistrez des visages d'abord")
+            logger.warning("⚠️ AUCUN VISAGE AVEC EMBEDDINGS!")
         return employees
     except Error as e:
-        logger.error(f"✗ Erreur lors du chargement des employés: {e}")
+        logger.error(f"✗ Erreur lors du chargement des visages: {e}")
         return {}
 
 employees = load_employees()
@@ -156,10 +170,10 @@ try:
                         min_dist = dist
                         best_name = name
 
-                # ✅ THRESHOLD CORRECT: 0.6 (plus bas = plus strict)
-                if min_dist > 0.6:
+                # ✅ Seuil ajusté à 0.85 pour correspondre au login
+                if min_dist > 0.85:
                     best_name = "INCONNU"
-                    logger.debug(f"Distance trop haute: {min_dist:.3f} > 0.6")
+                    logger.debug(f"Distance trop haute: {min_dist:.3f} > 0.85")
                 else:
                     logger.info(f"Reconnu: {best_name} (distance: {min_dist:.3f})")
 
@@ -193,7 +207,7 @@ try:
                 logger.warning(f"⚠️ Erreur envoi vers serveur: {e}")
 
         # Optionnel: cv2.imshow si besoin en local
-        # cv2.imshow(f"Cam {CAMERA_ID}", display_frame)
+        cv2.imshow(f"Cam {CAMERA_ID}", display_frame)
         if cv2.waitKey(1) == 27:
             break
 

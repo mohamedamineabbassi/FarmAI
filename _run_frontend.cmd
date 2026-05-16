@@ -1,6 +1,6 @@
 @echo off
 title Farm-AI Frontend [4200]
-cd /d "C:\Users\21628\Downloads\farm-ai-project-main (2)\farm-ai-project-main\forntend"
+cd /d "%~dp0forntend"
 echo.
 echo  *** Installing npm dependencies ***
 call npm install

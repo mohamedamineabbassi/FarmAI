@@ -8,6 +8,7 @@ import com.farm.backend.entity.Department;
 import com.farm.backend.repository.UserRepository;
 import com.farm.backend.repository.EmployeeRepository;
 import com.farm.backend.repository.DepartmentRepository;
+import com.farm.backend.repository.AlertRepository;
 import com.farm.backend.service.EmailService;
 import com.farm.backend.entity.Job;
 import java.time.LocalDateTime;
@@ -30,17 +31,20 @@ public class UserController {
     private final EmailService emailService;
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
+    private final AlertRepository alertRepository;
 
     public UserController(UserRepository repo,
                           PasswordEncoder encoder,
                           EmailService emailService,
                           EmployeeRepository employeeRepository,
-                          DepartmentRepository departmentRepository) {
+                          DepartmentRepository departmentRepository,
+                          AlertRepository alertRepository) {
         this.repo = repo;
         this.encoder = encoder;
         this.emailService = emailService;
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
+        this.alertRepository = alertRepository;
     }
 
     // =========================
@@ -109,6 +113,22 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/viewers/{id}")
     public ResponseEntity<Void> deleteViewer(@PathVariable Long id) {
+        User user = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Detach from departments
+        departmentRepository.findAllByManagerId(id).forEach(dept -> {
+            dept.setManager(null);
+            departmentRepository.save(dept);
+        });
+
+        // Remove associated employee by email
+        try {
+            employeeRepository.findByEmail(user.getEmail()).forEach(employeeRepository::delete);
+        } catch (Exception e) {
+            System.out.println("⚠️ No employee to delete for viewer: " + e.getMessage());
+        }
+
         repo.deleteById(id);
         return ResponseEntity.ok().build();
     }
@@ -201,6 +221,22 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/managers/{id}")
     public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
+        User user = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Detach manager from all departments that reference this user
+        departmentRepository.findAllByManagerId(id).forEach(dept -> {
+            dept.setManager(null);
+            departmentRepository.save(dept);
+        });
+
+        // Remove associated employee by email
+        try {
+            employeeRepository.findByEmail(user.getEmail()).forEach(employeeRepository::delete);
+        } catch (Exception e) {
+            System.out.println("⚠️ No employee to delete for manager: " + e.getMessage());
+        }
+
         repo.deleteById(id);
         return ResponseEntity.ok().build();
     }

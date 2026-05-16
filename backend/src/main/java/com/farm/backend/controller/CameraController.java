@@ -63,8 +63,17 @@ public class CameraController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-    cameraRepository.deleteById(id);
-   }
+        try {
+            cameraRepository.deleteCameraEvents(id);
+            cameraRepository.deleteCameraAlerts(id);
+            cameraRepository.deleteFaceEvents(id);
+            cameraRepository.deleteRoleEvents(id);
+            cameraRepository.deleteUnknownDetections(id);
+        } catch (Exception e) {
+            System.err.println("Warning: Could not clean up camera events: " + e.getMessage());
+        }
+        cameraRepository.deleteById(id);
+    }
 
     
 
