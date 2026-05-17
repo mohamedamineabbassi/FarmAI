@@ -7,6 +7,9 @@ public class AIDetectionDTO {
     private String imageBase64;
     private String embeddingHash;
     private Long employeeId;
+    private Long cameraId;
+    private String trackingId;
+    private String direction;
     
     // Getters and Setters
     public String getType() { return type; }
@@ -26,4 +29,13 @@ public class AIDetectionDTO {
 
     public Long getEmployeeId() { return employeeId; }
     public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+
+    public Long getCameraId() { return cameraId; }
+    public void setCameraId(Long cameraId) { this.cameraId = cameraId; }
+
+    public String getTrackingId() { return trackingId; }
+    public void setTrackingId(String trackingId) { this.trackingId = trackingId; }
+
+    public String getDirection() { return direction; }
+    public void setDirection(String direction) { this.direction = direction; }
 }

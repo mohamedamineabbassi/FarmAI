@@ -28,9 +28,19 @@ public class CameraMonitorService {
 
         for (CameraEntity cam : cameras) {
 
+            // 🔥 IDENTIFIER WEBCAM LOCALE
+            boolean isLocal = cam.getSource() != null && 
+                (cam.getSource().equals("0") || cam.getSource().equals("1") || cam.getSource().equalsIgnoreCase("local"));
+
+            if (isLocal) {
+                // Le moteur SOC Python s'occupe des webcams locales.
+                // Le backend Java ne doit JAMAIS forcer leur statut à OFF.
+                continue;
+            }
+
             boolean reachable = false;
 
-            // 🔥 TEST URL
+            // 🔥 TEST URL (Caméras IP seulement)
             if (cam.getSource() != null && !cam.getSource().isEmpty()) {
                 reachable = healthService.isReachable(cam.getSource());
             }

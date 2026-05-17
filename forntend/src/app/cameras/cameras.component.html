@@ -101,14 +101,14 @@
                 
                 <!-- CAMERA FEED -->
                 <ng-container *ngIf="cam.status === 'ACTIVE'">
-                  <!-- Flux HTTP (MJPEG/HLS) -->
-                  <img *ngIf="isUrl(cam.source)" [src]="getSafeUrl(cam.source)" class="camera-feed" />
+                  <!-- Flux IP Externe (Si pas d'IA active) -->
+                  <img *ngIf="isUrl(cam.source) && !aiStatus[cam.id!]" [src]="getSafeUrl(cam.source)" class="camera-feed" />
                   
-                  <!-- Caméra Locale (AI Stream) -->
-                  <img *ngIf="isLocal(cam.source) && cam.lastImage" [src]="'http://localhost:8081/api/upload/files/' + cam.lastImage + '?t=' + imgTimestamp" class="camera-feed" />
+                  <!-- Flux SOC AI Engine (MJPEG) -->
+                  <img *ngIf="aiStatus[cam.id!]" [src]="'http://localhost:8000/api/camera/' + cam.id + '/stream'" class="camera-feed" />
 
-                  <!-- Caméra Locale (Direct - Fallback if no AI) -->
-                  <video *ngIf="isLocal(cam.source) && !cam.lastImage" #videoPlayer [id]="'video-' + cam.id" class="camera-feed" autoplay muted playsinline></video>
+                  <!-- Caméra Locale (Direct Browser - Fallback if no AI) -->
+                  <video *ngIf="isLocal(cam.source) && !aiStatus[cam.id!]" #videoPlayer [id]="'video-' + cam.id" class="camera-feed" autoplay muted playsinline></video>
                 </ng-container>
 
                 <!-- OFFLINE ICON -->

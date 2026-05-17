@@ -9,6 +9,7 @@ import { AlertService, Alert } from '../services/alert.service';
 export class AlertsComponent implements OnInit {
 
   alerts: Alert[] = [];
+  activeCount: number = 0;
   serverUrl = 'http://localhost:8081';
   private previousAlertIds = new Set<number>();
 
@@ -22,12 +23,11 @@ export class AlertsComponent implements OnInit {
   }
 
   load(): void {
-    this.service.getAll().subscribe({
+    // 1. Charger les alertes limitées
+    this.service.getUnresolved().subscribe({
       next: (res) => {
-        // Only show unresolved alerts
-        this.alerts = res.filter(a => !a.resolved);
+        this.alerts = res;
         
-        // Check for new alerts to play sound
         let hasNewAlert = false;
         const currentIds = new Set<number>();
         
@@ -52,6 +52,14 @@ export class AlertsComponent implements OnInit {
         console.error(err);
       }
     });
+
+    // 2. Charger le vrai compte total d'alertes actives
+    this.service.getActiveCount().subscribe({
+      next: (res) => {
+         this.activeCount = res.activeCount;
+      },
+      error: (err) => console.error(err)
+    });
   }
   
   playSound(): void {
@@ -63,9 +71,19 @@ export class AlertsComponent implements OnInit {
 
   resolve(id?: number): void {
     if (!id) return;
+    
+    // Décrémentation visuelle immédiate (optimisation UX)
+    this.alerts = this.alerts.filter(a => a.id !== id);
+    if (this.activeCount > 0) this.activeCount--;
+    
     this.service.resolveAlert(id).subscribe({
-      next: () => this.load(),
-      error: (err) => console.error(err)
+      next: () => {
+         // Le polling fera le reste, pas besoin de reload manuel synchrone
+      },
+      error: (err) => {
+         console.error(err);
+         this.load(); // Rollback visuel en cas d'erreur
+      }
     });
   }
 }

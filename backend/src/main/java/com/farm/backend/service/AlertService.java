@@ -4,6 +4,8 @@ import com.farm.backend.entity.Alert;
 import com.farm.backend.entity.Department;
 import com.farm.backend.repository.AlertRepository;
 import com.farm.backend.repository.DepartmentRepository;
+import com.farm.backend.repository.CameraRepository;
+import com.farm.backend.entity.CameraEntity;
 import com.farm.backend.dto.AIDetectionDTO;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +24,14 @@ public class AlertService {
 
     private final AlertRepository repo;
     private final DepartmentRepository departmentRepository;
+    private final CameraRepository cameraRepository;
 
     public AlertService(AlertRepository repo,
-                        DepartmentRepository departmentRepository) {
+                        DepartmentRepository departmentRepository,
+                        CameraRepository cameraRepository) {
         this.repo = repo;
         this.departmentRepository = departmentRepository;
+        this.cameraRepository = cameraRepository;
     }
 
     // =========================
@@ -69,6 +74,29 @@ public class AlertService {
     }
 
     // =========================
+    // 🔥 GET UNRESOLVED ALERTS
+    // =========================
+    public List<Alert> getUnresolved() {
+        List<Alert> alerts = repo.findTop50ByResolvedFalseOrderByTimestampDesc();
+        for (Alert alert : alerts) {
+            Long deptId = alert.getDepartmentId();
+            if (deptId != null) {
+                departmentRepository.findById(deptId).ifPresent(dept -> {
+                    alert.setDepartmentName(dept.getName());
+                });
+            }
+        }
+        return alerts;
+    }
+
+    // =========================
+    // 🔥 GET ACTIVE ALERT COUNT
+    // =========================
+    public long getActiveCount() {
+        return repo.countByResolvedFalse();
+    }
+
+    // =========================
     // 🔥 HANDLE AI DETECTION
     // =========================
     public Alert handleAIDetection(AIDetectionDTO dto) {
@@ -77,25 +105,30 @@ public class AlertService {
             uniqueHash += dto.getEmbeddingHash();
         } else if (dto.getEmployeeId() != null) {
             uniqueHash += dto.getEmployeeId();
+        } else if (dto.getTrackingId() != null) {
+            uniqueHash += dto.getTrackingId();
         }
 
-        Optional<Alert> existingOpt = repo.findFirstByUniqueHashAndResolvedFalseOrderByTimestampDesc(uniqueHash);
-        if (existingOpt.isPresent()) {
-            Alert existing = existingOpt.get();
-            if (existing.getTimestamp().isAfter(LocalDateTime.now().minusMinutes(5))) {
-                // Update timestamp and count
-                existing.setTimestamp(LocalDateTime.now());
-                existing.setCount(existing.getCount() + 1);
-                return repo.save(existing);
-            }
-        }
+        // SUPPRESSION DE LA DÉDUPLICATION (5 min) ICI
+        // Chaque alerte envoyée par le moteur IA doit créer une NOUVELLE ligne
+        // car le cooldown anti-spam (10s) est géré dans le moteur Python (AlertManager)
 
         // Determine severity
         String severity = "LOW";
         String message = "Alerte générée";
+        
         if ("UNKNOWN_PERSON".equals(dto.getType())) {
             severity = "HIGH";
             message = "Personne inconnue détectée";
+        } else if ("UNKNOWN_ROLE".equals(dto.getType())) {
+            severity = "HIGH";
+            message = "Intrus détecté - rôle inconnu";
+        } else if ("ENTRY_EVENT".equals(dto.getType())) {
+            severity = "LOW";
+            message = "Franchissement : Entrée";
+        } else if ("EXIT_EVENT".equals(dto.getType())) {
+            severity = "LOW";
+            message = "Franchissement : Sortie";
         } else if ("NO_FACE".equals(dto.getType())) {
             severity = "MEDIUM";
             message = "Employé reconnu mais sans visage enregistré";
@@ -128,6 +161,14 @@ public class AlertService {
             }
         }
 
+        Long deptId = null;
+        if (dto.getCameraId() != null) {
+            Optional<CameraEntity> camOpt = cameraRepository.findById(dto.getCameraId());
+            if (camOpt.isPresent() && camOpt.get().getDepartment() != null) {
+                deptId = camOpt.get().getDepartment().getId();
+            }
+        }
+
         Alert newAlert = new Alert();
         newAlert.setType(dto.getType());
         newAlert.setMessage(message);
@@ -135,6 +176,8 @@ public class AlertService {
         newAlert.setLocation(dto.getLocation());
         newAlert.setUniqueHash(uniqueHash);
         newAlert.setEmployeeId(dto.getEmployeeId());
+        newAlert.setCameraId(dto.getCameraId());
+        newAlert.setDepartmentId(deptId);
         newAlert.setImagePath(imagePath);
         newAlert.setTimestamp(LocalDateTime.now());
         newAlert.setResolved(false);

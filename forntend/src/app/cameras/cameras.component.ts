@@ -81,15 +81,8 @@ export class CamerasComponent implements OnInit, OnDestroy {
     this.cameraService.getAll().subscribe(res => {
       this.cameras = res;
       
-      // ✅ On ne tente la capture locale QUE si on n'a pas déjà un flux d'images (AI)
-      const hasLocalActiveDirect = this.cameras.some(c => c.status === 'ACTIVE' && this.isLocal(c.source) && !c.lastImage);
-      
-      if (hasLocalActiveDirect && !this.sharedStream) {
-        this.initSharedWebcam();
-      } else if (this.sharedStream) {
-        // Si le flux direct existe déjà, on l'assigne aux nouveaux éléments
-        setTimeout(() => this.assignSharedStream(), 100);
-      }
+      // ✅ L'Angular ne tente plus de capturer la webcam localement
+      // Tout est délégué au SOC AI Engine qui s'en occupe en arrière-plan.
     });
   }
 
@@ -177,22 +170,18 @@ export class CamerasComponent implements OnInit, OnDestroy {
     const existing = this.cameras.find(c => c.source === '0' || c.source === 'local');
     
     if (existing) {
-      // Camera already exists — just start AI on it
-      if (existing.id && !this.aiStatus[existing.id]) {
-        this.http.post<{running: boolean}>('http://localhost:8081/api/ai/start', {
-          cameraId: existing.id,
-          source: existing.source,
-          type: existing.type || 'FACE'
-        }).subscribe({
-          next: (res) => {
+      if (existing.id && existing.status !== 'ACTIVE') {
+        existing.status = 'ACTIVE';
+        this.cameraService.update(existing.id, existing).subscribe({
+          next: () => {
             this.addingWebcam = false;
-            this.aiStatus[existing.id!] = res.running;
-            alert('✅ Webcam activée ! L\'IA démarre le flux vidéo...');
+            alert('✅ Webcam activée ! L\'IA SOC démarre le flux vidéo...');
             this.loadCameras();
+            setTimeout(() => this.updateAllAIStatus(), 3000);
           },
           error: (err) => {
             this.addingWebcam = false;
-            alert('❌ Erreur activation IA: ' + (err.error?.message || err.message));
+            alert('❌ Erreur activation: ' + err.message);
           }
         });
       } else {
@@ -205,38 +194,19 @@ export class CamerasComponent implements OnInit, OnDestroy {
     // Create new webcam camera entry
     const payload: Camera = {
       name: 'WEBCAM-LOCAL',
-      type: 'FACE',
+      type: 'FACE_RECOGNITION',
       source: '0',
-      status: 'OFF',
+      status: 'ACTIVE', // On l'active par défaut
       location: 'Poste Principal',
       department: this.departments.length > 0 ? { id: this.departments[0].id } : undefined as any
     };
 
     this.cameraService.create(payload).subscribe({
       next: (created) => {
-        // Now start AI stream for this camera
-        if (created.id) {
-          this.http.post<{running: boolean}>('http://localhost:8081/api/ai/start', {
-            cameraId: created.id,
-            source: '0',
-            type: 'FACE'
-          }).subscribe({
-            next: (res) => {
-              this.addingWebcam = false;
-              this.aiStatus[created.id!] = res.running;
-              alert('✅ Webcam ajoutée et activée ! Le flux démarre...');
-              this.loadCameras();
-            },
-            error: () => {
-              this.addingWebcam = false;
-              alert('✅ Webcam ajoutée. Cliquez sur le bouton IA (🧠) pour activer le flux.');
-              this.loadCameras();
-            }
-          });
-        } else {
-          this.addingWebcam = false;
-          this.loadCameras();
-        }
+        this.addingWebcam = false;
+        alert('✅ Webcam ajoutée et activée ! Le moteur SOC s\'en occupe...');
+        this.loadCameras();
+        setTimeout(() => this.updateAllAIStatus(), 3000);
       },
       error: (err) => {
         this.addingWebcam = false;
@@ -270,22 +240,34 @@ export class CamerasComponent implements OnInit, OnDestroy {
   }
 
   checkAIStatus(cameraId: number) {
-    this.http.get<{running: boolean}>(`http://localhost:8081/api/ai/status/${cameraId}`)
-      .subscribe(res => this.aiStatus[cameraId] = res.running);
+    this.http.get<{status: string, active_cameras: number[]}>(`http://localhost:8000/api/engine/status`)
+      .subscribe({
+        next: (res) => {
+          this.aiStatus[cameraId] = res.active_cameras.includes(cameraId);
+        },
+        error: () => {
+          this.aiStatus[cameraId] = false;
+        }
+      });
   }
 
   toggleAI(cam: Camera) {
     if (!cam.id) return;
     
-    const isRunning = this.aiStatus[cam.id];
-    const endpoint = isRunning ? 'stop' : 'start';
-    const payload = isRunning ? { cameraId: cam.id } : { cameraId: cam.id, source: cam.source, type: cam.type };
+    // Si c'était actif, on le désactive. Sinon on l'active.
+    const newStatus = cam.status === 'ACTIVE' ? 'OFF' : 'ACTIVE';
+    
+    const payload: Camera = {
+      ...cam,
+      status: newStatus
+    };
 
-    this.http.post<{running: boolean}>(`http://localhost:8081/api/ai/${endpoint}`, payload)
-      .subscribe(res => {
-        this.aiStatus[cam.id!] = res.running;
-        this.loadCameras();
-      });
+    this.cameraService.update(cam.id, payload).subscribe(() => {
+      cam.status = newStatus;
+      this.loadCameras();
+      // On force une vérification après un petit délai pour le temps de démarrage python
+      setTimeout(() => this.updateAllAIStatus(), 3000);
+    });
   }
 
   // =========================

@@ -34,6 +34,14 @@ export class AlertService {
     return this.http.get<Alert[]>(this.API);
   }
 
+  getUnresolved(): Observable<Alert[]> {
+    return this.http.get<Alert[]>(`${this.API}/unresolved`);
+  }
+
+  getActiveCount(): Observable<{activeCount: number}> {
+    return this.http.get<{activeCount: number}>(`${this.API}/active-count`);
+  }
+
   // 🔥 RESOLVE ALERT
   resolveAlert(id: number): Observable<Alert> {
     return this.http.put<Alert>(`${this.API}/${id}/resolve`, {});

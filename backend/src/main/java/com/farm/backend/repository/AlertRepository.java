@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface AlertRepository extends JpaRepository<Alert, Long> {
     Optional<Alert> findFirstByUniqueHashAndResolvedFalseOrderByTimestampDesc(String uniqueHash);
     List<Alert> findByDepartmentIdOrderByTimestampDesc(Long departmentId);
+    List<Alert> findTop50ByResolvedFalseOrderByTimestampDesc();
+    long countByResolvedFalse();
 }

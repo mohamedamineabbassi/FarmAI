@@ -14,8 +14,8 @@
               <p class="text-muted mb-0">Surveillance en temps réel des menaces et intrusions</p>
             </div>
             <div class="ml-auto text-right">
-              <span class="badge badge-danger px-3 py-2" *ngIf="alerts.length > 0">
-                {{ alerts.length }} ALERTES ACTIVES
+              <span class="badge badge-danger px-3 py-2" *ngIf="activeCount > 0">
+                {{ activeCount }} ALERTES ACTIVES
               </span>
             </div>
           </div>
@@ -53,6 +53,7 @@
                         <img [src]="serverUrl + alert.imagePath" 
                              *ngIf="alert.imagePath"
                              class="alert-img"
+                             loading="lazy"
                              alt="Detection">
                         <div class="no-img" *ngIf="!alert.imagePath">
                           <i class="material-icons">no_photography</i>

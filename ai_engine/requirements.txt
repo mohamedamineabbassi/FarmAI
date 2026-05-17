@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+mysql-connector-python
+numpy
+opencv-python
+ultralytics
+insightface

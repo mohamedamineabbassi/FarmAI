@@ -32,6 +32,20 @@ public class AlertController {
         return service.getAll();
     }
 
+    // 🔥 GET UNRESOLVED ALERTS (Optimisé pour le Polling Angular)
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/unresolved")
+    public List<Alert> getUnresolved() {
+        return service.getUnresolved();
+    }
+
+    // 🔥 GET ACTIVE COUNT
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/active-count")
+    public Map<String, Long> getActiveCount() {
+        return Map.of("activeCount", service.getActiveCount());
+    }
+
     // 🔥 CREATE ALERT (IA)
     @PostMapping
     public void create(@RequestBody Map<String, Object> data) {

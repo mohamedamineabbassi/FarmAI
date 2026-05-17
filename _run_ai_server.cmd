@@ -1,12 +1,12 @@
 @echo off
-title Farm-AI AI Server [8000]
-cd /d "%~dp0ai_system"
+title Farm-AI SOC Engine [8000]
+cd /d "%~dp0"
 echo.
 echo  *** Installing Python dependencies ***
-pip install -r requirements.txt
+pip install -r ai_engine/requirements.txt
 echo.
 echo  *** Starting FastAPI server on port 8000 ***
-python main.py
+python -m ai_engine.main
 echo.
 echo  AI Server has stopped.
 pause

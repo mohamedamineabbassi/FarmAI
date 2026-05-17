@@ -93,7 +93,9 @@ public class CameraController {
         cam.setSource(updated.getSource());
         cam.setLocation(updated.getLocation());
 
-        cam.setStatus("OFF");
+        if (updated.getStatus() != null && !updated.getStatus().isEmpty()) {
+            cam.setStatus(updated.getStatus());
+        }
 
         return cameraRepository.save(cam);
     }

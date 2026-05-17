@@ -104,29 +104,25 @@ echo pause
 REM -- AI Server launcher --
 (
 echo @echo off
-echo title Farm-AI AI Server [8000]
-echo cd /d "%%~dp0ai_system"
+echo title Farm-AI SOC Engine [8000]
+echo cd /d "%%~dp0"
 echo echo.
 echo echo  *** Installing Python dependencies ***
-echo pip install -r requirements.txt
+echo pip install -r ai_engine/requirements.txt
 echo echo.
 echo echo  *** Starting FastAPI server on port 8000 ***
-echo python main.py
+echo python -m ai_engine.main
 echo echo.
 echo echo  AI Server has stopped.
 echo pause
 ) > "%PROJECT_ROOT%\_run_ai_server.cmd"
 
-REM -- Camera launcher --
+REM -- Camera launcher (Disabled because SOC Engine handles it) --
 (
 echo @echo off
 echo title Farm-AI Camera Stream
-echo cd /d "%%~dp0ai_system"
-echo echo.
-echo echo  *** Launching camera stream ***
-echo python camera_ai_stream.py --source 0 --camera_id 1
-echo echo.
-echo echo  Camera stream has stopped.
+echo echo  *** Camera stream is now handled centrally by the SOC Engine ***
+echo echo  You can close this window.
 echo pause
 ) > "%PROJECT_ROOT%\_run_camera.cmd"
 
