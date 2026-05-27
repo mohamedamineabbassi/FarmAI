@@ -210,6 +210,53 @@ public class AuthController {
     }
 
     // =========================
+    // 📸 FACE REGISTER — IMAGE NAVIGATEUR (STATELESS)
+    // =========================
+    /**
+     * Reçoit une image capturée par le navigateur (getUserMedia + canvas snapshot)
+     * et enregistre l'embedding en BD. Pas de dépendance au SOC Engine.
+     */
+    @PostMapping(value = "/face/register-image", consumes = {"multipart/form-data"})
+    public Object registerFaceFromImage(
+            @RequestParam("image") MultipartFile image,
+            @RequestParam("userId") Long userId) {
+
+        if (image == null || image.isEmpty()) {
+            return Map.of("status", "error", "message", "Image manquante.");
+        }
+
+        var userOpt = repo.findById(userId);
+        if (userOpt.isEmpty()) {
+            return Map.of("status", "error", "message", "Utilisateur introuvable.");
+        }
+
+        User user = userOpt.get();
+
+        byte[] bytes;
+        try {
+            bytes = image.getBytes();
+        } catch (IOException e) {
+            return Map.of("status", "error", "message", "Lecture de l'image impossible.");
+        }
+
+        Map<String, Object> result = faceService.registerFromImage(
+                bytes, image.getOriginalFilename(), user.getEmail(), null);
+
+        if ("success".equals(result.get("status"))) {
+            user.setFaceRegistered(true);
+            repo.save(user);
+            return Map.of(
+                    "status", "success",
+                    "message", "Visage enregistré avec succès !",
+                    "role", user.getRole().name(),
+                    "faceRegistered", true
+            );
+        }
+
+        return result;
+    }
+
+    // =========================
     // 🔥 ADMIN CREATE USER
     // =========================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
