@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,9 +28,18 @@ public class FaceService {
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
 
+    // ✅ RestTemplate avec timeouts : connect 5s, read 20s
+    private final RestTemplate restTemplate;
+
     public FaceService(EmployeeRepository employeeRepository, UserRepository userRepository) {
         this.employeeRepository = employeeRepository;
         this.userRepository = userRepository;
+
+        // Configurer les timeouts pour éviter les blocages infinis
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5_000);   // 5 secondes pour se connecter
+        factory.setReadTimeout(20_000);     // 20 secondes max pour la réponse IA
+        this.restTemplate = new RestTemplate(factory);
     }
 
     @Transactional
@@ -38,7 +48,7 @@ public class FaceService {
                 .orElseThrow(() -> new FaceException("Utilisateur non trouvé"));
 
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = this.restTemplate;
             String url = "http://localhost:8000/api/face/register-latest-frame";
             
             // Call the python API which reads from the shared camera frame
@@ -105,7 +115,7 @@ public class FaceService {
                 .orElseThrow(() -> new FaceException("Employé non trouvé"));
 
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = this.restTemplate;
             String url = "http://localhost:8000/api/face/register-latest-frame";
             
             // Pass employeeId directly to the python API
@@ -162,7 +172,7 @@ public class FaceService {
      */
     public Map<String, Object> recognizeFromImage(byte[] imageBytes, String filename) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = this.restTemplate;
             String url = "http://localhost:8000/api/face/recognize";
 
             HttpHeaders headers = new HttpHeaders();
@@ -219,7 +229,7 @@ public class FaceService {
     public Map<String, Object> registerFromImage(byte[] imageBytes, String filename,
                                                   String email, Long employeeId) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = this.restTemplate;
             String url = "http://localhost:8000/api/face/register";
 
             HttpHeaders headers = new HttpHeaders();
@@ -279,7 +289,7 @@ public class FaceService {
 
     public Map<String, Object> recognizeFace() {
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            RestTemplate restTemplate = this.restTemplate;
             String url = "http://localhost:8000/api/face/recognize-latest-frame";
             
             @SuppressWarnings("unchecked")
