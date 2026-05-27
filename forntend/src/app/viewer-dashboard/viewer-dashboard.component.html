@@ -1,88 +1,79 @@
 <div class="viewer-shell">
-  <!-- Sidebar -->
+
+  <!-- ══ SIDEBAR ══ -->
   <aside class="viewer-sidebar">
     <div class="brand">
-      <img src="/assets/img/Gemini_Generated_Image_hffc1ohffc1ohffc.png" alt="Farm AI Logo" />
-      <span>FARM<span class="purple-text">AI</span></span>
+      <img src="/assets/img/Gemini_Generated_Image_hffc1ohffc1ohffc.png" alt="Farm AI" />
+      <span>FARM<span class="accent">AI</span></span>
     </div>
 
     <nav>
-      <a (click)="switchView('dashboard')" [class.active]="currentView === 'dashboard'">
-        <i class="material-icons">dashboard</i>
-        <span>Tableau de bord</span>
+      <a (click)="switchView('dashboard')" [class.active]="currentView==='dashboard'">
+        <i class="material-icons">dashboard</i><span>Tableau de bord</span>
       </a>
       <a (click)="scrollTo('employees')">
-        <i class="material-icons">people</i>
-        <span>Employés</span>
+        <i class="material-icons">people</i><span>Employés</span>
       </a>
-      <a (click)="scrollTo('departments')">
-        <i class="material-icons">apartment</i>
-        <span>Départements</span>
-      </a>
-      <a (click)="switchView('settings')" [class.active]="currentView === 'settings'">
-        <i class="material-icons">settings</i>
-        <span>Paramètres</span>
+      <a (click)="switchView('settings')" [class.active]="currentView==='settings'">
+        <i class="material-icons">settings</i><span>Paramètres</span>
       </a>
     </nav>
 
-    <button type="button" class="logout" (click)="logout()">
-      <i class="material-icons">power_settings_new</i>
-      <span>Déconnexion</span>
+    <button class="logout-btn" (click)="logout()">
+      <i class="material-icons">power_settings_new</i><span>Déconnexion</span>
     </button>
   </aside>
 
-  <!-- Main Content -->
-  <main class="viewer-content">
+  <!-- ══ CONTENU PRINCIPAL ══ -->
+  <main class="viewer-main">
+
+    <!-- Header -->
     <header class="viewer-header">
       <div>
-        <p>Opérateur IA / Viewer</p>
-        <h1>Tableau de Bord Opérationnel</h1>
+        <p class="header-role">Opérateur / Observateur</p>
+        <h1 class="header-title">Tableau de Bord Opérationnel</h1>
       </div>
-      <div class="header-actions">
-        <span class="badge badge-info">SESSION ACTIVE</span>
-        <button type="button" class="refresh" (click)="loadData()">
+      <div class="header-right">
+        <span class="session-badge">SESSION ACTIVE</span>
+        <button class="refresh-btn" (click)="loadData()">
           <i class="material-icons">refresh</i>
         </button>
       </div>
     </header>
 
-    <!-- Stats & Main Dashboard Sections -->
-    <div *ngIf="currentView === 'dashboard'">
-      <section class="stats-grid">
-        <article class="stat-card">
-          <div class="stat-icon blue">
-            <i class="material-icons">apartment</i>
-          </div>
-          <div class="stat-info">
-            <span>Départements</span>
-            <strong>{{ departments.length }}</strong>
-          </div>
-        </article>
-        <article class="stat-card">
-          <div class="stat-icon green">
-            <i class="material-icons">how_to_reg</i>
-          </div>
-          <div class="stat-info">
-            <span>Visages enregistrés</span>
+    <!-- ── Dashboard ── -->
+    <div *ngIf="currentView==='dashboard'">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="material-icons">how_to_reg</i></div>
+          <div>
+            <p>Visages enregistrés</p>
             <strong>{{ getRegisteredCount() }}</strong>
           </div>
-        </article>
-        <article class="stat-card warning" [class.shake]="getUnregisteredCount() > 0">
-          <div class="stat-icon orange">
-            <i class="material-icons">person_search</i>
-          </div>
-          <div class="stat-info">
-            <span>Action requise</span>
+        </div>
+        <div class="stat-card" [class.warn]="getUnregisteredCount()>0">
+          <div class="stat-icon orange"><i class="material-icons">person_search</i></div>
+          <div>
+            <p>Action requise</p>
             <strong>{{ getUnregisteredCount() }} sans visage</strong>
           </div>
-        </article>
-      </section>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="material-icons">people</i></div>
+          <div>
+            <p>Total employés</p>
+            <strong>{{ employees.length }}</strong>
+          </div>
+        </div>
+      </div>
 
-      <!-- Employees Section (Core Action) -->
+      <!-- Section Employés -->
       <section class="panel fade-in" id="employees">
-        <div class="panel-title">
-          <div class="d-flex align-items-center">
-            <i class="material-icons mr-2 text-primary">people</i>
+        <div class="panel-head">
+          <div class="d-flex align-items-center gap-10">
+            <i class="material-icons" style="color:#4caf50;">people</i>
             <div>
               <h2>Gestion des Employés</h2>
               <span>Enregistrez les visages manquants pour activer l'IA</span>
@@ -99,49 +90,45 @@
             <thead>
               <tr>
                 <th>Employé</th>
-                <th>Département</th>
                 <th>Poste</th>
                 <th>Statut AI</th>
-                <th class="text-right">Action</th>
+                <th style="text-align:right;">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let emp of filteredEmployees()" [class.needs-action]="!emp.faceRegistered">
                 <td>
-                  <div class="d-flex align-items-center">
-                    <div class="avatar-sm mr-3" [class.registered]="emp.faceRegistered">
+                  <div class="d-flex align-items-center gap-10">
+                    <div class="avatar" [class.registered]="emp.faceRegistered">
                       {{ emp.name.charAt(0) }}
                     </div>
                     <div>
-                      <div class="font-weight-bold text-white">{{ emp.name }}</div>
-                      <div class="small text-muted">{{ emp.email || 'Pas d\'email' }}</div>
+                      <div class="emp-name">{{ emp.name }}</div>
+                      <div class="emp-email">{{ emp.email || '—' }}</div>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <span class="dept-tag">{{ emp.department?.name || 'Non assigné' }}</span>
+                  <span class="job-tag">{{ emp.job }}</span>
                 </td>
-                <td>{{ emp.job }}</td>
                 <td>
                   <div class="ai-status" [class.ok]="emp.faceRegistered">
                     <i class="material-icons">{{ emp.faceRegistered ? 'check_circle' : 'error_outline' }}</i>
                     <span>{{ emp.faceRegistered ? 'ENREGISTRÉ' : 'À SCANNER' }}</span>
                   </div>
                 </td>
-                <td class="text-right">
-                  <button *ngIf="!emp.faceRegistered" class="btn-action pulse" (click)="captureFace(emp)">
-                    <i class="material-icons">videocam</i>
-                    SCANNER LE VISAGE
+                <td style="text-align:right;">
+                  <button *ngIf="!emp.faceRegistered" class="btn-scan pulse" (click)="captureFace(emp)">
+                    <i class="material-icons">videocam</i> SCANNER
                   </button>
-                  <button *ngIf="emp.faceRegistered" class="btn-action-outline" (click)="captureFace(emp)">
-                    <i class="material-icons">cached</i>
-                    RÉ-ENREGISTRER
+                  <button *ngIf="emp.faceRegistered" class="btn-rescan" (click)="captureFace(emp)">
+                    <i class="material-icons">cached</i> RÉ-ENREGISTRER
                   </button>
                 </td>
               </tr>
-              <tr *ngIf="employees.length === 0">
-                <td colspan="5" class="text-center p-5 text-muted">
-                  <i class="material-icons d-block mb-2" style="font-size: 40px;">group_off</i>
+              <tr *ngIf="filteredEmployees().length===0">
+                <td colspan="4" style="text-align:center;padding:40px;color:#808191;">
+                  <i class="material-icons" style="font-size:40px;display:block;margin-bottom:8px;">group_off</i>
                   Aucun employé trouvé
                 </td>
               </tr>
@@ -149,320 +136,304 @@
           </table>
         </div>
       </section>
-
-      <!-- Departments Section -->
-      <section class="panel mt-4 fade-in" id="departments">
-        <div class="panel-title">
-          <div class="d-flex align-items-center">
-            <i class="material-icons mr-2 text-primary">apartment</i>
-            <div>
-              <h2>Aperçu des Départements</h2>
-              <span>Statistiques par zone</span>
-            </div>
-          </div>
-        </div>
-        <div class="row mt-3">
-          <div class="col-md-4" *ngFor="let dept of departments">
-            <div class="dept-card">
-              <h3>{{ dept.name }}</h3>
-              <div class="dept-stats">
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Total Employés</span>
-                  <strong>{{ (dept.workers || 0) + (dept.doctors || 0) + (dept.electricians || 0) }}</strong>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                  <span>Horaires</span>
-                  <strong>{{ dept.startTime }} - {{ dept.endTime }}</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
 
-    <!-- ⚙️ SETTINGS SECTION -->
-    <div *ngIf="currentView === 'settings'" class="fade-in">
+    <!-- ── Paramètres ── -->
+    <div *ngIf="currentView==='settings'" class="fade-in">
       <app-settings></app-settings>
     </div>
 
   </main>
 </div>
 
-<style>
-/* Modern Viewer Layout */
-:host {
-  display: block;
-  background: #0a0b10;
-  min-height: 100vh;
-}
 
-.viewer-shell {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  min-height: 100vh;
-}
+<!-- ══════════════════════════════════════════════════
+     MODAL WEBCAM — CAPTURE VISAGE
+══════════════════════════════════════════════════ -->
+<div *ngIf="showCameraModal" class="modal-overlay" (click)="$event.target====$event.currentTarget && closeModal()">
+  <div class="cam-modal">
+
+    <!-- En-tête modal -->
+    <div class="cam-modal-header">
+      <div>
+        <h3>
+          <i class="material-icons">face</i>
+          {{ activeEmployee?.faceRegistered ? 'Ré-enregistrement visage' : 'Enregistrement visage' }}
+        </h3>
+        <p>{{ activeEmployee?.name }} — {{ activeEmployee?.job }}</p>
+      </div>
+      <button class="cam-close" (click)="closeModal()">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+
+    <!-- Corps modal -->
+    <div class="cam-modal-body">
+
+      <!-- Erreur caméra -->
+      <div *ngIf="cameraError" class="cam-error">
+        <i class="material-icons">videocam_off</i>
+        <p>{{ cameraError }}</p>
+        <button (click)="startCamera()">
+          <i class="material-icons">refresh</i> Réessayer
+        </button>
+      </div>
+
+      <!-- Succès -->
+      <div *ngIf="scanSuccess" class="cam-success">
+        <i class="material-icons">check_circle</i>
+        <p>{{ scanSuccess }}</p>
+        <p style="font-size:13px;color:#aaa;margin-top:4px;">
+          L'administrateur a été notifié automatiquement.
+        </p>
+        <button (click)="closeModal()">Fermer</button>
+      </div>
+
+      <!-- Vidéo -->
+      <div *ngIf="!cameraError && !scanSuccess" class="cam-view-wrap">
+        <div class="cam-view">
+          <video #captureVideo autoplay playsinline muted></video>
+
+          <!-- Cadre guide -->
+          <div class="face-guide"></div>
+
+          <!-- Overlay init -->
+          <div *ngIf="!cameraReady && !scanLoading" class="cam-overlay">
+            <div class="cam-spinner"></div>
+            <p>Initialisation de la caméra...</p>
+          </div>
+
+          <!-- Overlay scan -->
+          <div *ngIf="scanLoading" class="cam-overlay">
+            <div class="cam-spinner"></div>
+            <p>{{ scanStatus || 'Analyse en cours...' }}</p>
+            <small>Max 25 secondes</small>
+          </div>
+        </div>
+
+        <p class="cam-hint" *ngIf="cameraReady && !scanLoading">
+          <i class="material-icons">info</i>
+          Centrez le visage dans le cadre vert puis cliquez sur Scanner
+        </p>
+
+        <!-- Erreur scan -->
+        <div *ngIf="scanError" class="scan-error">
+          <i class="material-icons">error_outline</i> {{ scanError }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Pied modal -->
+    <div class="cam-modal-footer" *ngIf="!cameraError && !scanSuccess">
+      <button class="btn-cancel" (click)="closeModal()">Annuler</button>
+      <button class="btn-do-scan" (click)="doScan()" [disabled]="!cameraReady || scanLoading">
+        <i class="material-icons">{{ cameraReady && !scanLoading ? 'camera_alt' : 'hourglass_empty' }}</i>
+        {{ scanLoading ? 'Analyse...' : 'Scanner le visage' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════ STYLES ════ -->
+<style>
+:host { display: block; background: #0a0b10; min-height: 100vh; }
+
+/* Shell */
+.viewer-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
 
 /* Sidebar */
 .viewer-sidebar {
   background: #11121a;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  padding: 30px 20px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex; flex-direction: column;
+  padding: 24px 16px;
+  position: sticky; top: 0; height: 100vh;
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  font-size: 24px;
-  font-weight: 900;
-  color: white;
-  margin-bottom: 40px;
-  padding-left: 10px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 22px; font-weight: 900; color: #fff;
+  margin-bottom: 36px; padding-left: 8px;
 }
-
-.brand i { color: #4caf50; margin-right: 10px; font-size: 30px; }
-.purple-text { color: #4caf50; }
+.brand img { width: 36px; height: 36px; border-radius: 8px; }
+.accent { color: #4caf50; }
 
 nav { flex: 1; }
 nav a {
-  display: flex;
-  align-items: center;
-  padding: 14px 18px;
-  color: #a0a0c0;
-  text-decoration: none;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  transition: 0.3s;
-  cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; color: #808191; border-radius: 12px;
+  margin-bottom: 6px; cursor: pointer; transition: .25s;
+  text-decoration: none; font-size: 14px; font-weight: 500;
 }
+nav a:hover { background: rgba(76,175,80,0.1); color: #fff; }
+nav a.active { background: linear-gradient(45deg,#66bb6a,#388e3c); color: #fff; box-shadow: 0 4px 14px rgba(76,175,80,0.3); }
+nav a i { font-size: 20px; }
 
-nav a:hover {
-  background: rgba(76, 175, 80, 0.1);
-  color: white;
+.logout-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px; background: rgba(255,60,60,0.1); color: #ff5252;
+  border: none; border-radius: 12px; cursor: pointer;
+  font-weight: 600; font-size: 14px; width: 100%; transition: .25s;
 }
+.logout-btn:hover { background: #ff5252; color: #fff; }
 
-nav a.active {
-  background: linear-gradient(45deg, #66bb6a, #388e3c);
-  color: white;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-}
+/* Main */
+.viewer-main { padding: 36px 40px; }
 
-nav a i { margin-right: 12px; }
-
-.logout {
-  background: rgba(255, 60, 60, 0.1);
-  color: #ff5252;
-  border: none;
-  padding: 14px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.logout:hover { background: #ff5252; color: white; }
-.logout i { margin-right: 10px; }
-
-/* Content */
-.viewer-content { padding: 40px; }
-
-.viewer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 40px;
-}
-
-.viewer-header p { color: #4caf50; font-weight: bold; margin-bottom: 5px; }
-.viewer-header h1 { color: white; font-size: 32px; font-weight: 800; margin: 0; }
-
-.header-actions { display: flex; align-items: center; }
-.refresh {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 10px;
-  border-radius: 10px;
-  margin-left: 15px;
-  cursor: pointer;
-}
+/* Header */
+.viewer-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 36px; }
+.header-role { color: #4caf50; font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.header-title { color: #fff; font-size: 28px; font-weight: 800; margin: 0; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.session-badge { background: rgba(33,150,243,0.15); color: #42a5f5; border: 1px solid rgba(33,150,243,0.3); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.refresh-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #808191; padding: 8px; border-radius: 10px; cursor: pointer; display: flex; transition: .2s; }
+.refresh-btn:hover { color: #fff; }
 
 /* Stats */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
-  margin-bottom: 40px;
-}
-
-.stat-card {
-  background: #1a1b26;
-  padding: 25px;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.stat-icon {
-  width: 55px;
-  height: 55px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20px;
-}
-
-.stat-icon.blue { background: rgba(33, 150, 243, 0.1); color: #2196f3; }
-.stat-icon.green { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
-.stat-icon.orange { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
-
-.stat-card.warning { border: 1px solid rgba(255, 152, 0, 0.3); }
-
-.stat-info span { color: #808191; font-size: 14px; }
-.stat-info strong { display: block; color: white; font-size: 24px; font-weight: 800; }
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-bottom: 32px; }
+.stat-card { background: #1a1b26; border-radius: 18px; padding: 22px; display: flex; align-items: center; gap: 18px; border: 1px solid rgba(255,255,255,0.05); }
+.stat-card.warn { border-color: rgba(255,152,0,0.3); }
+.stat-icon { width: 50px; height: 50px; border-radius: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-icon.green { background: rgba(76,175,80,0.1); color: #4caf50; }
+.stat-icon.orange { background: rgba(255,152,0,0.1); color: #ff9800; }
+.stat-icon.blue { background: rgba(33,150,243,0.1); color: #2196f3; }
+.stat-card p { color: #808191; font-size: 13px; margin: 0 0 4px; }
+.stat-card strong { color: #fff; font-size: 26px; font-weight: 800; }
 
 /* Panel */
-.panel {
-  background: #1a1b26;
-  border-radius: 24px;
-  padding: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
+.panel { background: #1a1b26; border-radius: 20px; padding: 28px; border: 1px solid rgba(255,255,255,0.05); }
+.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.panel-head h2 { color: #fff; font-size: 20px; font-weight: 700; margin: 0; }
+.panel-head span { color: #808191; font-size: 13px; }
 
-.panel-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.panel-title h2 { color: white; font-size: 22px; font-weight: 700; margin: 0; }
-.panel-title span { color: #808191; font-size: 14px; }
-
-.search-box {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 8px 15px;
-  display: flex;
-  align-items: center;
-  width: 300px;
-}
-
-.search-box i { color: #808191; margin-right: 10px; }
-.search-box input {
-  background: transparent;
-  border: none;
-  color: white;
-  width: 100%;
-}
+.search-box { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px 14px; display: flex; align-items: center; gap: 8px; width: 280px; }
+.search-box i { color: #808191; font-size: 18px; }
+.search-box input { background: transparent; border: none; color: #fff; width: 100%; outline: none; font-size: 14px; }
 
 /* Table */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-th { text-align: left; color: #808191; font-weight: 600; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-td { padding: 18px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: #e0e0e0; }
+th { text-align: left; color: #808191; font-weight: 600; font-size: 12px; letter-spacing: .5px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #e0e0e0; font-size: 14px; }
+.needs-action { background: rgba(255,152,0,0.03); }
 
-.needs-action { background: rgba(255, 152, 0, 0.02); }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: #2a2b3a; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #808191; font-size: 16px; flex-shrink: 0; }
+.avatar.registered { border: 2px solid #4caf50; color: #4caf50; }
+.emp-name { color: #fff; font-weight: 600; }
+.emp-email { color: #808191; font-size: 12px; }
 
-.avatar-sm {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #323544;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: white;
-}
+.job-tag { background: rgba(255,255,255,0.07); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: #ccc; }
 
-.avatar-sm.registered { border: 2px solid #4caf50; color: #4caf50; }
-
-.dept-tag {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-}
-
-.ai-status { display: flex; align-items: center; font-size: 12px; font-weight: bold; }
-.ai-status i { font-size: 18px; margin-right: 6px; color: #ff5252; }
-.ai-status.ok i { color: #4caf50; }
+.ai-status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #ff5252; }
+.ai-status i { font-size: 18px; }
 .ai-status.ok { color: #4caf50; }
 
-.btn-action {
-  background: #4caf50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-action i { margin-right: 8px; font-size: 18px; }
-.btn-action:hover { background: #66bb6a; transform: translateY(-2px); }
-
-.btn-action-outline {
-  background: transparent;
-  color: #808191;
-  border: 1px solid #323544;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: 0.3s;
-}
-.btn-action-outline:hover { border-color: #4caf50; color: white; }
-
-/* Dept Card */
-.dept-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 20px;
-  height: 100%;
-}
-
-.dept-card h3 { color: white; font-size: 18px; margin-bottom: 15px; }
-.dept-stats span { color: #808191; font-size: 14px; }
-.dept-stats strong { color: white; }
+.btn-scan { background: linear-gradient(135deg,#66bb6a,#388e3c); color: #fff; border: none; padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: .25s; }
+.btn-scan:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(76,175,80,0.4); }
+.btn-rescan { background: transparent; color: #808191; border: 1px solid #2a2b3a; padding: 8px 16px; border-radius: 10px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: .25s; }
+.btn-rescan:hover { border-color: #4caf50; color: #4caf50; }
 
 /* Animations */
-.fade-in { animation: fadeIn 0.6s ease-out; }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+.fade-in { animation: fadeIn .5s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .pulse { animation: pulse 2s infinite; }
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-  70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(76,175,80,.6); } 70% { box-shadow: 0 0 0 10px rgba(76,175,80,0); } }
+
+/* Utility */
+.d-flex { display: flex; }
+.align-items-center { align-items: center; }
+.gap-10 { gap: 10px; }
+
+/* ── MODAL WEBCAM ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+}
+.cam-modal {
+  background: #1a1b26; border-radius: 20px;
+  width: 520px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.cam-modal-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 20px 24px;
+  background: linear-gradient(135deg,#11121a,#1e1f2e);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.cam-modal-header h3 { color: #fff; margin: 0 0 4px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+.cam-modal-header h3 i { color: #4caf50; font-size: 22px; }
+.cam-modal-header p { color: #808191; margin: 0; font-size: 13px; }
+.cam-close { background: none; border: none; color: #808191; cursor: pointer; display: flex; border-radius: 8px; padding: 4px; transition: .2s; }
+.cam-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+.cam-modal-body { padding: 20px 24px; }
+
+.cam-error { text-align: center; padding: 30px 0; color: #f44336; }
+.cam-error i { font-size: 48px; display: block; margin-bottom: 10px; }
+.cam-error p { margin-bottom: 16px; }
+.cam-error button { background: rgba(76,175,80,0.2); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); border-radius: 10px; padding: 8px 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+
+.cam-success { text-align: center; padding: 30px 0; }
+.cam-success i { font-size: 60px; color: #4caf50; display: block; margin-bottom: 12px; }
+.cam-success p { color: #fff; font-size: 16px; font-weight: 600; margin: 0; }
+.cam-success button { margin-top: 20px; background: linear-gradient(135deg,#66bb6a,#388e3c); color: #fff; border: none; border-radius: 20px; padding: 10px 28px; cursor: pointer; font-weight: 600; }
+
+.cam-view-wrap {}
+.cam-view {
+  position: relative; border-radius: 14px; overflow: hidden;
+  background: #0a0b10; min-height: 280px;
+}
+.cam-view video { width: 100%; display: block; max-height: 300px; object-fit: cover; }
+
+.face-guide {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-52%);
+  width: 140px; height: 175px;
+  border: 2.5px solid #4caf50;
+  border-radius: 50% 50% 45% 45%;
+  pointer-events: none;
+  box-shadow: 0 0 0 4px rgba(76,175,80,0.12), 0 0 24px rgba(76,175,80,0.3);
 }
 
-.shake { animation: shake 1s infinite; }
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-  20%, 40%, 60%, 80% { transform: translateX(2px); }
+.cam-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: #fff; gap: 12px;
+  border-radius: 14px;
 }
+.cam-overlay p { margin: 0; font-size: 14px; font-weight: 500; }
+.cam-overlay small { color: rgba(255,255,255,0.5); font-size: 11px; }
+.cam-spinner {
+  width: 46px; height: 46px;
+  border: 4px solid rgba(76,175,80,0.2);
+  border-top-color: #4caf50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.cam-hint { color: #808191; font-size: 13px; margin: 10px 0 0; display: flex; align-items: center; gap: 4px; }
+.cam-hint i { font-size: 15px; color: #4caf50; }
+
+.scan-error { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 12px 16px; background: rgba(244,67,54,0.1); border: 1px solid rgba(244,67,54,0.2); border-radius: 10px; color: #ef9a9a; font-size: 13px; }
+.scan-error i { font-size: 18px; color: #f44336; flex-shrink: 0; }
+
+.cam-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.06); }
+.btn-cancel { background: rgba(255,255,255,0.05); color: #808191; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 20px; cursor: pointer; font-size: 14px; transition: .2s; }
+.btn-cancel:hover { color: #fff; }
+.btn-do-scan {
+  background: linear-gradient(135deg,#66bb6a,#2e7d32); color: #fff;
+  border: none; border-radius: 10px; padding: 10px 24px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 8px; transition: .25s;
+}
+.btn-do-scan:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(76,175,80,0.4); }
+.btn-do-scan:disabled { opacity: .5; cursor: not-allowed; }
 </style>

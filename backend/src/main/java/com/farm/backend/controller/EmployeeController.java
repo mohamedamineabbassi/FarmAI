@@ -4,11 +4,14 @@ import com.farm.backend.entity.*;
 import com.farm.backend.repository.*;
 import com.farm.backend.service.EmailService;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +21,7 @@ import java.util.Map;
 public class EmployeeController {
 
     private final EmployeeRepository employeeRepository;
+    private final FaceNotificationRepository faceNotificationRepository;
     private final DepartmentRepository departmentRepository;
     private final EmailService emailService;
     private final com.farm.backend.service.FaceService faceService;
@@ -26,12 +30,14 @@ public class EmployeeController {
     public EmployeeController(EmployeeRepository employeeRepository,
                               DepartmentRepository departmentRepository,
                               EmailService emailService,
-                              com.farm.backend.service.FaceService faceService) {
+                              com.farm.backend.service.FaceService faceService,
+                              FaceNotificationRepository faceNotificationRepository) {
 
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.emailService = emailService;
         this.faceService = faceService;
+        this.faceNotificationRepository = faceNotificationRepository;
     }
 
     // =====================================================
@@ -233,7 +239,7 @@ public class EmployeeController {
     }
 
     // =====================================================
-    // 🎭 FACE MANAGEMENT (PYTHON INTEGRATION)
+    // 🎭 FACE MANAGEMENT (PYTHON INTEGRATION — SOC camera)
     // =====================================================
     @PostMapping("/register-face/{id}")
     public Object registerFace(@PathVariable Long id) {
@@ -245,5 +251,64 @@ public class EmployeeController {
     public Object deleteFace(@PathVariable Long id) {
         faceService.deleteFaceByEmployeeId(id);
         return Map.of("status", "success", "message", "Face deleted");
+    }
+
+    // =====================================================
+    // 📸 FACE REGISTER — IMAGE NAVIGATEUR (STATELESS + NOTIFICATION)
+    // =====================================================
+    @PostMapping(value = "/register-face-image/{id}", consumes = {"multipart/form-data"})
+    public Object registerFaceImage(
+            @PathVariable Long id,
+            @RequestParam("image") MultipartFile image,
+            Authentication auth) {
+
+        Employee employee = employeeRepository.findById(id)
+                .orElse(null);
+        if (employee == null) {
+            return Map.of("status", "error", "message", "Employé introuvable.");
+        }
+
+        byte[] bytes;
+        try {
+            bytes = image.getBytes();
+        } catch (Exception e) {
+            return Map.of("status", "error", "message", "Lecture image impossible.");
+        }
+
+        // Appel Python AI stateless
+        Map<String, Object> result = faceService.registerFromImage(
+                bytes, image.getOriginalFilename(), employee.getEmail(), employee.getId());
+
+        if ("success".equals(result.get("status"))) {
+            // Mise à jour JPA
+            employee.setFaceRegistered(true);
+            employeeRepository.save(employee);
+
+            // ─── Créer la notification pour l'admin ───
+            FaceNotification notif = new FaceNotification();
+            notif.setEmployeeId(employee.getId());
+            notif.setEmployeeName(employee.getName());
+            notif.setEmployeeEmail(employee.getEmail() != null ? employee.getEmail() : "");
+            notif.setEmployeeJob(employee.getJob() != null ? employee.getJob().name() : "");
+            notif.setViewerEmail(auth != null ? auth.getName() : "viewer");
+            notif.setRegisteredAt(LocalDateTime.now());
+            notif.setRead(false);
+
+            // Stocker la miniature en base64 (max ~100 ko)
+            try {
+                String b64 = Base64.getEncoder().encodeToString(bytes);
+                notif.setFaceSnapshot("data:image/jpeg;base64," + b64);
+            } catch (Exception ignored) {}
+
+            faceNotificationRepository.save(notif);
+
+            return Map.of(
+                "status", "success",
+                "message", "Visage enregistré avec succès !",
+                "employeeName", employee.getName()
+            );
+        }
+
+        return result;
     }
 }

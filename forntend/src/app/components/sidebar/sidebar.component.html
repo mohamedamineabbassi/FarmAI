@@ -9,6 +9,16 @@
 
 <div class="sidebar-wrapper">
   <ul class="nav">
+
+    <!-- 🔔 CLOCHE DE NOTIFICATIONS -->
+    <li class="nav-item notif-bell-item">
+      <a class="nav-link notif-bell-link" (click)="openNotifPanel()" style="cursor:pointer; position:relative;">
+        <i class="material-icons">notifications</i>
+        <p>{{ langService.t('Notifications', 'Notifications') }}</p>
+        <span *ngIf="unreadCount > 0" class="notif-badge">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+      </a>
+    </li>
+
     <li class="nav-item" routerLinkActive="active">
       <a class="nav-link" routerLink="/dashboard/analytics">
         <i class="material-icons">analytics</i>
@@ -55,7 +65,6 @@
       <a class="nav-link" routerLink="/dashboard/alerts">
         <i class="material-icons">notifications_active</i>
         <p>{{ langService.t('Centre d\'Alertes', 'Alert Center') }}</p>
-        <span class="sidebar-badge" *ngIf="false">5</span> <!-- Mock badge -->
       </a>
     </li>
 
@@ -66,11 +75,284 @@
       </a>
     </li>
 
-    <li class="nav-item mt-auto" >
+    <li class="nav-item mt-auto">
       <a class="nav-link logout-link" (click)="logout()">
         <i class="material-icons">power_settings_new</i>
         <p>{{ langService.t('Déconnexion', 'Logout') }}</p>
       </a>
     </li>
+
   </ul>
 </div>
+
+<!-- ════════════════════════════════════════════
+     PANNEAU NOTIFICATIONS (slide-in droite)
+════════════════════════════════════════════ -->
+<div *ngIf="showNotifPanel" class="notif-overlay" (click)="closeNotifPanel()"></div>
+
+<div class="notif-panel" [class.open]="showNotifPanel">
+
+  <!-- En-tête -->
+  <div class="notif-panel-header">
+    <div class="d-flex align-items-center">
+      <i class="material-icons mr-2" style="color:#4caf50;">face</i>
+      <strong>Enregistrements visages</strong>
+      <span *ngIf="unreadCount > 0" class="notif-badge ml-2" style="position:static;">{{ unreadCount }}</span>
+    </div>
+    <div class="d-flex align-items-center gap-8">
+      <button *ngIf="!selectedNotif && unreadCount > 0" class="notif-btn-sm" (click)="readAll()">Tout lire</button>
+      <button *ngIf="selectedNotif" class="notif-btn-sm" (click)="backToList()">
+        <i class="material-icons" style="font-size:16px;vertical-align:middle;">arrow_back</i> Retour
+      </button>
+      <button class="notif-close" (click)="closeNotifPanel()">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── LISTE ── -->
+  <div *ngIf="!selectedNotif" class="notif-list">
+    <div *ngIf="notifications.length === 0" class="notif-empty">
+      <i class="material-icons">notifications_none</i>
+      <p>Aucune notification</p>
+    </div>
+
+    <div *ngFor="let n of notifications"
+         class="notif-item"
+         [class.unread]="!n.read"
+         (click)="openDetail(n)">
+
+      <!-- Photo miniature -->
+      <div class="notif-avatar">
+        <img *ngIf="n.faceSnapshot" [src]="n.faceSnapshot" alt="face" />
+        <div *ngIf="!n.faceSnapshot" class="notif-avatar-placeholder">
+          {{ n.employeeName?.charAt(0) }}
+        </div>
+      </div>
+
+      <div class="notif-item-body">
+        <div class="notif-item-name">{{ n.employeeName }}</div>
+        <div class="notif-item-sub">
+          <span class="notif-job-badge" [style.background]="jobColor(n.employeeJob)">{{ jobLabel(n.employeeJob) }}</span>
+          <span class="notif-viewer">par {{ n.viewerEmail }}</span>
+        </div>
+        <div class="notif-time">{{ n.registeredAt | date:'dd/MM/yyyy HH:mm' }}</div>
+      </div>
+
+      <div class="notif-item-actions">
+        <span *ngIf="!n.read" class="notif-dot"></span>
+        <button class="notif-del-btn" (click)="deleteNotif(n, $event)" title="Supprimer">
+          <i class="material-icons">delete_outline</i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DÉTAIL ── -->
+  <div *ngIf="selectedNotif" class="notif-detail">
+
+    <!-- Photo de profil (snapshot du visage) -->
+    <div class="notif-detail-photo">
+      <img *ngIf="selectedNotif.faceSnapshot" [src]="selectedNotif.faceSnapshot" alt="Face ID" />
+      <div *ngIf="!selectedNotif.faceSnapshot" class="notif-detail-placeholder">
+        <i class="material-icons">face</i>
+      </div>
+      <div class="notif-detail-photo-label">Face ID enregistré</div>
+    </div>
+
+    <!-- Informations employé -->
+    <div class="notif-detail-card">
+      <div class="notif-detail-row">
+        <i class="material-icons">person</i>
+        <div>
+          <div class="notif-detail-label">Nom complet</div>
+          <div class="notif-detail-value">{{ selectedNotif.employeeName }}</div>
+        </div>
+      </div>
+      <div class="notif-detail-row">
+        <i class="material-icons">email</i>
+        <div>
+          <div class="notif-detail-label">Email</div>
+          <div class="notif-detail-value">{{ selectedNotif.employeeEmail || '—' }}</div>
+        </div>
+      </div>
+      <div class="notif-detail-row">
+        <i class="material-icons">work</i>
+        <div>
+          <div class="notif-detail-label">Poste</div>
+          <div class="notif-detail-value">
+            <span class="notif-job-badge" [style.background]="jobColor(selectedNotif.employeeJob)">
+              {{ jobLabel(selectedNotif.employeeJob) }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="notif-detail-row">
+        <i class="material-icons">visibility</i>
+        <div>
+          <div class="notif-detail-label">Enregistré par (Observateur)</div>
+          <div class="notif-detail-value">{{ selectedNotif.viewerEmail }}</div>
+        </div>
+      </div>
+      <div class="notif-detail-row">
+        <i class="material-icons">access_time</i>
+        <div>
+          <div class="notif-detail-label">Date d'enregistrement</div>
+          <div class="notif-detail-value">{{ selectedNotif.registeredAt | date:'dd/MM/yyyy à HH:mm' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px; color:#888; font-size:12px; text-align:center;">
+      <i class="material-icons" style="font-size:14px;vertical-align:middle;color:#4caf50;">check_circle</i>
+      Face ID validé par le moteur IA et enregistré en base de données
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ STYLES ════ -->
+<style>
+/* Badge cloche */
+.notif-badge {
+  position: absolute;
+  top: 6px; right: 10px;
+  background: #f44336;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 14px;
+}
+.notif-bell-link { position: relative !important; }
+
+/* Overlay */
+.notif-overlay {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.3);
+}
+
+/* Panneau */
+.notif-panel {
+  position: fixed; top: 0; right: -420px; z-index: 1000;
+  width: 400px; height: 100vh;
+  background: #1a1b26;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  box-shadow: -8px 0 30px rgba(0,0,0,0.4);
+  transition: right .3s cubic-bezier(.4,0,.2,1);
+  display: flex; flex-direction: column;
+  font-family: inherit;
+}
+.notif-panel.open { right: 0; }
+
+/* Header panneau */
+.notif-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  color: #fff; font-size: 15px;
+  background: #11121a;
+}
+.notif-close {
+  background: none; border: none; color: #808191; cursor: pointer;
+  display: flex; align-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: .2s;
+}
+.notif-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.notif-close .material-icons { font-size: 20px; }
+.notif-btn-sm {
+  background: rgba(76,175,80,0.15); color: #4caf50;
+  border: 1px solid rgba(76,175,80,0.3); border-radius: 8px;
+  padding: 4px 12px; font-size: 12px; cursor: pointer;
+  transition: .2s;
+}
+.notif-btn-sm:hover { background: rgba(76,175,80,0.3); }
+.gap-8 { gap: 8px; }
+
+/* Liste */
+.notif-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.notif-empty {
+  text-align: center; color: #808191; padding: 60px 20px;
+}
+.notif-empty .material-icons { font-size: 48px; margin-bottom: 12px; display: block; }
+
+.notif-item {
+  display: flex; align-items: center;
+  padding: 14px 20px; cursor: pointer;
+  transition: background .2s; gap: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.notif-item:hover { background: rgba(255,255,255,0.04); }
+.notif-item.unread { background: rgba(76,175,80,0.06); }
+
+/* Avatar */
+.notif-avatar {
+  width: 52px; height: 52px; border-radius: 12px;
+  overflow: hidden; flex-shrink: 0;
+  border: 2px solid rgba(76,175,80,0.4);
+}
+.notif-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.notif-avatar-placeholder {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg,#388e3c,#1b5e20);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 22px; font-weight: 700;
+}
+
+.notif-item-body { flex: 1; min-width: 0; }
+.notif-item-name { color: #fff; font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notif-item-sub { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.notif-viewer { color: #808191; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notif-time { color: #555; font-size: 11px; margin-top: 4px; }
+
+.notif-job-badge {
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px; white-space: nowrap;
+}
+
+.notif-item-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: #4caf50; display: block; }
+.notif-del-btn {
+  background: none; border: none; color: #444; cursor: pointer;
+  padding: 4px; border-radius: 6px; display: flex; align-items: center;
+  transition: .2s;
+}
+.notif-del-btn:hover { color: #f44336; background: rgba(244,67,54,0.1); }
+.notif-del-btn .material-icons { font-size: 18px; }
+
+/* Détail */
+.notif-detail { flex: 1; overflow-y: auto; }
+.notif-detail-photo {
+  padding: 24px; text-align: center;
+  background: linear-gradient(180deg,#0f0f1a,#1a1b26);
+}
+.notif-detail-photo img {
+  width: 160px; height: 160px; border-radius: 16px;
+  object-fit: cover;
+  border: 3px solid rgba(76,175,80,0.5);
+  box-shadow: 0 8px 30px rgba(76,175,80,0.25);
+}
+.notif-detail-placeholder {
+  width: 160px; height: 160px; border-radius: 16px;
+  background: linear-gradient(135deg,#388e3c,#1b5e20);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto;
+}
+.notif-detail-placeholder .material-icons { font-size: 64px; color: rgba(255,255,255,0.6); }
+.notif-detail-photo-label { color: #4caf50; font-size: 12px; margin-top: 10px; font-weight: 600; }
+
+.notif-detail-card { padding: 16px 20px; }
+.notif-detail-row {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.notif-detail-row .material-icons { color: #4caf50; font-size: 20px; margin-top: 2px; flex-shrink: 0; }
+.notif-detail-label { color: #808191; font-size: 11px; margin-bottom: 3px; }
+.notif-detail-value { color: #fff; font-size: 14px; font-weight: 500; }
+</style>
