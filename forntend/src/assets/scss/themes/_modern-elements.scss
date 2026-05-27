@@ -1,0 +1,627 @@
+// 🎨 MODERN UI ELEMENTS - Contemporary Design System
+// Enhance app elements with modern, sleek design patterns
+
+// =============================================
+// BUTTONS - Modern & Interactive
+// =============================================
+
+.btn {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  padding: 10px 20px !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  border: none !important;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  color: white !important;
+  line-height: 1.5 !important;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+  
+  i {
+    margin-right: 6px;
+    transition: transform 0.3s ease;
+    vertical-align: middle;
+    font-size: 20px;
+  }
+  
+  &:hover i {
+    transform: scale(1.15);
+  }
+}
+
+// Primary Button - Green Gradient
+.btn-primary {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  position: relative;
+  z-index: 1;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+    background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%) !important;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// Success Button
+.btn-success {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+  }
+}
+
+// Danger Button
+.btn-danger {
+  background: linear-gradient(135deg, #f44336 0%, #e53935 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(244, 67, 54, 0.5);
+  }
+}
+
+// Info Button
+.btn-info {
+  background: linear-gradient(135deg, #2196f3 0%, #1e88e5 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(33, 150, 243, 0.5);
+  }
+}
+
+// Link Buttons
+.btn-link {
+  color: var(--primary) !important;
+  text-decoration: none !important;
+  transition: all 0.3s ease;
+  padding: 8px 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  
+  &:hover:not(:disabled) {
+    color: var(--primary-light) !important;
+    transform: translateX(2px);
+    background: transparent !important;
+  }
+
+  &.btn-info {
+    color: #4caf50 !important;
+    &:hover { color: #66bb6a !important; }
+  }
+
+  &.btn-danger {
+    color: #ef5350 !important;
+    &:hover { color: #f44336 !important; }
+  }
+
+  &.btn-success {
+    color: #4caf50 !important;
+    &:hover { color: #66bb6a !important; }
+  }
+}
+
+// Secondary Button (Outline)
+.btn-secondary {
+  background: transparent !important;
+  border: 2px solid var(--primary) !important;
+  color: var(--primary) !important;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background: rgba(76, 175, 80, 0.1) !important;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+  }
+}
+
+// Button Group
+.btn-group {
+  .btn {
+    border-radius: 0 !important;
+    
+    &:first-child {
+      border-radius: 8px 0 0 8px !important;
+    }
+    
+    &:last-child {
+      border-radius: 0 8px 8px 0 !important;
+    }
+  }
+}
+
+// =============================================
+// CARDS - Glass Morphism & Modern Style
+// =============================================
+
+.card {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  overflow: hidden !important;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover {
+    border-color: rgba(76, 175, 80, 0.3) !important;
+    box-shadow: 0 16px 48px rgba(76, 175, 80, 0.15), 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-4px);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+.card-header {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(76, 175, 80, 0.02)) !important;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2) !important;
+  padding: 20px !important;
+  
+  .card-title {
+    color: var(--primary) !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    font-size: 16px !important;
+    letter-spacing: 0.5px;
+  }
+}
+
+.card-body {
+  padding: 24px !important;
+  
+  p {
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+// =============================================
+// FORMS - Modern Input Elements
+// =============================================
+
+.form-group {
+  margin-bottom: 20px !important;
+}
+
+label {
+  font-weight: 600 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  margin-bottom: 8px !important;
+  display: block;
+  font-size: 14px !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.form-control {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  color: white !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+  }
+  
+  &:focus {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15) !important;
+    outline: none !important;
+    transform: scale(1.01);
+  }
+  
+  &:hover:not(:focus) {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+// Select Styling
+select.form-control {
+  cursor: pointer;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.7)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 40px !important;
+  
+  &:focus {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234caf50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  }
+}
+
+// Input Group
+.input-group {
+  .input-group-prepend,
+  .input-group-append {
+    background: rgba(76, 175, 80, 0.08);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    
+    .input-group-text {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      font-weight: 600;
+    }
+  }
+  
+  .form-control:focus {
+    & ~ .input-group-append .input-group-text {
+      color: var(--primary-light);
+    }
+  }
+}
+
+// =============================================
+// ALERTS - Modern Notifications
+// =============================================
+
+.alert {
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 16px 20px !important;
+  margin-bottom: 20px !important;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideInDown 0.4s ease;
+  
+  i {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+}
+
+.alert-success {
+  background: rgba(76, 175, 80, 0.1) !important;
+  border-color: rgba(76, 175, 80, 0.3) !important;
+  color: #81c784 !important;
+}
+
+.alert-danger {
+  background: rgba(244, 67, 54, 0.1) !important;
+  border-color: rgba(244, 67, 54, 0.3) !important;
+  color: #ef5350 !important;
+}
+
+.alert-warning {
+  background: rgba(255, 152, 0, 0.1) !important;
+  border-color: rgba(255, 152, 0, 0.3) !important;
+  color: #ffb74d !important;
+}
+
+.alert-info {
+  background: rgba(33, 150, 243, 0.1) !important;
+  border-color: rgba(33, 150, 243, 0.3) !important;
+  color: #64b5f6 !important;
+}
+
+// =============================================
+// TABLES - Modern Data Display
+// =============================================
+
+.table {
+  border-collapse: collapse;
+  
+  thead {
+    th {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+      border-bottom: 2px solid var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+      padding: 16px !important;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+  }
+  
+  tbody {
+    tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(76, 175, 80, 0.08);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
+      }
+      
+      td {
+        padding: 16px !important;
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
+  }
+}
+
+// =============================================
+// BADGES & PILLS - Modern Tags
+// =============================================
+
+.badge {
+  border-radius: 12px !important;
+  padding: 6px 12px !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.badge-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
+  color: white !important;
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, #f44336, #ef5350) !important;
+  color: white !important;
+}
+
+// =============================================
+// MODALS - Modern Dialog
+// =============================================
+
+.modal-content {
+  background: rgba(15, 20, 25, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(76, 175, 80, 0.2) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2) !important;
+  padding: 24px !important;
+  
+  .modal-title {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 18px;
+  }
+  
+  .close {
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 1;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      color: var(--primary);
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.modal-body {
+  padding: 24px !important;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(76, 175, 80, 0.2) !important;
+  padding: 16px 24px !important;
+}
+
+// =============================================
+// DROPDOWNS & MENUS - Modern Lists
+// =============================================
+
+.dropdown-menu {
+  background: rgba(15, 20, 25, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(76, 175, 80, 0.2) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 8px 0 !important;
+  animation: slideInDown 0.3s ease;
+}
+
+.dropdown-item {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transition: all 0.3s ease !important;
+  padding: 12px 20px !important;
+  
+  &:hover {
+    background: rgba(76, 175, 80, 0.15) !important;
+    color: var(--primary) !important;
+    padding-left: 24px;
+  }
+  
+  &:active {
+    background: rgba(76, 175, 80, 0.25) !important;
+  }
+}
+
+// =============================================
+// PAGINATION - Modern Navigation
+// =============================================
+
+.pagination {
+  gap: 4px;
+  
+  .page-link {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(76, 175, 80, 0.2);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+  }
+  
+  .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  }
+}
+
+// =============================================
+// INPUTS & TEXT AREAS - Enhanced
+// =============================================
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15) !important;
+  }
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+// =============================================
+// ANIMATIONS
+// =============================================
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+// =============================================
+// UTILITY ANIMATIONS
+// =============================================
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slide-in-down {
+  animation: slideInDown 0.4s ease-out;
+}
+
+.slide-in-up {
+  animation: slideInUp 0.4s ease-out;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+.shimmer {
+  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}

@@ -66,7 +66,7 @@
 .navbar-brand {
   font-size: 16px;
   font-weight: 600;
-  color: #fff !important;
+  color: #111111 !important;
 }
 
 /* Scrollable table */
@@ -84,4 +84,34 @@ tr:has(.badge-danger) {
 .spinner-border {
   width: 3rem;
   height: 3rem;
+}
+
+/* Page background and card styling */
+.main-content {
+  background: #ffffff !important;
+  color: #111 !important;
+}
+
+.card.glass-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08) !important;
+}
+
+.card-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.section-title {
+  color: #111 !important;
+}
+
+.text-white {
+  color: #111 !important;
+}
+
+.text-white-50,
+.text-secondary {
+  color: rgba(0, 0, 0, 0.65) !important;
 }

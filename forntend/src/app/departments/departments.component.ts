@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { DepartmentService } from '../services/department.service';
 import { ManagerService } from '../services/manager.service';
 
 @Component({
   selector: 'app-departments',
-  templateUrl: './departments.component.html'
+  templateUrl: './departments.component.html',
+  styleUrls: ['./departments.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class DepartmentsComponent implements OnInit {
 
@@ -66,16 +68,28 @@ export class DepartmentsComponent implements OnInit {
     };
 
     if (this.editMode) {
-      this.service.update(this.editId!, payload).subscribe(() => {
-        alert('Updated');
-        this.loadDepartments();
-        this.reset();
+      this.service.update(this.editId!, payload).subscribe({
+        next: () => {
+          alert('Département mis à jour ✅');
+          this.loadDepartments();
+          this.reset();
+        },
+        error: (err) => {
+          const msg = err?.error?.error || err?.message || 'Erreur inconnue';
+          alert('Erreur lors de la mise à jour : ' + msg);
+        }
       });
     } else {
-      this.service.create(payload).subscribe(() => {
-        alert('Added');
-        this.loadDepartments();
-        this.reset();
+      this.service.create(payload).subscribe({
+        next: () => {
+          alert('Département créé avec succès ✅');
+          this.loadDepartments();
+          this.reset();
+        },
+        error: (err) => {
+          const msg = err?.error?.error || err?.message || 'Erreur inconnue';
+          alert('Erreur lors de la création : ' + msg);
+        }
       });
     }
   }

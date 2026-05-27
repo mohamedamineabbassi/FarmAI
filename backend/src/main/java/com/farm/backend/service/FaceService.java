@@ -12,9 +12,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Map;
-import java.util.Optional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.core.io.ByteArrayResource;
 
 @Service
 public class FaceService {
@@ -38,8 +43,10 @@ public class FaceService {
             
             // Call the python API which reads from the shared camera frame
             Map<String, String> requestBody = Map.of("email", user.getEmail());
+            @SuppressWarnings("unchecked")
             ResponseEntity<Map> response = restTemplate.postForEntity(url, requestBody, Map.class);
-            Map<String, Object> body = response.getBody();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> body = (Map<String, Object>) response.getBody();
             
             if (body == null || !"success".equals(body.get("status"))) {
                 String msg = body != null && body.containsKey("message") ? (String) body.get("message") : "Inconnue";
@@ -108,8 +115,10 @@ public class FaceService {
                 requestBody.put("email", employee.getEmail());
             }
             
+            @SuppressWarnings("unchecked")
             ResponseEntity<Map> response = restTemplate.postForEntity(url, requestBody, Map.class);
-            Map<String, Object> body = response.getBody();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> body = (Map<String, Object>) response.getBody();
             
             if (body == null || !"success".equals(body.get("status"))) {
                 String msg = body != null && body.containsKey("message") ? (String) body.get("message") : "Inconnue";
@@ -146,13 +155,137 @@ public class FaceService {
         deleteFace(user.getId());
     }
 
+    /**
+     * 🌐 STATELESS — Recognize face from an image sent by the browser (getUserMedia).
+     * Forwards the multipart image to FastAPI /api/face/recognize.
+     * Does NOT depend on the SOC Engine having an active camera.
+     */
+    public Map<String, Object> recognizeFromImage(byte[] imageBytes, String filename) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8000/api/face/recognize";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            ByteArrayResource resource = new ByteArrayResource(imageBytes) {
+                @Override
+                public String getFilename() {
+                    return filename != null ? filename : "face.jpg";
+                }
+            };
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("image", resource);
+
+            HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+
+            @SuppressWarnings("unchecked")
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> result = (Map<String, Object>) response.getBody();
+
+            if (result == null || !result.containsKey("status")) {
+                return Map.of("status", "error", "message", "AI engine returned no result");
+            }
+
+            String status = (String) result.get("status");
+            if ("success".equals(status)) {
+                return Map.of(
+                    "status", "success",
+                    "email", result.get("email"),
+                    "confidence", result.getOrDefault("confidence", 0.0)
+                );
+            } else if ("no_face".equals(status)) {
+                return Map.of("status", "error", "message",
+                    result.getOrDefault("message", "Aucun visage détecté."));
+            } else if ("no_match".equals(status)) {
+                return Map.of("status", "error", "message",
+                    result.getOrDefault("message", "Visage non reconnu."));
+            }
+            return Map.of("status", "error", "message",
+                result.getOrDefault("message", "Unknown status"));
+
+        } catch (Exception e) {
+            System.err.println("recognizeFromImage error: " + e.getMessage());
+            return Map.of("status", "error", "message",
+                "Erreur de connexion au moteur IA : " + e.getMessage());
+        }
+    }
+
+    /**
+     * 🌐 STATELESS — Register face from a browser-captured image.
+     */
+    public Map<String, Object> registerFromImage(byte[] imageBytes, String filename,
+                                                  String email, Long employeeId) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "http://localhost:8000/api/face/register";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            ByteArrayResource resource = new ByteArrayResource(imageBytes) {
+                @Override
+                public String getFilename() {
+                    return filename != null ? filename : "face.jpg";
+                }
+            };
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("image", resource);
+            if (email != null && !email.isEmpty()) body.add("email", email);
+            if (employeeId != null) body.add("employeeId", employeeId.toString());
+
+            HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+
+            @SuppressWarnings("unchecked")
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> result = (Map<String, Object>) response.getBody();
+
+            if (result == null) {
+                return Map.of("status", "error", "message", "AI engine returned no result");
+            }
+
+            // Sync JPA cache if successful
+            if ("success".equals(result.get("status"))) {
+                if (email != null && !email.isEmpty()) {
+                    userRepository.findByEmail(email).ifPresent(u -> {
+                        u.setFaceRegistered(true);
+                        userRepository.save(u);
+                    });
+                    employeeRepository.findByEmail(email).stream().findFirst().ifPresent(emp -> {
+                        emp.setFaceRegistered(true);
+                        employeeRepository.save(emp);
+                    });
+                }
+                if (employeeId != null) {
+                    employeeRepository.findById(employeeId).ifPresent(emp -> {
+                        emp.setFaceRegistered(true);
+                        employeeRepository.save(emp);
+                    });
+                }
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            System.err.println("registerFromImage error: " + e.getMessage());
+            return Map.of("status", "error", "message",
+                "Erreur de connexion au moteur IA : " + e.getMessage());
+        }
+    }
+
     public Map<String, Object> recognizeFace() {
         try {
             RestTemplate restTemplate = new RestTemplate();
             String url = "http://localhost:8000/api/face/recognize-latest-frame";
             
+            @SuppressWarnings("unchecked")
             ResponseEntity<Map> response = restTemplate.postForEntity(url, null, Map.class);
-            Map<String, Object> body = response.getBody();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> body = (Map<String, Object>) response.getBody();
             
             if (body == null || !body.containsKey("status")) {
                 return Map.of("status", "error", "message", "Face recognition returned no result");

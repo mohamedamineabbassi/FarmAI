@@ -1,0 +1,44 @@
+.footer {
+  background: linear-gradient(180deg, #073b1f 0%, #0b4f2b 100%);
+  border-top: 1px solid rgba(76, 175, 80, 0.2);
+  padding: 15px 0;
+}
+
+.footer nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 5px;
+}
+
+.footer nav ul li a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.footer nav ul li a:hover {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.footer .copyright {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+}
+
+.footer .copyright a {
+  color: #4caf50;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.footer .copyright a:hover {
+  color: #81c784;
+}

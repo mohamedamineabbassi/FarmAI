@@ -4,12 +4,17 @@
     <div class="row">
       <!-- 🤵 MON PROFIL -->
       <div class="col-md-8">
-        <div class="card glass-card">
-          <div class="card-header card-header-purple">
-            <h4 class="card-title text-white font-weight-bold">👤 MON PROFIL SÉCURISÉ</h4>
-            <p class="card-category text-white-50">Gérez vos informations personnelles et identifiants</p>
+        <div class="dept-card fade-in h-100">
+          <div class="card-header border-0 pb-0 px-4 pt-4 d-flex align-items-center">
+            <div class="icon-wrapper mr-3" style="background: linear-gradient(135deg, #4caf50, #388e3c); padding: 10px; border-radius: 12px; box-shadow: 0 4px 10px rgba(76,175,80,0.3);">
+              <i class="material-icons text-white" style="font-size: 24px;">manage_accounts</i>
+            </div>
+            <div>
+              <h4 class="text-dark font-weight-bold m-0" style="font-size: 18px;">MON PROFIL SÉCURISÉ</h4>
+              <p class="text-muted small m-0 mt-1">Gérez vos informations personnelles et identifiants</p>
+            </div>
           </div>
-          <div class="card-body p-4">
+          <div class="card-body p-4 mt-2">
             <form>
               <div class="row mt-3">
                 <div class="col-md-5">
@@ -47,8 +52,11 @@
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary pull-right mt-4 px-4 shadow-purple">METTRE À JOUR MES INFOS</button>
-              <div class="clearfix"></div>
+              <div class="row mt-4">
+                <div class="col-md-12 text-right">
+                  <button type="submit" class="btn btn-save px-4">METTRE À JOUR MES INFOS</button>
+                </div>
+              </div>
             </form>
           </div>
         </div>
@@ -56,20 +64,20 @@
 
       <!-- 🛡️ BIOMÉTRIE & SÉCURITÉ -->
       <div class="col-md-4">
-        <div class="card glass-card text-center py-5">
+        <div class="dept-card text-center py-5 fade-in h-100 d-flex flex-column justify-content-center">
           <div class="card-body">
-            <div class="icon-security-wrapper mb-4">
-              <i class="material-icons" style="font-size: 80px; color: #9c27b0;">face</i>
+            <div class="icon-security-wrapper mx-auto mb-4" style="width: 100px; height: 100px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #bbf7d0; box-shadow: 0 0 20px rgba(76, 175, 80, 0.1);">
+              <i class="material-icons text-success" style="font-size: 50px;">face</i>
             </div>
-            <h4 class="text-white font-weight-bold mb-3">BIOMÉTRIE FACIALE</h4>
-            <p class="text-white-50 px-3">Enregistrez votre visage pour activer l'authentification biométrique sans mot de passe.</p>
+            <h4 class="text-dark font-weight-bold mb-3" style="font-size: 18px;">BIOMÉTRIE FACIALE</h4>
+            <p class="text-muted px-3 small font-weight-bold" style="line-height: 1.5;">Enregistrez votre visage pour activer l'authentification biométrique sans mot de passe.</p>
             
-            <div class="mt-5 px-3">
-               <button class="btn btn-primary btn-block py-3 mb-3" (click)="registerFace()">
-                 <i class="material-icons mr-2">camera_enhance</i> ENREGISTRER MON VISAGE
+            <div class="mt-4 px-3">
+               <button class="btn btn-save btn-block py-3 d-flex justify-content-center align-items-center mb-3" (click)="registerFace()" style="border-radius: 12px; font-size: 13px;">
+                 <i class="material-icons mr-2" style="font-size: 18px;">camera_enhance</i> ENREGISTRER MON VISAGE
                </button>
-               <button class="btn btn-outline-danger btn-block btn-sm" (click)="deleteFace()">
-                 <i class="material-icons mr-2" style="font-size: 14px;">delete_forever</i> SUPPRIMER MES DONNÉES BIO
+               <button class="btn btn-block btn-sm d-flex justify-content-center align-items-center" (click)="deleteFace()" style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; border-radius: 8px; font-weight: bold; padding: 10px;">
+                 <i class="material-icons mr-2" style="font-size: 16px;">delete_forever</i> SUPPRIMER MES DONNÉES BIO
                </button>
             </div>
           </div>
@@ -79,19 +87,3 @@
 
   </div>
 </div>
-
-<style>
-.icon-security-wrapper {
-  width: 120px;
-  height: 120px;
-  background: rgba(156, 39, 176, 0.1);
-  border-radius: 50%;
-  margin: 0 auto;
-  line-height: 120px;
-  border: 1px solid rgba(156, 39, 176, 0.3);
-  box-shadow: 0 0 20px rgba(156, 39, 176, 0.2);
-}
-.shadow-purple {
-  box-shadow: 0 4px 15px rgba(156, 39, 176, 0.4) !important;
-}
-</style>

@@ -175,7 +175,7 @@ class FarmAIDiagnostics:
             }
             
             sql = """
-            INSERT INTO employees (name, email, phone, job, status, faceRegistered, available, createdAt)
+            INSERT INTO employees (name, email, phone, job, status, face_registered, available, created_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
             """
             values = (

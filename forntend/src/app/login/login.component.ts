@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LanguageService } from '../services/language.service';
@@ -24,6 +24,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   showCamera = false;
   cameraStatus = '';
 
+  // 🎥 Browser webcam (getUserMedia)
+  @ViewChild('videoEl', { static: false }) videoEl!: ElementRef<HTMLVideoElement>;
+  private mediaStream: MediaStream | null = null;
+
   private cursorGlow: HTMLElement | null = null;
   private cursorTrail: HTMLElement | null = null;
   private particles: HTMLElement[] = [];
@@ -45,6 +49,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.cursorTrail) this.cursorTrail.remove();
     this.particles.forEach(p => p.remove());
     cancelAnimationFrame(this.animFrame);
+
+    // 🛑 Toujours libérer la webcam si encore active
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(t => t.stop());
+      this.mediaStream = null;
+    }
   }
 
   // =========================
@@ -158,76 +168,173 @@ export class LoginComponent implements OnInit, OnDestroy {
       error: (err) => {
 
         this.loading = false;
-        this.error = err.error?.message || 'Login failed ❌';
+        this.error = err.error?.message || err.error?.error || 'Email ou mot de passe incorrect ❌';
 
       }
     });
   }
 
   // =========================
-  // 🤖 LOGIN PAR VISAGE
+  // 🤖 LOGIN PAR VISAGE — BROWSER WEBCAM (getUserMedia)
   // =========================
-  openCamera() {
-    this.showCamera = true;
+  async openCamera() {
     this.error = '';
+    this.showCamera = true;
     this.cameraStatus = this.langService.t(
-      'Caméra prête — Cliquez sur SCANNER',
-      'Camera ready — Click SCAN'
+      'Initialisation de la caméra...',
+      'Initializing camera...'
     );
+
+    try {
+      // Demande la webcam du navigateur (permission utilisateur explicite)
+      this.mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width:  { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: 'user'
+        },
+        audio: false
+      });
+
+      // Attendre que le <video> existe dans le DOM (après showCamera = true)
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      if (this.videoEl && this.videoEl.nativeElement) {
+        this.videoEl.nativeElement.srcObject = this.mediaStream;
+        await this.videoEl.nativeElement.play();
+        this.cameraStatus = this.langService.t(
+          'Caméra prête — Cliquez sur SCANNER',
+          'Camera ready — Click SCAN'
+        );
+      } else {
+        throw new Error('Video element not ready');
+      }
+    } catch (err: any) {
+      console.error('getUserMedia error:', err);
+      this.showCamera = false;
+      if (err.name === 'NotAllowedError') {
+        this.error = this.langService.t(
+          'Accès à la caméra refusé. Autorisez-le dans les paramètres du navigateur.',
+          'Camera access denied. Allow it in your browser settings.'
+        );
+      } else if (err.name === 'NotFoundError') {
+        this.error = this.langService.t(
+          'Aucune caméra détectée sur cet appareil.',
+          'No camera detected on this device.'
+        );
+      } else if (err.name === 'NotReadableError') {
+        this.error = this.langService.t(
+          'Caméra déjà utilisée par une autre application.',
+          'Camera is already in use by another application.'
+        );
+      } else {
+        this.error = this.langService.t(
+          'Impossible d\'accéder à la caméra : ',
+          'Cannot access camera: '
+        ) + (err.message || err.name);
+      }
+    }
   }
 
   stopCamera() {
+    // Libère la webcam (important — sinon LED reste allumée)
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(t => t.stop());
+      this.mediaStream = null;
+    }
+    if (this.videoEl && this.videoEl.nativeElement) {
+      this.videoEl.nativeElement.srcObject = null;
+    }
     this.showCamera = false;
     this.faceLoading = false;
   }
 
+  /**
+   * Capture un snapshot depuis le <video>, l'envoie en multipart au backend.
+   */
   faceLogin() {
+    if (!this.videoEl || !this.videoEl.nativeElement || !this.mediaStream) {
+      this.error = 'Caméra non initialisée';
+      return;
+    }
+
+    const video = this.videoEl.nativeElement;
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      this.cameraStatus = this.langService.t(
+        'Caméra encore en cours de chargement, réessayez...',
+        'Camera still loading, try again...'
+      );
+      return;
+    }
+
     this.faceLoading = true;
     this.error = '';
     this.cameraStatus = this.langService.t('Analyse en cours...', 'Analyzing...');
 
-    this.http.post<any>('http://localhost:8081/api/auth/face-login', {})
-      .subscribe({
+    // 1. Snapshot vers un canvas off-screen
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      this.faceLoading = false;
+      this.error = 'Canvas non disponible';
+      return;
+    }
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        next: (res) => {
+    // 2. Conversion en JPEG blob (qualité 0.85)
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        this.faceLoading = false;
+        this.error = 'Impossible de capturer l\'image';
+        return;
+      }
 
-          this.faceLoading = false;
+      // 3. POST multipart vers Spring Boot
+      const formData = new FormData();
+      formData.append('image', blob, 'face.jpg');
 
-          console.log("FACE LOGIN:", res);
-
-          if (res.status === 'success') {
-
-            const role = res.role || '';
-
-            // ✅ STOCKAGE
-            localStorage.setItem('token', res.token);
-            localStorage.setItem('role', role);
-            localStorage.setItem('email', res.email);
-            localStorage.setItem('faceRegistered', 'true');
-
-            // 🔥 REDIRECTION
-            if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
-              this.router.navigate(['/dashboard']);
-            } else if (role === 'ROLE_MANAGER' || role === 'MANAGER') {
-              this.router.navigate(['/dashboard/manager']);
-            } else if (role === 'ROLE_VIEWER' || role === 'VIEWER') {
-              this.router.navigate(['/dashboard/viewer']);
-            } else {
-              this.router.navigate(['/login']);
-            }
-
-          } else {
-            this.error = res.message || "Face non reconnue ❌";
-            this.cameraStatus = this.error;
+      this.http.post<any>('http://localhost:8081/api/auth/face-login', formData)
+        .subscribe({
+          next: (res) => {
             this.faceLoading = false;
-          }
-        },
+            console.log('FACE LOGIN:', res);
 
-        error: (err) => {
-          this.faceLoading = false;
-          this.error = err.error?.message || "Erreur reconnaissance ❌";
-          this.cameraStatus = this.error;
-        }
-      });
+            if (res.status === 'success') {
+              const role = res.role || '';
+
+              // ✅ STOCKAGE
+              localStorage.setItem('token', res.token);
+              localStorage.setItem('role', role);
+              localStorage.setItem('email', res.email);
+              localStorage.setItem('faceRegistered', 'true');
+              if (res.userId) localStorage.setItem('userId', res.userId);
+
+              // 🛑 Couper la webcam avant redirection
+              this.stopCamera();
+
+              // 🔥 REDIRECTION
+              if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
+                this.router.navigate(['/dashboard']);
+              } else if (role === 'ROLE_MANAGER' || role === 'MANAGER') {
+                this.router.navigate(['/dashboard/manager']);
+              } else if (role === 'ROLE_VIEWER' || role === 'VIEWER') {
+                this.router.navigate(['/dashboard/viewer']);
+              } else {
+                this.router.navigate(['/login']);
+              }
+            } else {
+              this.error = res.message || 'Visage non reconnu ❌';
+              this.cameraStatus = this.error;
+            }
+          },
+          error: (err) => {
+            this.faceLoading = false;
+            this.error = err.error?.message || 'Erreur reconnaissance ❌';
+            this.cameraStatus = this.error;
+          }
+        });
+    }, 'image/jpeg', 0.85);
   }
 }

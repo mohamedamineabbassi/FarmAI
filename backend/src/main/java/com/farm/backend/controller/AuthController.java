@@ -4,9 +4,11 @@ import com.farm.backend.entity.*;
 import com.farm.backend.repository.*;
 import com.farm.backend.config.JwtUtil;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -39,39 +41,43 @@ public class AuthController {
     // 🔐 LOGIN
     // =========================
     @PostMapping("/login")
-    public Object login(@RequestBody User user) {
+    public ResponseEntity<?> login(@RequestBody User user) {
 
         if (user.getEmail() == null || user.getPassword() == null) {
-            return Map.of("error", "Email or password is missing");
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Email ou mot de passe manquant"));
         }
 
         var db = repo.findByEmail(user.getEmail());
 
         if (db.isEmpty()) {
-            return Map.of("error", "User not found");
+            return ResponseEntity.status(401)
+                    .body(Map.of("message", "Email ou mot de passe incorrect ❌"));
         }
 
         if (!encoder.matches(user.getPassword(), db.get().getPassword())) {
-            return Map.of("error", "Wrong password");
+            return ResponseEntity.status(401)
+                    .body(Map.of("message", "Email ou mot de passe incorrect ❌"));
         }
 
         // 🔥 check if enabled
         if (!db.get().isEnabled()) {
-            return Map.of("error", "Account not activated");
-        }   
+            return ResponseEntity.status(403)
+                    .body(Map.of("message", "Compte non activé. Vérifiez votre email."));
+        }
 
         String token = JwtUtil.generateToken(
-                db.get().getEmail(),   // 🔥 CORRECTION
+                db.get().getEmail(),
                 db.get().getRole().name()
         );
 
-        return Map.of(
+        return ResponseEntity.ok(Map.of(
                 "token", token,
                 "role", db.get().getRole().name(),
                 "email", db.get().getEmail(),
                 "faceRegistered", db.get().isFaceRegistered(),
                 "userId", db.get().getId()
-        );
+        ));
     }
 
     // =========================
@@ -135,32 +141,55 @@ public class AuthController {
     }
 
     // =========================
-    // 👤 FACE LOGIN
+    // 👤 FACE LOGIN (STATELESS — browser snapshot)
     // =========================
-    @PostMapping("/face-login")
-    public Object faceLogin() {
-        Map<String, Object> recognition = faceService.recognizeFace();
+    /**
+     * Reçoit une image capturée par le navigateur (getUserMedia + canvas snapshot)
+     * et l'envoie au moteur IA pour reconnaissance. Si match → JWT.
+     *
+     * Pas de dépendance au SOC Engine côté caméra ; tout est stateless.
+     */
+    @PostMapping(value = "/face-login", consumes = {"multipart/form-data"})
+    public Object faceLogin(@RequestParam("image") MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            return Map.of("status", "error", "message", "Image manquante.");
+        }
+
+        byte[] bytes;
+        try {
+            bytes = image.getBytes();
+        } catch (IOException e) {
+            return Map.of("status", "error", "message", "Lecture de l'image impossible.");
+        }
+
+        Map<String, Object> recognition = faceService.recognizeFromImage(bytes, image.getOriginalFilename());
 
         if (!"success".equals(recognition.get("status"))) {
             return Map.of(
                 "status", "error",
-                "message", recognition.get("message") != null ? recognition.get("message") : "Face not recognized"
+                "message", recognition.get("message") != null
+                    ? recognition.get("message")
+                    : "Visage non reconnu."
             );
         }
 
         String email = (String) recognition.get("email");
         if (email == null) {
-            return Map.of("status", "error", "message", "Unknown face");
+            return Map.of("status", "error", "message", "Email inconnu.");
         }
 
         var user = repo.findByEmail(email);
         if (user.isEmpty()) {
-            return Map.of("status", "error", "message", "User account not found");
+            return Map.of("status", "error", "message", "Compte utilisateur introuvable.");
         }
 
-        // Check if face is registered in User entity
+        if (!user.get().isEnabled()) {
+            return Map.of("status", "error", "message", "Compte non activé.");
+        }
+
         if (!user.get().isFaceRegistered()) {
-            return Map.of("status", "error", "message", "Face not registered. Please register your face in Settings first.");
+            return Map.of("status", "error",
+                "message", "Visage non enregistré. Veuillez l'enregistrer dans Paramètres.");
         }
 
         String token = JwtUtil.generateToken(
@@ -176,7 +205,7 @@ public class AuthController {
         response.put("faceRegistered", user.get().isFaceRegistered());
         response.put("userId", user.get().getId());
         response.put("confidence", recognition.get("confidence"));
-        
+
         return response;
     }
 

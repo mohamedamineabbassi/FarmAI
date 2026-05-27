@@ -5,11 +5,15 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:fast": "ng serve --poll=1000 --disable-host-check --configuration=development",
+    "start:turbo": "ng serve --poll=500 --disable-host-check --configuration=development",
     "build": "ng build",
+    "build:fast": "ng build --named-chunks --source-map=false",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && ng serve -o"
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && ng serve -o",
+    "cache:clear": "rm -rf .angular && rm -rf dist && npm run start:turbo"
   },
   "engines": {
     "node": "6.11.1",

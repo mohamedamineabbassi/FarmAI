@@ -296,7 +296,30 @@
 
 
     &[data-background-color="black"]{
-        @include sidebar-background-color($gray-base, $white-color);
+        background: linear-gradient(180deg, #073b1f 0%, #0b4f2b 100%) !important;
+        box-shadow: 10px 0 30px rgba(6, 45, 23, 0.6) !important;
+
+        .sidebar-wrapper{
+          background: transparent !important;
+        }
+
+        .nav li a {
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .nav li a i {
+          color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .nav li:hover:not(.active) a {
+          background: rgba(255, 255, 255, 0.03) !important;
+          color: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        .nav li.active a {
+          background: linear-gradient(60deg, #66bb6a, #388e3c) !important;
+          color: white !important;
+        }
 
         .nav li .dropdown-menu .dropdown-item{
           color: $white-color;

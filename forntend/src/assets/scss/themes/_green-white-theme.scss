@@ -1,0 +1,237 @@
+// 🌿 GREEN & WHITE THEME - Modern Color Palette
+// This theme replaces the old purple/black scheme with a fresh green/white design
+
+:root {
+  // Primary Colors - Green Palette
+  --primary: #4caf50;
+  --primary-light: #81c784;
+  --primary-dark: #388e3c;
+  --primary-darker: #2e7d32;
+  
+  // Accent Colors
+  --accent-success: #4caf50;
+  --accent-warning: #ff9800;
+  --accent-danger: #f44336;
+  --accent-info: #2196f3;
+  
+  // Backgrounds
+  --bg-dark: #0f1419;
+  --bg-darker: #0a0e12;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-hover: rgba(76, 175, 80, 0.08);
+  
+  // Text Colors
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  
+  // Borders
+  --border-light: 1px solid rgba(255, 255, 255, 0.1);
+  --border-primary: 1px solid rgba(76, 175, 80, 0.3);
+  --border-glass: 1px solid rgba(255, 255, 255, 0.1);
+  
+  // Shadow Colors
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 10px 30px rgba(76, 175, 80, 0.2);
+  
+  // Glass Effect
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 10px;
+}
+
+// =============================================
+// GLOBAL THEME ADJUSTMENTS
+// =============================================
+
+body {
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+  color: var(--text-primary);
+}
+
+// Primary Button Style
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+  border: none !important;
+  color: white !important;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary)) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Form Controls
+.form-control {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: var(--border-light) !important;
+  color: var(--text-primary) !important;
+  
+  &:focus {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+  }
+}
+
+// Glass Card Style
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-border);
+  border-radius: 15px;
+  color: var(--text-primary);
+  
+  &:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+// Badges
+.badge-primary {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.badge-success {
+  background: var(--accent-success) !important;
+  color: white !important;
+}
+
+// Links
+a {
+  color: var(--primary);
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: var(--primary-light);
+  }
+}
+
+// Input Placeholder
+::placeholder {
+  color: var(--text-muted) !important;
+}
+
+// Selection
+::selection {
+  background: var(--primary);
+  color: white;
+}
+
+// =============================================
+// COMPONENT-SPECIFIC OVERRIDES
+// =============================================
+
+// Card Headers
+.card-header {
+  background: rgba(76, 175, 80, 0.05);
+  border-color: var(--primary);
+  
+  .card-title {
+    color: var(--primary);
+  }
+}
+
+// Alerts
+.alert {
+  border-left: 4px solid var(--primary);
+  
+  &.alert-success {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: var(--accent-success);
+    color: var(--primary-light);
+  }
+}
+
+// Tables
+table {
+  thead {
+    background: rgba(76, 175, 80, 0.05);
+    
+    th {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+  }
+  
+  tbody tr:hover {
+    background: var(--bg-hover);
+  }
+}
+
+// Navigation
+nav {
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(var(--glass-blur));
+  border-bottom: var(--border-primary);
+}
+
+// =============================================
+// UTILITY CLASSES
+// =============================================
+
+.text-primary {
+  color: var(--primary) !important;
+}
+
+.text-success {
+  color: var(--accent-success) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.bg-primary-light {
+  background: rgba(76, 175, 80, 0.1) !important;
+}
+
+.border-primary {
+  border-color: var(--primary) !important;
+}
+
+.shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+// =============================================
+// ANIMATIONS
+// =============================================
+
+@keyframes fadeInGreen {
+  from {
+    opacity: 0;
+    filter: drop-shadow(0 0 0px rgba(76, 175, 80, 0));
+  }
+  to {
+    opacity: 1;
+    filter: drop-shadow(0 0 15px rgba(76, 175, 80, 0.4));
+  }
+}
+
+@keyframes pulseGreen {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+}
+
+.fade-in-green {
+  animation: fadeInGreen 0.6s ease-out;
+}
+
+.pulse-green {
+  animation: pulseGreen 2s infinite;
+}

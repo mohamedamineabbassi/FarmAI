@@ -21,6 +21,11 @@
  @import "core/mixins";
  @import "bootstrap/scss/bootstrap";
 
+ // 🌿 Theme Import - Green & White Modern Design
+ @import "themes/green-white-theme";
+ 
+ // ✨ Modern UI Elements - Contemporary Components
+ @import "themes/modern-elements";
 
  // Core Components
  @import "core/buttons";

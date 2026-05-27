@@ -4,9 +4,33 @@
     min-height: 100vh;
 }
 
+/* 🟢 TEXTE VERT LISIBLE DANS TOUS LES SPANS */
+span {
+    color: #2e7d32 !important;
+}
+
+/* Exceptions : badges d'erreur et d'alerte gardent leur couleur spécifique */
+span.badge-danger {
+    color: #ffffff !important;
+    background-color: #ef4444 !important;
+}
+span.badge-warning {
+    color: #ffffff !important;
+    background-color: #f59e0b !important;
+}
+span.badge-secondary {
+    color: #ffffff !important;
+    background-color: #64748b !important;
+}
+span.badge-success {
+    color: #ffffff !important;
+    background-color: #4caf50 !important;
+}
+
 /* ✨ GLASSMORPHISM CARD */
 .glass-card {
-    background: rgba(30, 30, 47, 0.7) !important;
+    background: rgba(24, 189, 101, 0.7) !important;
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
@@ -20,13 +44,17 @@
     box-shadow: 0 12px 40px 0 rgba(156, 39, 176, 0.2) !important;
 }
 
+.glass-card .card-title {
+    color: #4caf50 !important;
+}
+
 /* 💜 NEON ACCENTS */
 .neon-purple {
-    border-top: 3px solid #9c27b0 !important;
+    border-top: 3px solid #4caf50 !important;
 }
 
 .neon-cyan {
-    border-top: 3px solid #00bcd4 !important;
+    border-top: 3px solid #4caf50 !important;
 }
 
 .neon-green {
@@ -34,7 +62,7 @@
 }
 
 .neon-red {
-    border-top: 3px solid #f44336 !important;
+    border-top: 3px solid #4caf50 !important;
 }
 
 /* 📈 CHART STYLES */
@@ -56,8 +84,20 @@
 }
 
 .ct-label {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 11px;
+    color: #4caf50 !important;
+    font-weight: 600;
+    font-size: 12px;
+    fill: #4caf50 !important;
+}
+
+/* SVG Text Elements in Charts */
+.ct-chart text {
+    fill: #4caf50 !important;
+    color: #4caf50 !important;
+}
+
+.ct-axis-title {
+    fill: #4caf50 !important;
 }
 
 /* 🤖 AI INSIGHTS CARD */
@@ -99,7 +139,8 @@
     text-transform: uppercase;
     font-size: 12px;
     letter-spacing: 1px;
-    color: #9c27b0;
+    color: #4caf50;
+    font-weight: 700;
 }
 
 .custom-table td {

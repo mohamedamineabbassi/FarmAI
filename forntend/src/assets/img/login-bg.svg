@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e9f7ed"/>
+      <stop offset="55%" stop-color="#f5fff8"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="fieldGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#dcedc8"/>
+      <stop offset="50%" stop-color="#b9f6ca"/>
+      <stop offset="100%" stop-color="#a5d6a7"/>
+    </linearGradient>
+    <linearGradient id="towerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#86b18c" stop-opacity="0.95"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#skyGrad)"/>
+
+  <g opacity="0.25">
+    <path d="M0 680 C200 590 400 720 620 660 C840 600 980 760 1200 700 L1200 800 L0 800 Z" fill="#dcedc8"/>
+    <path d="M0 720 C200 660 420 780 600 720 C780 660 980 780 1200 720 L1200 800 L0 800 Z" fill="#ffffff"/>
+  </g>
+
+  <g fill="url(#fieldGrad)" opacity="0.95">
+    <path d="M0 520 C180 420 360 540 580 500 C760 470 940 560 1200 520 L1200 800 L0 800 Z"/>
+    <path d="M0 560 C180 500 420 620 600 560 C780 500 980 620 1200 560 L1200 800 L0 800 Z" opacity="0.7"/>
+  </g>
+
+  <g stroke="#ffffff" stroke-width="4" opacity="0.5">
+    <path d="M40 610 L1160 610"/>
+    <path d="M1 570 L1199 570"/>
+    <path d="M40 530 L1160 530"/>
+  </g>
+
+  <g transform="translate(100,230)">
+    <rect x="0" y="0" width="140" height="220" rx="24" fill="rgba(255,255,255,0.15)"/>
+    <path d="M40 220 C40 140 80 130 100 220" fill="none" stroke="#ffffff" stroke-width="16" opacity="0.35"/>
+    <circle cx="70" cy="60" r="32" fill="#ffffff" opacity="0.22"/>
+    <path d="M76 32 L76 88 M42 60 H108 M54 44 L94 76 M94 44 L54 76" stroke="#7cb342" stroke-width="8" fill="none" opacity="0.95"/>
+  </g>
+
+  <g transform="translate(860,160)">
+    <rect x="0" y="0" width="160" height="220" rx="28" fill="url(#towerGrad)" filter="url(#glow)"/>
+    <path d="M80 0 L80 220" stroke="#4caf50" stroke-width="12"/>
+    <circle cx="80" cy="40" r="16" fill="#ffffff"/>
+    <path d="M80 50 L80 98" stroke="#ffffff" stroke-width="6"/>
+  </g>
+
+  <g stroke="#ffffff" stroke-width="6" fill="none" opacity="0.7">
+    <path d="M940 180 C860 160 780 150 720 220"/>
+    <path d="M700 220 C760 170 880 120 960 140"/>
+    <path d="M860 210 C900 260 940 300 980 260"/>
+  </g>
+
+  <g fill="#ffffff" opacity="0.9">
+    <path d="M820 320 C840 320 860 340 860 360 C860 380 840 400 820 400 C800 400 780 380 780 360 C780 340 800 320 820 320 Z"/>
+    <path d="M840 350 L980 350" stroke="#7cb342" stroke-width="8"/>
+    <path d="M910 310 L930 350 L910 390" stroke="#4caf50" stroke-width="10" fill="none"/>
+  </g>
+
+  <g transform="translate(400,390)" opacity="0.95">
+    <circle cx="0" cy="0" r="64" fill="#ffffff" opacity="0.18"/>
+    <path d="M-20 -10 L-10 -20 L10 -20 L20 -10 L10 0 L-10 0 Z" fill="#4caf50"/>
+    <circle cx="0" cy="0" r="10" fill="#ffffff"/>
+    <path d="M0 10 L0 28" stroke="#ffffff" stroke-width="6"/>
+    <path d="M0 -10 L0 -28" stroke="#ffffff" stroke-width="6"/>
+    <path d="M-10 0 L-28 0" stroke="#ffffff" stroke-width="6"/>
+    <path d="M10 0 L28 0" stroke="#ffffff" stroke-width="6"/>
+  </g>
+
+  <g fill="#ffffff" opacity="0.6">
+    <circle cx="250" cy="210" r="22"/>
+    <circle cx="320" cy="160" r="14"/>
+    <circle cx="520" cy="240" r="18"/>
+    <circle cx="760" cy="110" r="12"/>
+  </g>
+
+  <g stroke="#ffffff" stroke-width="4" opacity="0.55">
+    <path d="M290 205 L360 180"/>
+    <path d="M520 260 L590 230"/>
+    <path d="M790 120 L870 100"/>
+  </g>
+</svg>

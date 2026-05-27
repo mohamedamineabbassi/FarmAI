@@ -132,7 +132,7 @@ def check_ai_issues():
         issues.append("❌ PROBLÈME 4b: InsightFace manquant!")
     
     try:
-        import mysql.connector
+        import mysql.connector as _mysql
         print("   ✓ MySQL Connector installé")
     except ImportError:
         print("   ❌ MySQL Connector NON installé")

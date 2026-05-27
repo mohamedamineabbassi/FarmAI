@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { UserService, User } from '../services/user.service';
 
 @Component({
   selector: 'app-viewers',
-  templateUrl: './viewers.component.html'
+  templateUrl: './viewers.component.html',
+  styleUrls: ['./viewers.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ViewersComponent implements OnInit {
 

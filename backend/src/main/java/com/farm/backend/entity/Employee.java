@@ -50,6 +50,8 @@ public class Employee {
     public boolean isFaceRegistered() { return faceRegistered; }
     public boolean isAvailable() { return available; }
     public String getEmbedding() { return embedding; }
+    public String getPhotoPath() { return photoPath; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 
     // ===== SETTERS =====
     public void setId(Long id) { this.id = id; }
@@ -62,5 +64,6 @@ public class Employee {
     public void setFaceRegistered(boolean faceRegistered) { this.faceRegistered = faceRegistered; }
     public void setAvailable(boolean available) { this.available = available; }
     public void setEmbedding(String embedding) { this.embedding = embedding; }
+    public void setPhotoPath(String photoPath) { this.photoPath = photoPath; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

@@ -10,12 +10,12 @@
     <!-- 🎥 AJOUTER / MODIFIER CAMÉRA -->
     <div class="row">
       <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header">
-            <h4 class="card-title">{{ editMode ? 'MODIFIER LA CAMÉRA' : 'AJOUTER UNE NOUVELLE UNITÉ' }}</h4>
-            <p class="category">Configuration du flux vidéo et de la zone de détection</p>
+        <div class="card dept-card mb-4 fade-in">
+          <div class="card-header border-0 pb-0 px-4 pt-4">
+            <h4 class="text-dark font-weight-bold">{{ editMode ? 'MODIFIER LA CAMÉRA' : 'AJOUTER UNE NOUVELLE UNITÉ' }}</h4>
+            <p class="text-muted small">Configuration du flux vidéo et de la zone de détection</p>
           </div>
-          <div class="card-body p-4">
+          <div class="card-body px-4 pb-4">
             <form (ngSubmit)="save()">
               <div class="row">
                 <div class="col-md-3">
@@ -33,7 +33,7 @@
                 <div class="col-md-3">
                   <div class="form-group">
                     <label>DÉPARTEMENT</label>
-                    <select class="form-control" [(ngModel)]="cameraForm.departmentId" name="deptId" required>
+                    <select class="form-control" [(ngModel)]="cameraForm.departmentId" name="deptId" title="Sélectionner un département" required>
                       <option [ngValue]="null" disabled selected>Choisir un département...</option>
                       <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.name }}</option>
                     </select>
@@ -42,7 +42,7 @@
                 <div class="col-md-3">
                   <div class="form-group">
                     <label>MODE INTELLIGENT (IA)</label>
-                    <select class="form-control" [(ngModel)]="cameraForm.type" name="type" required>
+                    <select class="form-control" [(ngModel)]="cameraForm.type" name="type" title="Sélectionner le mode intelligent" required>
                       <option value="" disabled selected>Choisir le mode...</option>
                       <option value="FACE">RECONNAISSANCE FACIALE</option>
                       <option value="COLOR">DÉTECTION COULEUR (RÔLES)</option>
@@ -62,8 +62,10 @@
 
               <div class="row mt-4">
                 <div class="col-md-12 text-right">
-                  <button type="button" class="btn btn-secondary mr-2" (click)="resetForm()" *ngIf="editMode">ANNULER</button>
-                  <button type="submit" class="btn btn-primary px-5">
+                  <button type="button" class="btn btn-outline-cancel mr-2" (click)="resetForm()" *ngIf="editMode">
+                    <i class="material-icons">close</i> ANNULER
+                  </button>
+                  <button type="submit" class="btn btn-save">
                     <i class="material-icons">{{ editMode ? 'sync' : 'add_a_photo' }}</i>
                     {{ editMode ? 'METTRE À JOUR' : 'ACTIVER LA CAMÉRA' }}
                   </button>
@@ -78,22 +80,34 @@
     <!-- 🎥 GRILLE DES CAMÉRAS -->
     <div class="row mt-4">
       <div class="col-md-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h3 class="text-white font-weight-bold mb-0">UNITÉS CONNECTÉES</h3>
-          <div class="d-flex" style="gap: 10px;">
-            <button class="btn btn-webcam" (click)="addWebcamAuto()" [disabled]="addingWebcam">
+        <div class="units-header">
+          <div class="units-title-group mb-3">
+            <div class="units-icon-wrapper">
               <i class="material-icons">linked_camera</i>
+            </div>
+            <div>
+              <h3>UNITÉS CONNECTÉES</h3>
+              <p class="units-subtitle">{{ cameras.length }} unité(s) configurée(s)</p>
+            </div>
+          </div>
+          
+          <div class="d-flex" style="gap: 10px;">
+            <button class="btn btn-save btn-webcam" (click)="addWebcamAuto()" [disabled]="addingWebcam">
+              <i class="material-icons">my_location</i>
               {{ addingWebcam ? 'DÉTECTION...' : 'AUTO-DÉTECTER WEBCAM' }}
             </button>
-            <button class="btn btn-primary" (click)="resetForm()">
+            <button class="btn btn-save" (click)="resetForm()">
               <i class="material-icons">add</i> AJOUTER CAMÉRA
             </button>
           </div>
         </div>
 
         <div class="row">
-          <div class="col-lg-4 col-md-6" *ngFor="let cam of cameras">
-            <div class="card glass-card hover-glow mb-4 overflow-hidden">
+          <div class="col-lg-4 col-md-6" *ngFor="let cam of cameras; let i = index">
+            <div class="dept-card mb-4 hover-glow" [style.animation-delay]="(i * 0.1) + 's'">
+              <div class="dept-card-accent"></div>
+              
+              <!-- HEADER CAMERA PREVIEW -->
               <div class="camera-preview">
                 <div *ngIf="cam.status === 'ACTIVE'" class="live-indicator">
                   <span class="dot"></span> LIVE
@@ -102,10 +116,10 @@
                 <!-- CAMERA FEED -->
                 <ng-container *ngIf="cam.status === 'ACTIVE'">
                   <!-- Flux IP Externe (Si pas d'IA active) -->
-                  <img *ngIf="isUrl(cam.source) && !aiStatus[cam.id!]" [src]="getSafeUrl(cam.source)" class="camera-feed" />
+                  <img *ngIf="isUrl(cam.source) && !aiStatus[cam.id!]" [src]="getSafeUrl(cam.source)" [alt]="'Flux vidéo ' + cam.name" title="Flux vidéo caméra" class="camera-feed" />
                   
                   <!-- Flux SOC AI Engine (MJPEG) -->
-                  <img *ngIf="aiStatus[cam.id!]" [src]="'http://localhost:8000/api/camera/' + cam.id + '/stream'" class="camera-feed" />
+                  <img *ngIf="aiStatus[cam.id!]" [src]="'http://localhost:8000/api/camera/' + cam.id + '/stream'" [alt]="'Flux IA ' + cam.name" title="Flux IA caméra" class="camera-feed" />
 
                   <!-- Caméra Locale (Direct Browser - Fallback if no AI) -->
                   <video *ngIf="isLocal(cam.source) && !aiStatus[cam.id!]" #videoPlayer [id]="'video-' + cam.id" class="camera-feed" autoplay muted playsinline></video>
@@ -116,33 +130,42 @@
                   <i class="material-icons">videocam_off</i>
                 </div>
               </div>
-              <div class="card-body">
+              
+              <!-- BODY -->
+              <div class="dept-card-body">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h5 class="text-white font-weight-bold mb-0">{{ cam.name }}</h5>
+                  <h4 class="text-dark font-weight-bold mb-0" style="font-size: 17px; letter-spacing:-0.3px;">{{ cam.name }}</h4>
                   <div class="d-flex align-items-center">
                     <!-- Toggle IA pour cette caméra -->
                     <button class="btn btn-sm btn-icon mr-2" 
-                            [class.btn-warning]="aiStatus[cam.id!]" 
-                            [class.btn-outline-warning]="!aiStatus[cam.id!]"
+                            [ngStyle]="{'background': aiStatus[cam.id!] ? '#fef3c7' : 'transparent', 'color': aiStatus[cam.id!] ? '#d97706' : '#94a3b8', 'border': '1px solid ' + (aiStatus[cam.id!] ? '#fde68a' : '#e2e8f0'), 'border-radius':'8px', 'padding':'4px 8px'}"
                             (click)="toggleAI(cam)"
                             title="Toggle IA Recognition">
                       <i class="material-icons" style="font-size: 18px;">psychology</i>
                     </button>
-                    <span [class]="'status-badge ' + (cam.status === 'ACTIVE' ? 'online' : 'offline')">
+                    <span class="badge" [ngClass]="cam.status === 'ACTIVE' ? 'badge-success' : 'badge-danger'" style="font-size:10px; border-radius:20px; padding:4px 10px;">
                       {{ cam.status === 'ACTIVE' ? 'ACTIF' : 'OFFLINE' }}
                     </span>
                   </div>
                 </div>
-                <div class="text-muted small mb-3">
-                  <i class="material-icons x-small">place</i> {{ cam.location }} | {{ cam.department?.name || 'Général' }}
+                
+                <div class="dept-time-row mt-3">
+                  <span class="dept-time-chip">
+                    <i class="material-icons">place</i> {{ cam.location }}
+                  </span>
+                  <span class="dept-time-chip mt-2">
+                    <i class="material-icons">domain</i> {{ cam.department?.name || 'Général' }}
+                  </span>
                 </div>
                 
-                <div class="d-flex justify-content-end border-top border-dark pt-3">
-                  <button class="btn btn-link btn-info btn-sm" (click)="edit(cam)">
+                <div class="dept-actions mt-3">
+                  <button class="dept-action-btn dept-action-edit" (click)="edit(cam)">
                     <i class="material-icons">edit</i>
+                    <span>Modifier</span>
                   </button>
-                  <button class="btn btn-link btn-danger btn-sm" (click)="delete(cam.id)">
-                    <i class="material-icons">delete</i>
+                  <button class="dept-action-btn dept-action-delete" (click)="delete(cam.id)">
+                    <i class="material-icons">delete_outline</i>
+                    <span>Supprimer</span>
                   </button>
                 </div>
               </div>
@@ -150,9 +173,12 @@
           </div>
         </div>
 
-        <div *ngIf="cameras.length === 0" class="text-center p-5 card glass-card">
-          <i class="material-icons text-muted" style="font-size: 64px;">videocam_off</i>
-          <p class="text-muted mt-3">Aucune unité de surveillance détectée.</p>
+        <div *ngIf="cameras.length === 0" class="empty-state-card fade-in">
+          <div class="empty-state-icon">
+            <i class="material-icons">videocam_off</i>
+          </div>
+          <h4>Aucune caméra configurée</h4>
+          <p>Ajoutez une caméra réseau ou utilisez la détection automatique locale pour commencer la surveillance.</p>
         </div>
       </div>
     </div>
@@ -171,13 +197,14 @@
 .section-title i { margin-right: 10px; font-size: 32px; }
 
 .camera-preview {
-  height: 160px;
-  background: #000;
+  height: 180px;
+  background: #0f172a;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .camera-feed {
@@ -195,15 +222,16 @@
   position: absolute;
   top: 15px;
   left: 15px;
-  background: rgba(244, 67, 54, 0.8);
+  background: rgba(239, 68, 68, 0.9);
   color: white;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 10px;
   font-weight: 800;
   display: flex;
   align-items: center;
   z-index: 2;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
 }
 
 .live-indicator .dot {
@@ -217,43 +245,50 @@
 
 @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-.status-badge {
-  font-size: 9px;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 4px;
+.badge-success { background: rgba(34, 197, 94, 0.1) !important; color: #16a34a !important; border: 1px solid rgba(34, 197, 94, 0.2); }
+.badge-danger { background: rgba(239, 68, 68, 0.1) !important; color: #dc2626 !important; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+.hover-glow {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
 }
-.online { background: rgba(76, 175, 80, 0.1); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
-.offline { background: rgba(244, 67, 54, 0.1); color: #f44336; border: 1px solid rgba(244, 67, 54, 0.3); }
 
 .hover-glow:hover {
-  transform: translateY(-5px);
-  border-color: var(--primary) !important;
-  box-shadow: 0 10px 30px rgba(156, 39, 176, 0.2) !important;
+  transform: translateY(-8px) scale(1.02);
+  border-color: #10b981 !important;
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.12) !important;
+  z-index: 10;
 }
 
-.x-small { font-size: 14px !important; vertical-align: middle; }
+.hover-glow:hover .camera-preview img {
+  transform: scale(1.05);
+  transition: transform 0.4s ease;
+}
 
 .btn-webcam {
-  background: linear-gradient(135deg, #00c853, #00897b) !important;
+  background: linear-gradient(135deg, #10b981, #059669) !important;
   color: white !important;
   border: none !important;
   font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 1px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  border-radius: 8px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 12px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  min-height: 42px;
+  white-space: nowrap;
 }
 
 .btn-webcam:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(0, 200, 83, 0.4);
-  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  filter: brightness(1.05);
 }
 
 .btn-webcam:disabled {

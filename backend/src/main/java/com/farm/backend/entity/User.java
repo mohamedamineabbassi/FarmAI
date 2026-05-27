@@ -48,13 +48,6 @@ public class User {
     private String embedding;
 
     // =========================
-    // 🔥 RELATION
-    // =========================
-    @OneToOne(mappedBy = "manager")
-    @JsonIgnore
-    private Department department;
-
-    // =========================
     // 🔥 GETTERS
     // =========================
     public Long getId() { return id; }
@@ -78,8 +71,6 @@ public class User {
     public String getActivationToken() { return activationToken; }
 
     public String getEmbedding() { return embedding; }
-
-    public Department getDepartment() { return department; }
 
     // =========================
     // 🔥 SETTERS
@@ -105,6 +96,4 @@ public class User {
     public void setActivationToken(String activationToken) { this.activationToken = activationToken; }
 
     public void setEmbedding(String embedding) { this.embedding = embedding; }
-
-    public void setDepartment(Department department) { this.department = department; }
 }

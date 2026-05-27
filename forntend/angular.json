@@ -72,28 +72,31 @@
               "buildOptimizer": false,
               "sourceMap": true,
               "optimization": {
-                "scripts": true,
+                "scripts": false,
                 "styles": {
                   "minify": false,
-                  "inlineCritical": true
+                  "inlineCritical": false
                 },
-                "fonts": true
+                "fonts": false
               },
-              "outputHashing": "all"
+              "outputHashing": "none"
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "material-dashboard-angular:build"
+            "browserTarget": "material-dashboard-angular:build",
+            "poll": 1000,
+            "browserTarget": "material-dashboard-angular:build:development"
           },
           "configurations": {
             "production": {
               "browserTarget": "material-dashboard-angular:build:production"
             },
             "development": {
-              "browserTarget": "material-dashboard-angular:build:development"
+              "browserTarget": "material-dashboard-angular:build:development",
+              "poll": 1000
             }
           },
           "defaultConfiguration": "development"

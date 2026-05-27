@@ -19,9 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 🔍 BY ROLE
     List<User> findByRole(Role role);
 
-    // 🔥 MANAGERS DISPONIBLES
-    List<User> findByRoleAndDepartmentIsNull(Role role);
-
     // 🔥 MANAGERS AVEC FACE
     List<User> findByRoleAndFaceRegisteredTrue(Role role);
 

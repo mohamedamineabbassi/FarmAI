@@ -10,12 +10,12 @@
     <!-- 👁️ SECTION : FORMULAIRE -->
     <div class="row">
       <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header">
-            <h4 class="card-title">{{ editMode ? 'MODIFIER L\'OBSERVATEUR' : 'CRÉER UN NOUVEL OBSERVATEUR' }}</h4>
-            <p class="category">Comptes avec accès en lecture seule au tableau de bord</p>
+        <div class="card dept-card mb-4 fade-in">
+          <div class="card-header border-0 pb-0 px-4 pt-4">
+            <h4 class="text-dark font-weight-bold">{{ editMode ? 'MODIFIER L\'OBSERVATEUR' : 'CRÉER UN NOUVEL OBSERVATEUR' }}</h4>
+            <p class="text-muted small">Comptes avec accès en lecture seule au tableau de bord</p>
           </div>
-          <div class="card-body p-4">
+          <div class="card-body px-4 pb-4">
             <form (ngSubmit)="save()">
               <div class="row">
                 <div class="col-md-6">
@@ -49,8 +49,10 @@
 
               <div class="row mt-4">
                 <div class="col-md-12 text-right">
-                  <button type="button" class="btn btn-secondary mr-2" (click)="reset()" *ngIf="editMode">ANNULER</button>
-                  <button type="submit" class="btn btn-primary px-5">
+                  <button type="button" class="btn btn-outline-cancel mr-2" (click)="reset()" *ngIf="editMode">
+                    <i class="material-icons">close</i> ANNULER
+                  </button>
+                  <button type="submit" class="btn btn-save">
                     <i class="material-icons">{{ editMode ? 'save' : 'person_add' }}</i>
                     {{ editMode ? 'METTRE À JOUR' : 'ENREGISTRER' }}
                   </button>
@@ -65,49 +67,66 @@
     <!-- 📋 SECTION : LISTE -->
     <div class="row mt-4">
       <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title">OBSERVATEURS ENREGISTRÉS</h4>
-            <span class="badge badge-primary">{{ viewers.length }} ACTIFS</span>
+        <div class="units-header">
+          <div class="units-title-group mb-3">
+            <div class="units-icon-wrapper">
+              <i class="material-icons">visibility</i>
+            </div>
+            <div>
+              <h3>OBSERVATEURS ENREGISTRÉS</h3>
+              <p class="units-subtitle">{{ viewers.length }} compte(s) en lecture seule</p>
+            </div>
           </div>
+        </div>
+
+        <div class="dept-card fade-in">
           <div class="card-body p-0">
             <div class="table-responsive">
               <table class="table table-hover mb-0">
-                <thead>
+                <thead class="bg-light">
                   <tr>
-                    <th class="pl-4">IDENTITÉ</th>
-                    <th>COORDONNÉES</th>
-                    <th class="text-right pr-4">ACTIONS</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">IDENTITÉ</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">COORDONNÉES</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold text-right" style="font-size: 12px; letter-spacing: 0.5px;">ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let v of viewers" class="row-hover">
-                    <td class="pl-4">
+                  <tr *ngFor="let v of viewers" class="border-bottom">
+                    <td class="px-4 py-3 align-middle">
                       <div class="d-flex align-items-center">
-                        <div class="avatar-circle mr-3 avatar-blue">
+                        <div class="avatar-circle mr-3" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; background: linear-gradient(135deg, #0284c7, #38bdf8); box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);">
                           {{ v.firstName?.charAt(0) }}{{ v.lastName?.charAt(0) }}
                         </div>
                         <div>
-                          <div class="text-white font-weight-bold" style="font-size: 15px;">{{ v.firstName }} {{ v.lastName }}</div>
-                          <span class="badge badge-info x-small">OBSERVATEUR</span>
+                          <div class="text-dark font-weight-bold" style="font-size: 15px;">{{ v.firstName }} {{ v.lastName }}</div>
+                          <span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10px;">OBSERVATEUR</span>
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <div class="text-muted small"><i class="material-icons x-small">email</i> {{ v.email }}</div>
-                      <div class="text-muted small"><i class="material-icons x-small">phone</i> {{ v.phone }}</div>
+                    <td class="px-4 py-3 align-middle">
+                      <div class="text-muted small font-weight-bold mb-1"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">email</i> {{ v.email }}</div>
+                      <div class="text-muted small font-weight-bold mb-0"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">phone</i> {{ v.phone }}</div>
                     </td>
-                    <td class="text-right pr-4">
-                      <button class="btn btn-link btn-info btn-sm" (click)="edit(v)">
-                        <i class="material-icons">edit</i>
-                      </button>
-                      <button class="btn btn-link btn-danger btn-sm" (click)="delete(v.id!)">
-                        <i class="material-icons">delete</i>
-                      </button>
+                    <td class="px-4 py-3 align-middle text-right">
+                      <div class="dept-actions d-inline-flex justify-content-end w-100 mt-0">
+                        <button class="dept-action-btn dept-action-edit mr-2" (click)="edit(v)" style="width: auto; padding: 6px 12px;">
+                          <i class="material-icons" style="font-size: 16px;">edit</i>
+                        </button>
+                        <button class="dept-action-btn dept-action-delete" (click)="delete(v.id!)" style="width: auto; padding: 6px 12px;">
+                          <i class="material-icons" style="font-size: 16px;">delete</i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
+              <div *ngIf="viewers.length === 0" class="empty-state-card m-4">
+                <div class="empty-state-icon">
+                  <i class="material-icons">visibility_off</i>
+                </div>
+                <h4>Aucun observateur</h4>
+                <p>Ajoutez des observateurs pour leur donner accès au tableau de bord.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -116,34 +135,3 @@
 
   </div>
 </div>
-
-<style>
-.section-title {
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-}
-.section-title i { margin-right: 10px; font-size: 32px; }
-
-.avatar-circle {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  background: linear-gradient(45deg, #00bcd4, #2196f3);
-}
-
-.avatar-blue { background: linear-gradient(45deg, #00bcd4, #2196f3); }
-
-.x-small { font-size: 12px !important; vertical-align: middle; }
-
-.row-hover:hover {
-  background: rgba(33, 150, 243, 0.05) !important;
-}
-</style>

@@ -69,8 +69,8 @@ public class DepartmentController {
             throw new RuntimeException("Selected user is not a MANAGER");
         }
 
-        if (manager.getDepartment() != null) {
-            throw new RuntimeException("Manager déjà affecté ❌");
+        if (departmentRepository.findByManagerId(manager.getId()).isPresent()) {
+            throw new RuntimeException("Manager déjà affecté à un département ❌");
         }
 
         department.setManager(manager);
@@ -119,11 +119,11 @@ public class DepartmentController {
                 throw new RuntimeException("User is not a MANAGER");
             }
 
-            if (manager.getDepartment() != null &&
-                !manager.getDepartment().getId().equals(dep.getId())) {
-
-                throw new RuntimeException("Manager déjà utilisé ❌");
-            }
+            departmentRepository.findByManagerId(manager.getId()).ifPresent(existing -> {
+                if (!existing.getId().equals(dep.getId())) {
+                    throw new RuntimeException("Manager déjà utilisé dans un autre département ❌");
+                }
+            });
 
             dep.setManager(manager);
 

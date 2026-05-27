@@ -8,23 +8,8 @@
   <div class="login-card">
     <div class="header">
       <div class="logo">
-        <svg width="60" height="60" viewBox="0 0 60 60" style="color: #7b1fa2;" xmlns="http://www.w3.org/2000/svg">
-          <!-- Head -->
-          <circle cx="30" cy="18" r="8" fill="#7b1fa2"/>
-          <!-- Beak -->
-          <polygon points="38,18 48,16 38,20" fill="#7b1fa2"/>
-          <!-- Eye -->
-          <circle cx="32" cy="17" r="2" fill="white"/>
-          <!-- Left Wing -->
-          <path d="M 22 25 Q 12 30 10 45" stroke="#7b1fa2" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <!-- Right Wing -->
-          <path d="M 38 25 Q 48 30 50 45" stroke="#7b1fa2" stroke-width="3" fill="none" stroke-linecap="round"/>
-          <!-- Body -->
-          <ellipse cx="30" cy="35" rx="7" ry="12" fill="#7b1fa2"/>
-          <!-- Tail feathers -->
-          <polygon points="25,47 30,55 35,47" fill="#7b1fa2"/>
-        </svg>
-      </div>
+      <img src="/assets/img/Gemini_Generated_Image_hffc1ohffc1ohffc.png" alt="Farm AI Logo" />
+    </div>
       <h1>{{ langService.t('FARM AI', 'FARM AI') }}</h1>
       <p>{{ langService.t('Surveillance & Sécurité', 'Surveillance & Security') }}</p>
     </div>
@@ -68,7 +53,7 @@
   <div class="camera-modal">
     <div class="camera-header">
       <h3>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px; color: #ce93d8;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px; color: #4caf50;">
           <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
           <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
           <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
@@ -91,16 +76,17 @@
         <span>{{ cameraStatus }}</span>
       </div>
 
-      <!-- Video feed / shared stream -->
+      <!-- 🎥 Browser webcam (getUserMedia) — pas de dépendance au SOC Engine -->
       <div class="camera-view">
         <div class="face-guide">
           <div class="guide-circle" [ngClass]="{'face-scanning': faceLoading}"></div>
         </div>
 
-        <img src="http://localhost:8000/api/face/stream" 
-             class="camera-feed"
-             alt="Live Camera Feed"
-             (error)="cameraStatus = 'Flux caméra non disponible'" />
+        <video #videoEl
+               class="camera-feed"
+               autoplay
+               playsinline
+               muted></video>
       </div>
 
       <!-- Action buttons -->

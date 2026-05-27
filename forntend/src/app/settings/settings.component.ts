@@ -103,58 +103,43 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   captureAndRegister() {
     this.capturing = true;
-    this.cameraStatus = this.langService.t('Capture en cours...', 'Capturing...');
+    this.cameraStatus = this.langService.t('Analyse du visage en cours...', 'Analyzing face...');
 
-    // We no longer capture locally. We ask the AI server to use its latest frame.
-    const email = localStorage.getItem('email') || this.user.email;
-    this.cameraStatus = this.langService.t(
-      'Analyse du visage en cours...',
-      'Analyzing face...'
-    );
+    // 🔥 Passe par le backend Spring Boot (qui appelle lui-même le serveur IA)
+    // Cela garantit que faceRegistered est mis à jour en base de données
+    const request$ = this.faceRegistered
+      ? this.http.put<any>('http://localhost:8081/api/face/update', {})
+      : this.http.post<any>('http://localhost:8081/api/face/register', {});
 
-    this.http.post<any>('http://localhost:8000/api/face/register-latest-frame', {
-      email: email
-    }).subscribe({
+    request$.subscribe({
       next: (res) => {
         this.capturing = false;
-
-        if (res.status === 'success') {
-          this.faceRegistered = true;
-          this.stopCamera();
-          this.showMessage(
-            this.langService.t(
-              '✅ Visage enregistré avec succès ! Confiance: ' + Math.round((res.confidence || 0.95) * 100) + '%',
-              '✅ Face saved successfully! Confidence: ' + Math.round((res.confidence || 0.95) * 100) + '%'
-            ),
-            false
-          );
-          // Also update localStorage
-          localStorage.setItem('faceRegistered', 'true');
-        } else if (res.status === 'no_face') {
-          this.capturedImage = null;
-          this.cameraStatus = this.langService.t(
-            '❌ Aucun visage détecté. Réessayez.',
-            '❌ No face detected. Try again.'
-          );
-          this.showMessage(
-            this.langService.t(
-              'Aucun visage détecté. Assurez-vous que votre visage est bien visible.',
-              'No face detected. Make sure your face is clearly visible.'
-            ),
-            true
-          );
-        } else {
-          this.capturedImage = null;
-          this.cameraStatus = res.message || 'Error';
-          this.showMessage(res.message || 'Error', true);
-        }
+        this.faceRegistered = true;
+        this.stopCamera();
+        localStorage.setItem('faceRegistered', 'true');
+        this.showMessage(
+          this.langService.t(
+            '✅ Visage enregistré avec succès !',
+            '✅ Face saved successfully!'
+          ),
+          false
+        );
       },
       error: (err) => {
         this.capturing = false;
         this.capturedImage = null;
-        const msg = err.error?.message || err.error?.detail ||
-          this.langService.t('Erreur de connexion au serveur IA', 'Error connecting to AI server');
-        this.cameraStatus = msg;
+        const msg = err.error?.error || err.error?.message || err.error?.detail ||
+          this.langService.t('Erreur lors de l\'enregistrement du visage', 'Error saving face');
+
+        // Cas spécial : aucun visage détecté dans le flux caméra
+        if (msg.toLowerCase().includes('face') || msg.toLowerCase().includes('visage')) {
+          this.cameraStatus = this.langService.t(
+            '❌ Aucun visage détecté. Réessayez.',
+            '❌ No face detected. Try again.'
+          );
+        } else {
+          this.cameraStatus = msg;
+        }
         this.showMessage(msg, true);
       }
     });
@@ -247,7 +232,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.showMessage(
           this.langService.t('Mot de passe mis à jour ✅', 'Password updated ✅'),
-          true
+          false
         );
         this.passwords = { oldPassword: '', newPassword: '', confirmPassword: '' };
       },

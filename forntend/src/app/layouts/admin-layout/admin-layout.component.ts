@@ -29,6 +29,19 @@ export class AdminLayoutComponent implements OnInit {
       }
       const elemMainPanel = <HTMLElement>document.querySelector('.main-panel');
       const elemSidebar = <HTMLElement>document.querySelector('.sidebar .sidebar-wrapper');
+      const sidebarRoot = <HTMLElement>document.querySelector('.sidebar');
+
+      // Apply a helper class when sidebar uses a light background so CSS can adapt contrast
+      try {
+          const bg = sidebarRoot?.getAttribute('data-background-color') || '';
+          if (bg && (bg.toLowerCase() === 'white' || bg.toLowerCase() === 'light' || bg.toLowerCase() === 'transparent')) {
+              elemSidebar?.classList.add('sidebar-light');
+          } else {
+              elemSidebar?.classList.remove('sidebar-light');
+          }
+      } catch (e) {
+          // ignore
+      }
 
       this.location.subscribe((ev:PopStateEvent) => {
           this.lastPoppedUrl = ev.url;

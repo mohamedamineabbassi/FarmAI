@@ -95,7 +95,7 @@ echo echo  *** Installing npm dependencies ***
 echo call npm install
 echo echo.
 echo echo  *** Starting Angular dev server on port 4200 ***
-echo call npx ng serve --open
+echo call npx ng serve --host 0.0.0.0 --open
 echo echo.
 echo echo  Frontend has stopped.
 echo pause

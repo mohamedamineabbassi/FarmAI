@@ -10,12 +10,12 @@
     <!-- 👤 SECTION : AJOUTER UN EMPLOYÉ -->
     <div class="row">
       <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header">
-            <h4 class="card-title">AJOUTER UN NOUVEL EMPLOYÉ</h4>
-            <p class="category">Saisissez les informations professionnelles</p>
+        <div class="card dept-card mb-4 fade-in">
+          <div class="card-header border-0 pb-0 px-4 pt-4">
+            <h4 class="text-dark font-weight-bold">AJOUTER UN NOUVEL EMPLOYÉ</h4>
+            <p class="text-muted small">Saisissez les informations professionnelles</p>
           </div>
-          <div class="card-body p-4">
+          <div class="card-body px-4 pb-4">
             <form (ngSubmit)="save()">
               <!-- GRID 2 COLONNES -->
               <div class="row">
@@ -46,10 +46,10 @@
                   <div class="form-group">
                     <label>POSTE / FONCTION</label>
                     <select class="form-control" [(ngModel)]="form.job" name="job" required>
-                      <option value="" disabled>Selectionnez un metier...</option>
+                      <option value="" disabled>Sélectionnez un métier...</option>
                       <option *ngFor="let job of jobs" [value]="job.value">{{ job.label }}</option>
                     </select>
-                    <small class="text-danger" *ngIf="submitted && !form.job">Le metier est obligatoire pour la proposition d'equipe.</small>
+                    <small class="text-danger" *ngIf="submitted && !form.job">Le métier est obligatoire.</small>
                     <input type="hidden" [(ngModel)]="form.job" name="jobHidden">
                   </div>
                 </div>
@@ -57,7 +57,7 @@
               
               <div class="row mt-4">
                 <div class="col-md-12 text-right">
-                  <button type="submit" class="btn btn-primary px-5">
+                  <button type="submit" class="btn btn-save">
                     <i class="material-icons">add_circle</i> AJOUTER L'EMPLOYÉ
                   </button>
                 </div>
@@ -71,63 +71,80 @@
     <!-- 📋 SECTION : LISTE -->
     <div class="row mt-4">
       <div class="col-md-12">
-        <div class="card glass-card fade-in">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h4 class="card-title">LISTE DU PERSONNEL</h4>
-            <span class="badge badge-primary">{{ employees.length }} TOTAL</span>
+        <div class="units-header">
+          <div class="units-title-group mb-3">
+            <div class="units-icon-wrapper">
+              <i class="material-icons">groups</i>
+            </div>
+            <div>
+              <h3>LISTE DU PERSONNEL</h3>
+              <p class="units-subtitle">{{ employees.length }} employé(s) enregistré(s)</p>
+            </div>
           </div>
+        </div>
+
+        <div class="dept-card fade-in">
           <div class="card-body p-0">
             <div class="table-responsive">
               <table class="table table-hover mb-0">
-                <thead>
+                <thead class="bg-light">
                   <tr>
-                    <th class="pl-4">IDENTITÉ</th>
-                    <th>CONTACT</th>
-                    <th>POSTE</th>
-                    <th>STATUT</th>
-                    <th class="text-right pr-4">ACTIONS</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">IDENTITÉ</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">CONTACT</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">POSTE</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold" style="font-size: 12px; letter-spacing: 0.5px;">STATUT</th>
+                    <th class="border-0 px-4 py-3 text-muted font-weight-bold text-right" style="font-size: 12px; letter-spacing: 0.5px;">ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let emp of employees; let i = index" class="row-hover">
-                    <td class="pl-4">
+                  <tr *ngFor="let emp of employees; let i = index" class="border-bottom">
+                    <td class="px-4 py-3 align-middle">
                       <div class="d-flex align-items-center">
-                        <div class="avatar-circle mr-3 avatar-purple">
-                          {{ emp.name?.charAt(0) }}
-                        </div>
+                        <a routerLink="/user-profile" class="avatar-link" title="Voir le profil">
+                          <div class="avatar-circle mr-3 avatar-zoom" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; background: linear-gradient(135deg, #4caf50, #388e3c); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);">
+                            {{ emp.name?.charAt(0) }}
+                          </div>
+                        </a>
                         <div>
-                          <div class="text-white font-weight-bold" style="font-size: 15px;">{{ emp.name }}</div>
-                          <small class="text-muted">ID: #{{ emp.id }}</small>
+                          <div class="text-dark font-weight-bold" style="font-size: 15px;">{{ emp.name }}</div>
+                          <small class="text-muted font-weight-bold" style="font-size: 11px;">ID: #{{ emp.id }}</small>
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <div class="text-muted small">{{ emp.email }}</div>
-                      <div class="text-muted small">{{ emp.phone }}</div>
+                    <td class="px-4 py-3 align-middle">
+                      <div class="text-muted small font-weight-bold mb-1"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">email</i> {{ emp.email }}</div>
+                      <div class="text-muted small font-weight-bold"><i class="material-icons" style="font-size: 14px; vertical-align: middle;">phone</i> {{ emp.phone }}</div>
                     </td>
-                    <td class="text-white">{{ emp.job }}</td>
-                    <td>
-                      <span class="badge" [class.badge-success]="emp.status === 'APPROVED'" [class.badge-warning]="emp.status !== 'APPROVED'">
+                    <td class="px-4 py-3 align-middle">
+                      <span class="badge" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; font-size: 11px; padding: 6px 12px;">{{ emp.job }}</span>
+                    </td>
+                    <td class="px-4 py-3 align-middle">
+                      <span class="badge" [ngClass]="emp.status === 'APPROVED' ? 'badge-success' : 'badge-warning'" style="font-size: 10px; padding: 4px 8px;">
                         {{ emp.status === 'APPROVED' ? 'VÉRIFIÉ' : 'EN ATTENTE' }}
                       </span>
                     </td>
-                    <td class="text-right pr-4">
-                      <button class="btn btn-link btn-success btn-sm" (click)="approve(emp.id)" *ngIf="emp.status !== 'APPROVED'" title="Approuver l'employé">
-                        <i class="material-icons">verified</i>
-                      </button>
-                      <button class="btn btn-link btn-danger btn-sm" (click)="delete(emp.id)" title="Supprimer l'employé">
-                        <i class="material-icons">delete</i>
-                      </button>
+                    <td class="px-4 py-3 align-middle text-right">
+                      <div class="dept-actions d-inline-flex justify-content-end w-100 mt-0">
+                        <button class="dept-action-btn dept-action-edit mr-2" (click)="approve(emp.id)" *ngIf="emp.status !== 'APPROVED'" title="Approuver l'employé" style="width: auto; padding: 6px 12px;">
+                          <i class="material-icons" style="font-size: 16px;">verified</i>
+                        </button>
+                        <button class="dept-action-btn dept-action-delete" (click)="delete(emp.id)" title="Supprimer l'employé" style="width: auto; padding: 6px 12px;">
+                          <i class="material-icons" style="font-size: 16px;">delete</i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
+              <div *ngIf="employees.length === 0" class="empty-state-card m-4">
+                <div class="empty-state-icon">
+                  <i class="material-icons">person_off</i>
+                </div>
+                <h4>Aucun employé enregistré</h4>
+                <p>Ajoutez des employés pour commencer à les gérer.</p>
+              </div>
             </div>
             
-            <div *ngIf="employees.length === 0" class="text-center p-5">
-              <i class="material-icons text-muted" style="font-size: 48px;">person_off</i>
-              <p class="text-muted mt-2">Aucun employé enregistré.</p>
-            </div>
           </div>
         </div>
       </div>
@@ -137,29 +154,16 @@
 </div>
 
 <style>
-.section-title {
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
+.avatar-zoom {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
-.section-title i { margin-right: 10px; font-size: 32px; }
-
-.avatar-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  background: linear-gradient(45deg, #9c27b0, #ba2dd4);
+.avatar-zoom:hover {
+  transform: scale(1.2) !important;
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4) !important;
 }
-
-.row-hover:hover {
-  background: rgba(156, 39, 176, 0.05) !important;
+.avatar-link {
+  text-decoration: none;
 }
 </style>
 
