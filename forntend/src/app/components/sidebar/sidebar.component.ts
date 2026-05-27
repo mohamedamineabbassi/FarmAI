@@ -5,6 +5,10 @@ import { FaceNotificationService, FaceNotification } from '../../services/face-n
 
 declare const $: any;
 
+// ✅ Conservé pour compatibilité avec navbar.component.ts
+export interface RouteInfo { path: string; title: string; icon: string; class: string; }
+export const ROUTES: RouteInfo[] = [];
+
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',

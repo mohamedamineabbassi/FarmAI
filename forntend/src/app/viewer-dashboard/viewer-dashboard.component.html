@@ -150,7 +150,7 @@
 <!-- ══════════════════════════════════════════════════
      MODAL WEBCAM — CAPTURE VISAGE
 ══════════════════════════════════════════════════ -->
-<div *ngIf="showCameraModal" class="modal-overlay" (click)="$event.target====$event.currentTarget && closeModal()">
+<div *ngIf="showCameraModal" class="modal-overlay" (click)="onOverlayClick($event)">
   <div class="cam-modal">
 
     <!-- En-tête modal -->

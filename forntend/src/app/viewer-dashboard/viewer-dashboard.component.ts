@@ -138,7 +138,11 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
     this.stopStream();
     this.showCameraModal = false;
     this.activeEmployee  = null;
-    if (this.scanSuccess) this.loadData(); // Rafraîchir si succès
+    if (this.scanSuccess) this.loadData();
+  }
+
+  onOverlayClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) this.closeModal();
   }
 
   // ─────────────────────────────────────────────
