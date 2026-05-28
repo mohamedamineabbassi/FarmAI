@@ -162,12 +162,12 @@
           <div class="guide-circle" [ngClass]="{'face-detected': faceDetected}" style="width: 200px; height: 250px; border: 3px dashed rgba(255,255,255,0.5); border-radius: 50%; transition: border-color 0.3s;"></div>
         </div>
 
-        <img *ngIf="!capturedImage"
-               src="http://localhost:8000/api/face/stream" 
-               class="camera-feed"
-               alt="Live Camera Feed"
-               (error)="cameraStatus = 'Flux caméra non disponible'" 
-               style="width: 100%; display: block;" />
+        <video *ngIf="!capturedImage"
+               #videoElement
+               autoplay
+               playsinline
+               muted
+               style="width: 100%; display: block; border-radius: 16px;"></video>
 
         <img *ngIf="capturedImage" [src]="capturedImage" [alt]="'Photo capturée - ' + user.firstName" title="Photo capturée" class="captured-preview" style="width: 100%; display: block;" />
       </div>
