@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
+                .requestMatchers(HttpMethod.GET, "/api/departments").permitAll()
                 .requestMatchers("/api/departments/public").permitAll()
                 .requestMatchers("/api/department-status/**").permitAll()
                 .requestMatchers("/api/attendance/**").permitAll()
@@ -72,6 +73,14 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
 
+            .exceptionHandling(ex -> ex
+                // Retourne 401 (pas 403) quand le token est absent ou invalide
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Non authentifié. Veuillez vous reconnecter.\"}");
+                })
+            )
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
 

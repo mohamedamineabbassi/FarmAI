@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AlertService, Alert } from '../services/alert.service';
 
 @Component({
@@ -6,19 +6,23 @@ import { AlertService, Alert } from '../services/alert.service';
   templateUrl: './alerts.component.html',
   styleUrls: ['./alerts.component.scss']
 })
-export class AlertsComponent implements OnInit {
+export class AlertsComponent implements OnInit, OnDestroy {
 
   alerts: Alert[] = [];
   activeCount: number = 0;
   serverUrl = 'http://localhost:8081';
   private previousAlertIds = new Set<number>();
+  private pollInterval: any;
 
   constructor(private service: AlertService) {}
 
   ngOnInit(): void {
     this.load();
+    this.pollInterval = setInterval(() => this.load(), 10000);
+  }
 
-    setInterval(() => this.load(), 3000);
+  ngOnDestroy(): void {
+    if (this.pollInterval) clearInterval(this.pollInterval);
   }
 
   load(): void {
@@ -47,17 +51,13 @@ export class AlertsComponent implements OnInit {
         
         this.previousAlertIds = currentIds;
       },
-      error: (err) => {
-        console.error(err);
-      }
+      error: () => {}
     });
 
     // 2. Charger le vrai compte total d'alertes actives
     this.service.getActiveCount().subscribe({
-      next: (res) => {
-         this.activeCount = res.activeCount;
-      },
-      error: (err) => console.error(err)
+      next: (res) => { this.activeCount = res.activeCount; },
+      error: () => {}
     });
   }
   
