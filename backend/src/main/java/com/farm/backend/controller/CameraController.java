@@ -80,6 +80,14 @@ public class CameraController {
             cam.setStatus(updated.getStatus());
         }
 
+        // Update department association
+        if (updated.getDepartment() != null && updated.getDepartment().getId() != null) {
+            Department dept = departmentRepository.findById(updated.getDepartment().getId()).orElse(null);
+            cam.setDepartment(dept);
+        } else {
+            cam.setDepartment(null);
+        }
+
         return cameraRepository.save(cam);
     }
 }

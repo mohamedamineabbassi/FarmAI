@@ -10,7 +10,7 @@
 <div class="sidebar-wrapper">
   <ul class="nav">
 
-    <li class="nav-item notif-bell-item">
+    <li class="nav-item notif-bell-item" *ngIf="isAdmin">
       <a class="nav-link notif-bell-link" (click)="openNotifPanel()" style="cursor:pointer; position:relative;">
         <i class="material-icons">notifications</i>
         <p>{{ langService.t('Notifications', 'Notifications') }}</p>
@@ -84,9 +84,9 @@
   </ul>
 </div>
 
-<div *ngIf="showNotifPanel" class="notif-overlay" (click)="closeNotifPanel()"></div>
+<div *ngIf="isAdmin && showNotifPanel" class="notif-overlay" (click)="closeNotifPanel()"></div>
 
-<div class="notif-panel" [class.open]="showNotifPanel">
+<div *ngIf="isAdmin" class="notif-panel" [class.open]="showNotifPanel">
 
   <div class="notif-panel-header">
     <div class="d-flex align-items-center">

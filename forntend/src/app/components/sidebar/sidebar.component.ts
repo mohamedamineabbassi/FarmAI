@@ -30,10 +30,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private notifService: FaceNotificationService
   ) {}
 
+  get isAdmin(): boolean {
+    return localStorage.getItem('role') === 'ROLE_ADMIN';
+  }
+
   ngOnInit() {
-    this.loadUnreadCount();
-    // Polling toutes les 30 secondes
-    this.pollInterval = setInterval(() => this.loadUnreadCount(), 30_000);
+    if (this.isAdmin) {
+      this.loadUnreadCount();
+      // Polling toutes les 30 secondes — admin uniquement
+      this.pollInterval = setInterval(() => this.loadUnreadCount(), 30_000);
+    }
   }
 
   ngOnDestroy() {
@@ -41,6 +47,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   loadUnreadCount() {
+    if (!this.isAdmin) return;
     this.notifService.getUnreadCount().subscribe({
       next: (r) => this.unreadCount = r.count,
       error: () => {}
