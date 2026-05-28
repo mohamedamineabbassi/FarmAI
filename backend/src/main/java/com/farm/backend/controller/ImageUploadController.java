@@ -39,14 +39,13 @@ public class ImageUploadController {
             CameraEntity camera = cameraRepository.findById(cameraId)
                     .orElseThrow(() -> new RuntimeException("Camera not found"));
 
-            // 🔥 Nettoyage de l'ancienne image pour économiser l'espace (Optionnel)
             if (camera.getLastImage() != null) {
                 new File(UPLOAD_DIR + camera.getLastImage()).delete();
             }
 
             camera.setLastSeen(LocalDateTime.now());
             camera.setStatus("ACTIVE");
-            camera.setLastImage(filename); // ✅ On stocke le nom
+            camera.setLastImage(filename);
 
             cameraRepository.save(camera);
             System.out.println("📸 IMAGE → ACTIVE: " + camera.getName());

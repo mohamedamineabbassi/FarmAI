@@ -1,31 +1,59 @@
 <div class="main-content">
   <div class="container-fluid">
-    
+
     <div class="row">
       <div class="col-md-12">
-        <h2 class="section-title"><i class="material-icons text-danger" style="background: linear-gradient(135deg, #ef4444, #dc2626); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">notifications_active</i> CENTRE D'ALERTE SÉCURITÉ</h2>
+        <h2 class="section-title">
+          <i class="material-icons">notifications_active</i>
+          CENTRE D'ALERTE SÉCURITÉ
+        </h2>
       </div>
     </div>
 
-    <!-- 🚨 EN-TÊTE DU CENTRE D'ALERTE -->
+    <div class="predator-banner" *ngIf="hasPredatorAlert">
+      <div class="predator-banner-inner">
+        <div class="predator-icon-pulse">
+          <i class="material-icons">emergency</i>
+        </div>
+        <div class="predator-text">
+          <span class="predator-title">ALERTE PRÉDATEUR ACTIVE</span>
+          <span class="predator-sub">
+            Loup ou renard détecté dans la zone surveillée — Danger pour les animaux de ferme
+          </span>
+        </div>
+        <button class="btn btn-sm predator-resolve-btn"
+                (click)="resolveAllPredators()">
+          <i class="material-icons">check_circle</i> Marquer résolues
+        </button>
+      </div>
+    </div>
+
     <div class="row mb-4">
       <div class="col-md-12">
         <div class="dept-card fade-in" style="border-left: 4px solid #ef4444;">
           <div class="card-body p-4 d-flex align-items-center">
-            <div class="mr-4" style="background: rgba(239, 68, 68, 0.1); border-radius: 16px; padding: 15px; display: flex; align-items: center; justify-content: center;">
-              <i class="material-icons" style="font-size: 40px; color: #ef4444;">gpp_bad</i>
+            <div class="alert-header-icon">
+              <i class="material-icons">gpp_bad</i>
             </div>
             <div>
-              <h3 class="text-dark font-weight-bold mb-0" style="font-size: 20px;">SURVEILLANCE EN TEMPS RÉEL</h3>
-              <p class="text-muted mb-0 mt-1" style="font-size: 14px;">Détection des menaces, anomalies et intrusions sur le site</p>
+              <h3 class="text-dark font-weight-bold mb-0" style="font-size:20px;">
+                SURVEILLANCE EN TEMPS RÉEL
+              </h3>
+              <p class="text-muted mb-0 mt-1" style="font-size:14px;">
+                Détection des menaces, anomalies, intrusions et prédateurs
+              </p>
             </div>
             <div class="ml-auto text-right">
-              <div class="badge badge-danger px-4 py-3" *ngIf="activeCount > 0" style="font-size: 14px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">
-                <i class="material-icons mr-2" style="font-size: 16px; vertical-align: middle;">warning</i>
+              <div class="badge badge-danger px-4 py-3"
+                   *ngIf="activeCount > 0"
+                   style="font-size:14px; box-shadow:0 4px 15px rgba(239,68,68,.3);">
+                <i class="material-icons mr-1" style="font-size:16px;vertical-align:middle;">warning</i>
                 {{ activeCount }} ALERTE(S) ACTIVE(S)
               </div>
-              <div class="badge badge-success px-4 py-3" *ngIf="activeCount === 0" style="font-size: 14px;">
-                <i class="material-icons mr-2" style="font-size: 16px; vertical-align: middle;">check_circle</i>
+              <div class="badge badge-success px-4 py-3"
+                   *ngIf="activeCount === 0"
+                   style="font-size:14px;">
+                <i class="material-icons mr-1" style="font-size:16px;vertical-align:middle;">check_circle</i>
                 AUCUNE ALERTE
               </div>
             </div>
@@ -34,78 +62,116 @@
       </div>
     </div>
 
-    <!-- 📋 LISTE DES DÉTECTIONS -->
     <div class="row">
       <div class="col-md-12">
         <div class="dept-card fade-in">
           <div class="card-header border-0 d-flex justify-content-between align-items-center pt-4 px-4 pb-0">
             <div>
-              <h4 class="text-dark font-weight-bold m-0" style="font-size: 17px;">HISTORIQUE DES DÉTECTIONS</h4>
+              <h4 class="text-dark font-weight-bold m-0" style="font-size:17px;">
+                HISTORIQUE DES DÉTECTIONS
+              </h4>
               <p class="text-muted small m-0 mt-1">Consultez et traitez les alertes récentes</p>
             </div>
             <button class="btn btn-save" (click)="load()">
               <i class="material-icons">refresh</i> ACTUALISER
             </button>
           </div>
+
           <div class="card-body p-4">
             <div class="table-responsive">
               <table class="table table-hover mb-0">
-                <thead style="background: #f8fafc; border-radius: 8px;">
+                <thead style="background:#f8fafc; border-radius:8px;">
                   <tr>
                     <th class="pl-4 border-0">CAPTURE</th>
                     <th class="border-0">TYPE DE MENACE</th>
                     <th class="border-0">LOCALISATION</th>
                     <th class="border-0">NIVEAU</th>
-                    <th class="border-0">DATE & HEURE</th>
+                    <th class="border-0">DATE &amp; HEURE</th>
                     <th class="text-right pr-4 border-0">ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let alert of alerts" class="row-hover" [ngClass]="{'bg-light-danger': alert.severity === 'HIGH' || alert.severity === 'CRITICAL'}">
+                  <tr *ngFor="let alert of alerts"
+                      class="alert-row"
+                      [class.row-predator]="alert.type === 'PREDATOR_DETECTED'"
+                      [class.row-critical]="alert.severity === 'CRITICAL' && alert.type !== 'PREDATOR_DETECTED'"
+                      [class.row-high]="alert.severity === 'HIGH'">
+
                     <td class="pl-4 py-3 align-middle border-bottom">
-                      <div class="alert-image-container" [class.border-critical]="alert.severity === 'CRITICAL'">
-                        <img [src]="serverUrl + alert.imagePath" 
+                      <div class="alert-img-box"
+                           [class.img-box-predator]="alert.type === 'PREDATOR_DETECTED'"
+                           [class.img-box-critical]="alert.severity === 'CRITICAL'">
+                        <img [src]="serverUrl + alert.imagePath"
                              *ngIf="alert.imagePath"
                              class="alert-img"
                              loading="lazy"
-                             alt="Detection">
+                             alt="Capture">
                         <div class="no-img" *ngIf="!alert.imagePath">
-                          <i class="material-icons">no_photography</i>
+                          <i class="material-icons">
+                            {{ alert.type === 'PREDATOR_DETECTED' ? 'pest_control' : 'no_photography' }}
+                          </i>
                         </div>
                       </div>
                     </td>
+
                     <td class="align-middle border-bottom">
-                      <div class="text-dark font-weight-bold" style="font-size: 14px;">{{ alert.type?.replace('_', ' ') }}</div>
+                      <div *ngIf="alert.type === 'PREDATOR_DETECTED'"
+                           class="predator-type-badge">
+                        <i class="material-icons">emergency</i>
+                        PRÉDATEUR DÉTECTÉ
+                      </div>
+                      <div *ngIf="alert.type !== 'PREDATOR_DETECTED'"
+                           class="text-dark font-weight-bold" style="font-size:14px;">
+                        {{ alert.type?.replace('_', ' ') }}
+                      </div>
                       <small class="text-muted">{{ alert.message }}</small>
-                      <div *ngIf="alert.count > 1" class="mt-1">
-                         <span class="badge badge-pill" style="background: #e2e8f0; color: #475569; font-size: 9px;">RÉPÉTÉ {{ alert.count }} FOIS</span>
+                      <div *ngIf="alert.count && alert.count > 1" class="mt-1">
+                        <span class="badge badge-pill"
+                              style="background:#e2e8f0;color:#475569;font-size:9px;">
+                          RÉPÉTÉ {{ alert.count }} FOIS
+                        </span>
                       </div>
                     </td>
+
                     <td class="align-middle border-bottom">
-                      <div class="d-flex align-items-center text-muted" style="font-size: 13px; font-weight: 500;">
-                        <i class="material-icons text-primary mr-1" style="font-size: 16px;">place</i>
+                      <div class="d-flex align-items-center text-muted"
+                           style="font-size:13px;font-weight:500;">
+                        <i class="material-icons text-primary mr-1" style="font-size:16px;">place</i>
                         {{ alert.location || alert.departmentName || 'Zone Inconnue' }}
                       </div>
                     </td>
+
                     <td class="align-middle border-bottom">
-                      <span class="badge" 
-                            [class.badge-danger]="alert.severity === 'HIGH' || alert.severity === 'CRITICAL'"
-                            [class.badge-warning]="alert.severity === 'MEDIUM'"
-                            [class.badge-info]="alert.severity === 'LOW'"
-                            style="font-size: 11px; padding: 6px 12px; border-radius: 20px;">
+                      <span class="sev-badge"
+                            [class.sev-critical]="alert.severity === 'CRITICAL'"
+                            [class.sev-high]="alert.severity === 'HIGH'"
+                            [class.sev-medium]="alert.severity === 'MEDIUM'"
+                            [class.sev-low]="alert.severity === 'LOW'">
+                        <i class="material-icons"
+                           *ngIf="alert.severity === 'CRITICAL'">emergency</i>
                         {{ alert.severity }}
                       </span>
                     </td>
+
                     <td class="align-middle border-bottom">
-                      <div class="text-dark font-weight-bold" style="font-size: 14px;">{{ alert.timestamp | date:'HH:mm:ss' }}</div>
+                      <div class="text-dark font-weight-bold" style="font-size:14px;">
+                        {{ alert.timestamp | date:'HH:mm:ss' }}
+                      </div>
                       <small class="text-muted">{{ alert.timestamp | date:'dd/MM/yyyy' }}</small>
                     </td>
+
                     <td class="text-right pr-4 align-middle border-bottom">
-                      <button class="btn btn-sm btn-save" (click)="resolve(alert.id)" *ngIf="!alert.resolved" title="Marquer comme résolu" style="padding: 8px 16px !important; min-height: auto;">
-                        <i class="material-icons" style="font-size: 16px;">check</i> RÉSOUDRE
+                      <button class="btn btn-sm btn-save"
+                              (click)="resolve(alert.id)"
+                              *ngIf="!alert.resolved"
+                              style="padding:8px 16px!important;min-height:auto;">
+                        <i class="material-icons" style="font-size:16px;">check</i> RÉSOUDRE
                       </button>
-                      <span class="badge badge-success" *ngIf="alert.resolved" style="background: rgba(34, 197, 94, 0.1) !important; color: #16a34a !important; border: 1px solid rgba(34, 197, 94, 0.2);">
-                        <i class="material-icons mr-1" style="font-size: 14px; vertical-align: middle;">done_all</i> RÉSOLU
+                      <span class="badge badge-success"
+                            *ngIf="alert.resolved"
+                            style="background:rgba(34,197,94,.1)!important;color:#16a34a!important;border:1px solid rgba(34,197,94,.2);">
+                        <i class="material-icons mr-1" style="font-size:14px;vertical-align:middle;">done_all</i>
+                        RÉSOLU
                       </span>
                     </td>
                   </tr>
@@ -113,13 +179,14 @@
               </table>
             </div>
 
-            <!-- Empty State -->
             <div *ngIf="alerts.length === 0" class="empty-state-card mt-4">
-              <div class="empty-state-icon" style="background: #f0fdf4;">
+              <div class="empty-state-icon" style="background:#f0fdf4;">
                 <i class="material-icons text-success">security</i>
               </div>
               <h4 class="text-dark font-weight-bold">Aucune alerte en cours</h4>
-              <p class="text-muted">Le système de surveillance fonctionne de manière optimale. Aucune menace détectée.</p>
+              <p class="text-muted">
+                Le système de surveillance fonctionne de manière optimale.
+              </p>
             </div>
           </div>
         </div>
@@ -128,50 +195,3 @@
 
   </div>
 </div>
-
-<style>
-.alert-image-container {
-  width: 70px;
-  height: 70px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease;
-}
-
-.alert-image-container:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  z-index: 10;
-  position: relative;
-}
-
-.border-critical {
-  border: 2px solid #ef4444 !important;
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
-}
-
-.alert-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.no-img {
-  color: #cbd5e1;
-}
-
-.bg-light-danger {
-  background: rgba(239, 68, 68, 0.04) !important;
-}
-
-.row-hover:hover {
-  background: #f8fafc !important;
-}
-
-.x-small { font-size: 14px !important; }
-</style>

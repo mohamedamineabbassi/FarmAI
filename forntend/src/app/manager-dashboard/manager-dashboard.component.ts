@@ -51,8 +51,7 @@ export class ManagerDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.userRole = localStorage.getItem('role') || '';
     this.loadManagerData();
-    
-    // 🔁 Poll for real-time status/alerts
+
     this.pollingSub = setInterval(() => {
       this.loadDepartmentData();
     }, 5000);
@@ -88,50 +87,42 @@ export class ManagerDashboardComponent implements OnInit {
   }
 
   loadManagerData(): void {
-    this.loading = true;
-    this.error = '';
+    this.loading     = true;
+    this.error       = '';
     this.teamMessage = '';
 
     this.managerDashboardService.getDepartment().subscribe({
       next: (department) => {
         this.department = department;
         this.loadDepartmentData();
-        
-        // Only load suggestion if NO employees are assigned AND we aren't currently editing/selecting
-        if (department.assignedEmployees === 0 
-            && !this.modifyMode 
+
+        if (department.assignedEmployees === 0
+            && !this.modifyMode
             && Object.keys(this.selectedTeam).length === 0) {
           this.loadTeamSuggestion(department.id);
         }
       },
-      error: (err) => {
-        this.loading = false;
+      error: () => {
+        this.loading    = false;
         this.department = undefined;
-        this.error = this.resolveError(err, "Impossible de charger le département.");
       }
     });
   }
 
   loadDepartmentData(): void {
     this.managerDashboardService.getEmployees().subscribe({
-      next: (employees) => {
-        this.employees = employees;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = this.resolveError(err, 'Erreur employés');
-        this.loading = false;
-      }
+      next: (employees) => { this.employees = employees; this.loading = false; },
+      error: () => { this.loading = false; }
     });
 
     this.managerDashboardService.getCameras().subscribe({
       next: (cameras) => this.cameras = cameras,
-      error: (err) => this.error = this.resolveError(err, 'Erreur caméras')
+      error: () => this.cameras = []
     });
 
     this.managerDashboardService.getAlerts().subscribe({
-      next: (alerts) => this.alerts = alerts.filter(a => !a.resolved),
-      error: (err) => this.error = this.resolveError(err, 'Erreur alertes')
+      next: (alerts) => this.alerts = Array.isArray(alerts) ? alerts.filter(a => !a.resolved) : [],
+      error: () => this.alerts = []
     });
 
     this.managerDashboardService.getTeamCandidates().subscribe({
@@ -142,7 +133,7 @@ export class ManagerDashboardComponent implements OnInit {
     this.managerDashboardService.getAvailableEmployees().subscribe({
       next: (res: any) => {
         this.availableEmployees = res.candidates || {};
-        this.pendingCount = res.pendingCount || 0;
+        this.pendingCount       = res.pendingCount || 0;
       },
       error: () => this.availableEmployees = {}
     });
@@ -193,13 +184,10 @@ export class ManagerDashboardComponent implements OnInit {
     });
   }
 
-  // =========================
-  // 🔥 TEAM ACTIONS
-  // =========================
   acceptTeam(): void {
     if (!this.department) return;
     const ids = this.flattenSelectedEmployeeIds();
-    
+
     if (ids.length === 0) {
       this.teamMessage = '⚠️ Veuillez sélectionner au moins un employé.';
       return;
@@ -211,7 +199,7 @@ export class ManagerDashboardComponent implements OnInit {
         this.teamMessage = 'Équipe validée et assignée ✔';
         this.teamLoading = false;
         this.modifyMode = false;
-        this.loadManagerData(); // This will now show the counts
+        this.loadManagerData();
       },
       error: (err) => {
         this.teamMessage = '❌ ' + (err.error?.message || 'Erreur validation. Certains employés ne sont peut-être pas approuvés.');
@@ -224,7 +212,7 @@ export class ManagerDashboardComponent implements OnInit {
   updateTeam(): void {
     if (!this.department) return;
     const ids = this.flattenSelectedEmployeeIds();
-    
+
     if (ids.length === 0) {
       this.teamMessage = '⚠️ Veuillez sélectionner au moins un employé.';
       return;
@@ -246,9 +234,6 @@ export class ManagerDashboardComponent implements OnInit {
     });
   }
 
-  // =========================
-  // 🔥 MODIFY TEAM
-  // =========================
   removeEmployee(job: string, id?: number): void {
     if (!id) return;
     this.selectedTeam[job] =
@@ -279,9 +264,6 @@ export class ManagerDashboardComponent implements OnInit {
       .filter(e => !selectedIds.has(e.id));
   }
 
-  // =========================
-  // 🔥 UTIL
-  // =========================
   logout(): void {
     localStorage.clear();
     this.router.navigate(['/login']);

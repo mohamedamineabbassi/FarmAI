@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, HostListener, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LanguageService } from '../services/language.service';
 
@@ -20,11 +20,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   error = '';
   success = '';
 
-  // Camera Modal State
   showCamera = false;
   cameraStatus = '';
 
-  // 🎥 Browser webcam (getUserMedia)
   @ViewChild('videoEl', { static: false }) videoEl!: ElementRef<HTMLVideoElement>;
   private mediaStream: MediaStream | null = null;
 
@@ -37,9 +35,20 @@ export class LoginComponent implements OnInit, OnDestroy {
   private glowX = 0;
   private glowY = 0;
 
-  constructor(private http: HttpClient, private router: Router, public langService: LanguageService) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private route: ActivatedRoute,
+    private zone: NgZone,
+    public langService: LanguageService
+  ) {}
 
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['sessionExpired'] === 'true') {
+        this.error = '⏱️ Votre session a expiré. Veuillez vous reconnecter.';
+      }
+    });
     this.createCursorEffects();
     this.animateGlow();
   }
@@ -50,28 +59,21 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.particles.forEach(p => p.remove());
     cancelAnimationFrame(this.animFrame);
 
-    // 🛑 Toujours libérer la webcam si encore active
     if (this.mediaStream) {
       this.mediaStream.getTracks().forEach(t => t.stop());
       this.mediaStream = null;
     }
   }
 
-  // =========================
-  // ✨ CURSOR GLOW EFFECT
-  // =========================
   private createCursorEffects() {
-    // Main glow orb
     this.cursorGlow = document.createElement('div');
     this.cursorGlow.className = 'cursor-glow';
     document.querySelector('.login-wrapper')?.appendChild(this.cursorGlow);
 
-    // Secondary trail (smaller, delayed)
     this.cursorTrail = document.createElement('div');
     this.cursorTrail.className = 'cursor-trail';
     document.querySelector('.login-wrapper')?.appendChild(this.cursorTrail);
 
-    // Floating ambient particles
     const wrapper = document.querySelector('.login-wrapper');
     if (wrapper) {
       for (let i = 0; i < 30; i++) {
@@ -91,7 +93,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private animateGlow() {
-    // Smooth interpolation (easing) for the glow to follow cursor
     this.glowX += (this.mouseX - this.glowX) * 0.08;
     this.glowY += (this.mouseY - this.glowY) * 0.08;
 
@@ -100,10 +101,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.cursorGlow.style.top = this.glowY + 'px';
     }
 
-    // Trail follows even slower
     if (this.cursorTrail) {
-      const trailX = this.glowX + (this.mouseX - this.glowX) * 0.3;
-      const trailY = this.glowY + (this.mouseY - this.glowY) * 0.3;
       this.cursorTrail.style.left = (this.glowX - (this.mouseX - this.glowX) * 0.5) + 'px';
       this.cursorTrail.style.top = (this.glowY - (this.mouseY - this.glowY) * 0.5) + 'px';
     }
@@ -117,9 +115,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.mouseY = e.clientY;
   }
 
-  // =========================
-  // 🔐 LOGIN NORMAL
-  // =========================
   login() {
 
     this.loading = true;
@@ -136,16 +131,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
         console.log("LOGIN RESPONSE:", res);
 
-        // ✅ STOCKAGE
         localStorage.setItem('token', res.token);
         localStorage.setItem('role', res.role);
         localStorage.setItem('email', res.email);
         localStorage.setItem('faceRegistered', res.faceRegistered);
         localStorage.setItem('userId', res.userId);
-
-        // =========================
-        // 🔥 REDIRECTION PAR ROLE
-        // =========================
 
         if (res.role === 'ROLE_ADMIN') {
 
@@ -166,17 +156,12 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
 
       error: (err) => {
-
         this.loading = false;
         this.error = err.error?.message || err.error?.error || 'Email ou mot de passe incorrect ❌';
-
       }
     });
   }
 
-  // =========================
-  // 🤖 LOGIN PAR VISAGE — BROWSER WEBCAM (getUserMedia)
-  // =========================
   async openCamera() {
     this.error = '';
     this.showCamera = true;
@@ -186,17 +171,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     );
 
     try {
-      // Demande la webcam du navigateur (permission utilisateur explicite)
       this.mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width:  { ideal: 1280 },
-          height: { ideal: 720 },
+          width:  { ideal: 640 },
+          height: { ideal: 480 },
           facingMode: 'user'
         },
         audio: false
       });
 
-      // Attendre que le <video> existe dans le DOM (après showCamera = true)
       await new Promise(resolve => setTimeout(resolve, 50));
 
       if (this.videoEl && this.videoEl.nativeElement) {
@@ -237,7 +220,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   stopCamera() {
-    // Libère la webcam (important — sinon LED reste allumée)
     if (this.mediaStream) {
       this.mediaStream.getTracks().forEach(t => t.stop());
       this.mediaStream = null;
@@ -249,9 +231,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.faceLoading = false;
   }
 
-  /**
-   * Capture un snapshot depuis le <video>, l'envoie en multipart au backend.
-   */
   faceLogin() {
     if (!this.videoEl || !this.videoEl.nativeElement || !this.mediaStream) {
       this.error = 'Caméra non initialisée';
@@ -271,7 +250,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.error = '';
     this.cameraStatus = this.langService.t('Analyse en cours...', 'Analyzing...');
 
-    // 1. Snapshot vers un canvas off-screen
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -283,58 +261,54 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // 2. Conversion en JPEG blob (qualité 0.85)
     canvas.toBlob((blob) => {
-      if (!blob) {
-        this.faceLoading = false;
-        this.error = 'Impossible de capturer l\'image';
-        return;
-      }
+      this.zone.run(() => {
+        if (!blob) {
+          this.faceLoading = false;
+          this.error = 'Impossible de capturer l\'image';
+          return;
+        }
 
-      // 3. POST multipart vers Spring Boot
-      const formData = new FormData();
-      formData.append('image', blob, 'face.jpg');
+        const formData = new FormData();
+        formData.append('image', blob, 'face.jpg');
 
-      this.http.post<any>('http://localhost:8081/api/auth/face-login', formData)
-        .subscribe({
-          next: (res) => {
-            this.faceLoading = false;
-            console.log('FACE LOGIN:', res);
+        this.http.post<any>('http://localhost:8081/api/auth/face-login', formData)
+          .subscribe({
+            next: (res) => {
+              this.faceLoading = false;
 
-            if (res.status === 'success') {
-              const role = res.role || '';
+              if (res.status === 'success') {
+                const role = res.role || '';
 
-              // ✅ STOCKAGE
-              localStorage.setItem('token', res.token);
-              localStorage.setItem('role', role);
-              localStorage.setItem('email', res.email);
-              localStorage.setItem('faceRegistered', 'true');
-              if (res.userId) localStorage.setItem('userId', res.userId);
+                localStorage.setItem('token', res.token);
+                localStorage.setItem('role', role);
+                localStorage.setItem('email', res.email);
+                localStorage.setItem('faceRegistered', 'true');
+                if (res.userId) localStorage.setItem('userId', res.userId);
 
-              // 🛑 Couper la webcam avant redirection
-              this.stopCamera();
+                this.stopCamera();
 
-              // 🔥 REDIRECTION
-              if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
-                this.router.navigate(['/dashboard']);
-              } else if (role === 'ROLE_MANAGER' || role === 'MANAGER') {
-                this.router.navigate(['/dashboard/manager']);
-              } else if (role === 'ROLE_VIEWER' || role === 'VIEWER') {
-                this.router.navigate(['/dashboard/viewer']);
+                if (role === 'ROLE_ADMIN' || role === 'ADMIN') {
+                  this.router.navigate(['/dashboard']);
+                } else if (role === 'ROLE_MANAGER' || role === 'MANAGER') {
+                  this.router.navigate(['/dashboard/manager']);
+                } else if (role === 'ROLE_VIEWER' || role === 'VIEWER') {
+                  this.router.navigate(['/dashboard/viewer']);
+                } else {
+                  this.router.navigate(['/login']);
+                }
               } else {
-                this.router.navigate(['/login']);
+                this.error = res.message || 'Visage non reconnu ❌';
+                this.cameraStatus = this.error;
               }
-            } else {
-              this.error = res.message || 'Visage non reconnu ❌';
+            },
+            error: (err) => {
+              this.faceLoading = false;
+              this.error = err.error?.message || 'Erreur reconnaissance ❌';
               this.cameraStatus = this.error;
             }
-          },
-          error: (err) => {
-            this.faceLoading = false;
-            this.error = err.error?.message || 'Erreur reconnaissance ❌';
-            this.cameraStatus = this.error;
-          }
-        });
+          });
+      });
     }, 'image/jpeg', 0.85);
   }
 }

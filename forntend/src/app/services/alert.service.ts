@@ -9,16 +9,17 @@ export interface Alert {
   severity: string;
   cameraId?: number;
   departmentId?: number;
-  departmentName?: string; // 🔥 AJOUT IMPORTANT
+  departmentName?: string;
   timestamp: string;
 
-  // AI Alert Fields
   resolved?: boolean;
   location?: string;
   imagePath?: string;
   uniqueHash?: string;
   employeeId?: number;
   count?: number;
+
+  animalLabel?: string;
 }
 
 @Injectable({
@@ -42,7 +43,6 @@ export class AlertService {
     return this.http.get<{activeCount: number}>(`${this.API}/active-count`);
   }
 
-  // 🔥 RESOLVE ALERT
   resolveAlert(id: number): Observable<Alert> {
     return this.http.put<Alert>(`${this.API}/${id}/resolve`, {});
   }

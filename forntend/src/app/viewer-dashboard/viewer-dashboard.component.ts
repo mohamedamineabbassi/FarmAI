@@ -16,9 +16,14 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
   employees: Employee[]  = [];
   loading                = false;
   searchQuery            = '';
-  currentView: 'dashboard' | 'settings' = 'dashboard';
+  currentView: 'dashboard' | 'employees' | 'settings' = 'dashboard';
 
-  // ── Webcam Modal ──
+  showCreateForm  = false;
+  createLoading   = false;
+  createError     = '';
+  createSuccess   = '';
+  newEmployee = { name: '', email: '', phone: '', job: 'WORKER' };
+
   showCameraModal  = false;
   activeEmployee: Employee | null = null;
   cameraReady      = false;
@@ -45,9 +50,6 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
 
   ngOnDestroy(): void { this.stopStream(); }
 
-  // ─────────────────────────────────────────────
-  // DATA
-  // ─────────────────────────────────────────────
   loadData() {
     this.loading = true;
     this.employeeService.getEmployees().subscribe({
@@ -69,9 +71,6 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
   getRegisteredCount()   { return this.employees.filter(e => e.faceRegistered).length; }
   getUnregisteredCount() { return this.employees.filter(e => !e.faceRegistered).length; }
 
-  // ─────────────────────────────────────────────
-  // OUVRIR MODAL CAMÉRA
-  // ─────────────────────────────────────────────
   captureFace(employee: Employee) {
     this.activeEmployee = employee;
     this.cameraReady    = false;
@@ -82,7 +81,6 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
     this.scanError      = '';
     this.showCameraModal = true;
 
-    // Démarrer la caméra après que Angular rende le modal
     setTimeout(() => this.startCamera(), 250);
   }
 
@@ -91,7 +89,7 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
     this.cameraReady = false;
 
     navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
       audio: false
     })
     .then((stream) => {
@@ -145,9 +143,6 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
     if (event.target === event.currentTarget) this.closeModal();
   }
 
-  // ─────────────────────────────────────────────
-  // SCANNER LE VISAGE
-  // ─────────────────────────────────────────────
   doScan() {
     if (!this.activeEmployee?.id) return;
     const video = this.captureVideo?.nativeElement;
@@ -161,60 +156,114 @@ export class ViewerDashboardComponent implements OnInit, AfterViewInit, OnDestro
     this.scanSuccess = '';
     this.scanStatus  = 'Capture de l\'image...';
 
-    // Snapshot canvas
     const canvas = document.createElement('canvas');
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext('2d')!.drawImage(video, 0, 0);
 
+    const snapshotDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
     canvas.toBlob((blob) => {
-      if (!blob) {
-        this.scanLoading = false; this.scanStatus = '';
-        this.scanError = 'Impossible de capturer l\'image.';
-        return;
-      }
-
-      this.scanStatus = 'Envoi au moteur IA...';
-      const form = new FormData();
-      form.append('image', blob, 'face.jpg');
-
-      this.http.post<any>(
-        `http://localhost:8081/api/employees/register-face-image/${this.activeEmployee!.id}`,
-        form
-      )
-      .pipe(timeout(25000))
-      .subscribe({
-        next: (res) => {
+      this.zone.run(() => {
+        if (!blob) {
           this.scanLoading = false; this.scanStatus = '';
-          if (res.status === 'success') {
-            this.scanSuccess = `Visage de ${res.employeeName || this.activeEmployee!.name} enregistré !`;
-            this.stopStream();
-            // Mettre à jour l'employé localement
-            const emp = this.employees.find(e => e.id === this.activeEmployee!.id);
-            if (emp) emp.faceRegistered = true;
-          } else {
-            this.scanError = res.message || 'Aucun visage détecté. Rapprochez-vous.';
-          }
-        },
-        error: (err) => {
-          this.scanLoading = false; this.scanStatus = '';
-          if (err.name === 'TimeoutError' || err.constructor?.name === 'TimeoutError') {
-            this.scanError = '⏱ Délai dépassé (25s). Vérifiez que le serveur IA (port 8000) est démarré.';
-          } else {
-            this.scanError = err.error?.message || err.error?.error || 'Erreur serveur.';
-          }
+          this.scanError = 'Impossible de capturer l\'image.';
+          return;
         }
+
+        this.scanStatus = 'Analyse IA en cours...';
+        const form = new FormData();
+        form.append('image', blob, 'face.jpg');
+
+        this.http.post<any>(
+          `http://localhost:8081/api/employees/register-face-image/${this.activeEmployee!.id}`,
+          form
+        )
+        .pipe(timeout(25000))
+        .subscribe({
+          next: (res) => {
+            this.scanLoading = false; this.scanStatus = '';
+            if (res.status === 'success') {
+              this.scanSuccess = `Visage de ${res.employeeName || this.activeEmployee!.name} enregistré !`;
+              this.stopStream();
+              const emp = this.employees.find(e => e.id === this.activeEmployee!.id);
+              if (emp) {
+                emp.faceRegistered = true;
+                emp.facePhotoData  = snapshotDataUrl;
+              }
+              setTimeout(() => this.closeModal(), 1500);
+            } else {
+              this.scanError = res.message || 'Aucun visage détecté. Regardez directement la caméra.';
+            }
+          },
+          error: (err) => {
+            this.scanLoading = false; this.scanStatus = '';
+            if (err.name === 'TimeoutError' || err.constructor?.name === 'TimeoutError') {
+              this.scanError = '⏱ Délai dépassé (25s). Vérifiez que le serveur IA (port 8000) est démarré.';
+            } else {
+              this.scanError = err.error?.message || err.error?.error || 'Erreur serveur.';
+            }
+          }
+        });
       });
     }, 'image/jpeg', 0.85);
   }
 
-  // ─────────────────────────────────────────────
-  // NAVIGATION
-  // ─────────────────────────────────────────────
+  openCreateForm() {
+    this.newEmployee = { name: '', email: '', phone: '', job: 'WORKER' };
+    this.createError   = '';
+    this.createSuccess = '';
+    this.showCreateForm = true;
+  }
+
+  cancelCreateForm() {
+    this.showCreateForm = false;
+    this.createError   = '';
+    this.createSuccess = '';
+  }
+
+  submitCreateEmployee() {
+    if (!this.newEmployee.name.trim()) {
+      this.createError = 'Le nom est obligatoire.';
+      return;
+    }
+    this.createLoading = true;
+    this.createError   = '';
+    this.createSuccess = '';
+
+    const payload: any = {
+      name:   this.newEmployee.name.trim(),
+      email:  this.newEmployee.email.trim() || null,
+      phone:  this.newEmployee.phone.trim() || null,
+      job:    this.newEmployee.job,
+      status: 'PENDING',
+      faceRegistered: false
+    };
+
+    this.employeeService.create(payload).subscribe({
+      next: (saved: any) => {
+        this.createLoading = false;
+        this.createSuccess = `${saved.name} a été ajouté avec succès !`;
+        this.employees.push(saved);
+        setTimeout(() => {
+          this.showCreateForm = false;
+          this.createSuccess = '';
+        }, 2000);
+      },
+      error: (err: any) => {
+        this.createLoading = false;
+        this.createError = err?.error?.message || err?.error || 'Erreur lors de la création.';
+      }
+    });
+  }
+
   logout()      { localStorage.clear(); this.router.navigate(['/login']); }
-  switchView(v: 'dashboard' | 'settings') { this.currentView = v; }
+  switchView(v: 'dashboard' | 'employees' | 'settings') { this.currentView = v; }
   scrollTo(id: string) {
     this.currentView = 'dashboard';
     setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }), 100);
   }
+
+  getUnregisteredEmployees() { return this.employees.filter(e => !e.faceRegistered); }
+  getRegisteredEmployees()   { return this.employees.filter(e =>  e.faceRegistered); }
 }

@@ -3,7 +3,6 @@
         <app-sidebar></app-sidebar>
     </div>
     <div class="main-panel">
-        <!-- <app-navbar></app-navbar> We disabled the default navbar as pages have their own customized navbars now -->
         <router-outlet></router-outlet>
         <div *ngIf="isMaps('maps')">
             <app-footer></app-footer>

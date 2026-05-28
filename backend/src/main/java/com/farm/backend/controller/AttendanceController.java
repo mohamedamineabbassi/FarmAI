@@ -18,13 +18,11 @@ public class AttendanceController {
         this.service = service;
     }
 
-    // 🔥 POST (Python → Backend)
     @PostMapping
     public AttendanceRecord createAttendance(@RequestBody AttendanceRequest request) {
         return service.saveAttendance(request);
     }
 
-    // 🔥 GET
     @GetMapping
     public List<AttendanceRecord> getAll() {
         return service.getAllAttendances();

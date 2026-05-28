@@ -11,7 +11,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 🔥 Erreurs métier (manager déjà affecté, manager introuvable, etc.)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity
@@ -19,7 +18,6 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", ex.getMessage() != null ? ex.getMessage() : "Erreur serveur"));
     }
 
-    // 🔒 Accès refusé (rôle insuffisant)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity
@@ -27,7 +25,6 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "Accès refusé : permissions insuffisantes"));
     }
 
-    // 🛑 Toute autre exception non prévue
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
         ex.printStackTrace();

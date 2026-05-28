@@ -2,6 +2,37 @@
 // DEPARTMENTS PAGE — Modern Light Green Design System
 // ============================================================
 
+// ── Inline alerts ─────────────────────────────────────────────
+.dept-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: fadeSlideIn .3s ease-out;
+
+  .material-icons { font-size: 20px; flex-shrink: 0; }
+  span { flex: 1; }
+
+  .close-alert {
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; padding: 2px;
+    border-radius: 4px; opacity: .6; transition: opacity .2s;
+    &:hover { opacity: 1; }
+    .material-icons { font-size: 16px; }
+  }
+
+  &.dept-alert-error   { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+  &.dept-alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 // ── Section Title ─────────────────────────────────────────────
 .section-title {
   color: #1e293b;

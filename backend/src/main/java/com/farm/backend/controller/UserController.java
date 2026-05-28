@@ -16,9 +16,11 @@ import java.time.LocalDateTime;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -47,10 +49,6 @@ public class UserController {
         this.alertRepository = alertRepository;
     }
 
-    // =========================
-    // 🔥 VIEWERS
-    // =========================
-
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/viewers")
     public List<User> getViewers() {
@@ -59,26 +57,45 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/viewers")
-    public User createViewer(@RequestBody User user) {
+    public ResponseEntity<?> createViewer(@RequestBody User user) {
 
-        if (repo.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email déjà utilisé ❌");
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "L'adresse email est obligatoire."));
+        }
+        if (user.getFirstName() == null || user.getFirstName().trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Le prénom est obligatoire."));
+        }
+
+        if (repo.existsByEmail(user.getEmail().trim())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Cet email est déjà utilisé par un autre compte."));
         }
 
         String password = UUID.randomUUID().toString().substring(0, 8);
-        String token = UUID.randomUUID().toString();
+        String token    = UUID.randomUUID().toString();
 
+        user.setEmail(user.getEmail().trim());
         user.setPassword(encoder.encode(password));
         user.setRole(Role.ROLE_VIEWER);
         user.setEnabled(false);
         user.setActivationToken(token);
 
-        User saved = repo.save(user);
-
-        // 🔥 create associated Employee so face registration works
+        User saved;
         try {
+            saved = repo.save(user);
+        } catch (Exception e) {
+            System.out.println("❌ ERREUR SAVE VIEWER: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erreur base de données : " + e.getMessage()));
+        }
+
+        try {
+            String fullName = (user.getFirstName() != null ? user.getFirstName() : "")
+                    + (user.getLastName() != null && !user.getLastName().isEmpty() ? " " + user.getLastName() : "");
             Employee emp = new Employee();
-            emp.setName(user.getFirstName() != null ? user.getFirstName() + " " + user.getLastName() : user.getEmail());
+            emp.setName(fullName.trim().isEmpty() ? user.getEmail() : fullName.trim());
             emp.setEmail(user.getEmail());
             emp.setJob(Job.OTHER);
             emp.setStatus(EmployeeStatus.APPROVED);
@@ -87,13 +104,12 @@ public class UserController {
             emp.setAvailable(true);
             employeeRepository.save(emp);
         } catch (Exception e) {
-            System.out.println("❌ ERREUR CREATION EMPLOYEE VIEWER: " + e.getMessage());
+            System.out.println("⚠️ ERREUR CREATION EMPLOYEE VIEWER: " + e.getMessage());
         }
 
-        // 📧 EMAIL VIEWER
         emailService.sendViewerAccount(user.getEmail(), password, token);
 
-        return saved;
+        return ResponseEntity.ok(saved);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -116,13 +132,11 @@ public class UserController {
         User user = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Detach from departments
         departmentRepository.findAllByManagerId(id).forEach(dept -> {
             dept.setManager(null);
             departmentRepository.save(dept);
         });
 
-        // Remove associated employee by email
         try {
             employeeRepository.findByEmail(user.getEmail()).forEach(employeeRepository::delete);
         } catch (Exception e) {
@@ -133,10 +147,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    // =========================
-    // 🔥 MANAGERS
-    // =========================
-
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/managers")
     public List<User> getManagers(org.springframework.security.core.Authentication auth) {
@@ -144,63 +154,63 @@ public class UserController {
         return repo.findByRole(Role.ROLE_MANAGER);
     }
 
-    // =========================
-    // 🔥 CREATE MANAGER + EMAIL
-    // =========================
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/managers")
-    public User createManager(@RequestBody User user) {
+    public ResponseEntity<?> createManager(@RequestBody User user) {
 
-        if (repo.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email déjà utilisé ❌");
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "L'adresse email est obligatoire."));
+        }
+        if (user.getFirstName() == null || user.getFirstName().trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Le prénom est obligatoire."));
+        }
+
+        if (repo.existsByEmail(user.getEmail().trim())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Cet email est déjà utilisé par un autre compte."));
         }
 
         String password = UUID.randomUUID().toString().substring(0, 8);
-        String token = UUID.randomUUID().toString();
+        String token    = UUID.randomUUID().toString();
 
+        user.setEmail(user.getEmail().trim());
         user.setPassword(encoder.encode(password));
         user.setRole(Role.ROLE_MANAGER);
-
-        // 🔥 IMPORTANT
-        user.setEnabled(false); // bloque login avant activation
+        user.setEnabled(false);
         user.setActivationToken(token);
 
-        User saved = repo.save(user);
-
-        // 🔥 create associated Employee so face registration works
+        User saved;
         try {
-            Department dep = departmentRepository.findAll().stream().findFirst().orElse(null);
+            saved = repo.save(user);
+        } catch (Exception e) {
+            System.out.println("❌ ERREUR SAVE MANAGER: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erreur base de données : " + e.getMessage()));
+        }
+
+        try {
+            String fullName = (user.getFirstName() != null ? user.getFirstName() : "")
+                    + (user.getLastName() != null && !user.getLastName().isEmpty() ? " " + user.getLastName() : "");
             Employee emp = new Employee();
-            emp.setName(user.getFirstName() != null ? user.getFirstName() + " " + user.getLastName() : user.getEmail());
+            emp.setName(fullName.trim().isEmpty() ? user.getEmail() : fullName.trim());
             emp.setEmail(user.getEmail());
             emp.setJob(Job.OTHER);
             emp.setStatus(EmployeeStatus.APPROVED);
-            emp.setDepartment(dep);
             emp.setCreatedAt(LocalDateTime.now());
             emp.setFaceRegistered(false);
             emp.setAvailable(true);
             employeeRepository.save(emp);
         } catch (Exception e) {
-            System.out.println("❌ ERREUR CREATION EMPLOYEE: " + e.getMessage());
+            System.out.println("⚠️ ERREUR CREATION EMPLOYEE MANAGER: " + e.getMessage());
         }
 
-        // 📧 EMAIL MANAGER (AUTO)
-        try {
-            emailService.sendManagerAccount(
-                    user.getEmail(),
-                    password,
-                    token
-            );
-        } catch (Exception e) {
-            System.out.println("❌ ERREUR EMAIL: " + e.getMessage());
-        }
+        emailService.sendManagerAccount(user.getEmail(), password, token);
 
-        return saved;
+        return ResponseEntity.ok(saved);
     }
 
-    // =========================
-    // 🔥 UPDATE MANAGER
-    // =========================
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/managers/{id}")
     public User updateManager(@PathVariable Long id, @RequestBody User updated) {
@@ -215,22 +225,17 @@ public class UserController {
         return repo.save(user);
     }
 
-    // =========================
-    // 🔥 DELETE MANAGER
-    // =========================
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/managers/{id}")
     public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
         User user = repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Detach manager from all departments that reference this user
         departmentRepository.findAllByManagerId(id).forEach(dept -> {
             dept.setManager(null);
             departmentRepository.save(dept);
         });
 
-        // Remove associated employee by email
         try {
             employeeRepository.findByEmail(user.getEmail()).forEach(employeeRepository::delete);
         } catch (Exception e) {
@@ -241,11 +246,6 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-
-
-    // =========================
-    // 🔥 TEST EMAIL (DEV ONLY)
-    // =========================
     @GetMapping("/test-mail")
     public String testMail() {
 
@@ -266,10 +266,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // =========================
-    // ⚙️ SETTINGS
-    // =========================
-
     @PutMapping("/update-profile")
     public ResponseEntity<?> updateProfile(@RequestBody User dto, org.springframework.security.core.Authentication auth) {
         String email = auth.getName();
@@ -279,8 +275,6 @@ public class UserController {
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setPhone(dto.getPhone());
-        // We might want to allow changing email too, but it's used as username
-        // user.setEmail(dto.getEmail()); 
 
         return ResponseEntity.ok(repo.save(user));
     }
@@ -296,9 +290,6 @@ public class UserController {
         return ResponseEntity.ok("Password updated ✅");
     }
 
-    // =========================
-    // ⚠️ METTRE TOUJOURS EN DERNIER
-    // =========================
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public User getOne(@PathVariable Long id) {

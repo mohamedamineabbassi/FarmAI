@@ -12,7 +12,6 @@ export class AnalyticsService {
 
   constructor(private http: HttpClient) { }
 
-  // ✅ ROBUSTE : chaque appel est protégé individuellement — si un échoue, les autres continuent
   getDashboardData(): Observable<any> {
     const employees$ = this.http.get<any[]>(`${this.baseUrl}/employees`).pipe(
       catchError(err => { console.warn('[Analytics] /employees error:', err); return of([]); })
@@ -35,7 +34,6 @@ export class AnalyticsService {
     });
   }
 
-  // ✅ AUTO-REFRESH : polling toutes les 10 secondes (5s était trop agressif)
   getDashboardDataWithPolling(pollIntervalMs: number = 10000): Observable<any> {
     return interval(pollIntervalMs).pipe(
       startWith(0),
@@ -43,15 +41,4 @@ export class AnalyticsService {
     );
   }
 
-  getAlerts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/alerts`).pipe(
-      catchError(() => of([]))
-    );
-  }
-
-  getAttendance(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/attendance`).pipe(
-      catchError(() => of([]))
-    );
-  }
 }

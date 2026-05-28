@@ -26,7 +26,6 @@ public class EmployeeController {
     private final EmailService emailService;
     private final com.farm.backend.service.FaceService faceService;
 
-    // ✅ CONSTRUCTEUR
     public EmployeeController(EmployeeRepository employeeRepository,
                               DepartmentRepository departmentRepository,
                               EmailService emailService,
@@ -40,18 +39,12 @@ public class EmployeeController {
         this.faceNotificationRepository = faceNotificationRepository;
     }
 
-    // =====================================================
-    // 🔥 CREATE EMPLOYEE (PENDING + NO FACE)
-    // =====================================================
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_VIEWER')")
     @PostMapping("/employee")
     public Employee createEmployee(@RequestBody Employee employee) {
 
         employee.setDepartment(null);
-
-        // ✅ LOGIQUE CORRECTE
         employee.setStatus(EmployeeStatus.PENDING);
-
         employee.setCreatedAt(LocalDateTime.now());
         employee.setJob(normalizeEmployeeJob(employee.getJob().name()));
         employee.setFaceRegistered(false);
@@ -59,15 +52,11 @@ public class EmployeeController {
 
         Employee saved = employeeRepository.save(employee);
 
-        // 📧 Send creation email asynchronously (non-blocking)
         emailService.sendEmployeeCreated(saved.getEmail(), saved.getName());
 
         return saved;
     }
 
-    // =====================================================
-    // 🔥 VALIDATION FACE (PAR VIEWER)
-    // =====================================================
     @PutMapping("/validate-face/{id}")
     public Employee validateFace(@PathVariable Long id) {
 
@@ -75,14 +64,10 @@ public class EmployeeController {
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         emp.setFaceRegistered(true);
-        // emp.setStatus(EmployeeStatus.APPROVED); // ❌ Separated from approval
 
         return employeeRepository.save(emp);
     }
 
-    // =====================================================
-    // 🔥 APPROVAL (PAR ADMIN)
-    // =====================================================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/approve/{id}")
     public Employee approveEmployee(@PathVariable Long id) {
@@ -92,15 +77,11 @@ public class EmployeeController {
         emp.setStatus(EmployeeStatus.APPROVED);
         Employee saved = employeeRepository.save(emp);
 
-        // 📧 Trigger Welcome Email
         emailService.sendWelcomeEmail(saved.getEmail(), saved.getName());
 
         return saved;
     }
 
-    // =====================================================
-    // 🔥 CREATE MANAGER (PENDING)
-    // =====================================================
     @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @PostMapping("/manager")
     public Employee createByManager(@RequestBody Employee employee) {
@@ -119,9 +100,6 @@ public class EmployeeController {
         return employeeRepository.save(employee);
     }
 
-    // =====================================================
-    // 🔥 ADMIN CREATE MANAGER
-    // =====================================================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/admin")
     public Employee createByAdmin(@RequestBody Employee employee) {
@@ -139,9 +117,6 @@ public class EmployeeController {
         return employeeRepository.save(employee);
     }
 
-    // =====================================================
-    // 🔥 GET ONLY EMPLOYEES
-    // =====================================================
     @GetMapping("/only-employees")
     public List<Employee> getOnlyEmployees() {
         return employeeRepository.findByJobIn(Arrays.asList(Job.DOCTOR, Job.ELECTRICIAN, Job.WORKER));
@@ -170,17 +145,11 @@ public class EmployeeController {
         }
     }
 
-    // =====================================================
-    // 🔥 GET BY MANAGER
-    // =====================================================
     @GetMapping("/manager/{id}")
     public List<Employee> getManagerEmployees(@PathVariable Long id) {
         return employeeRepository.findByDepartmentManagerId(id);
     }
 
-    // =====================================================
-    // 🔥 GET ALL
-    // =====================================================
     @GetMapping
     public List<Employee> getAll() {
         try {
@@ -192,14 +161,12 @@ public class EmployeeController {
         }
     }
 
-    // 🔥 NEW: GET MY PROFILE (Find or create for Admin/User)
     @GetMapping("/me")
     public Employee getMyProfile(@RequestParam String email) {
         return employeeRepository.findAll().stream()
                 .filter(e -> e.getEmail() != null && e.getEmail().equalsIgnoreCase(email))
                 .findFirst()
                 .orElseGet(() -> {
-                    // Create a default employee record if none exists for this user
                     Employee newEmp = new Employee();
                     newEmp.setEmail(email);
                     newEmp.setName(email.split("@")[0]);
@@ -211,18 +178,12 @@ public class EmployeeController {
                 });
     }
 
-    // =====================================================
-    // 🔥 GET PENDING
-    // =====================================================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/pending")
     public List<Employee> getPending() {
         return employeeRepository.findByStatus(EmployeeStatus.PENDING);
     }
 
-    // =====================================================
-    // 🔥 DELETE
-    // =====================================================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public String delete(@PathVariable Long id) {
@@ -230,17 +191,11 @@ public class EmployeeController {
         return "Employee deleted";
     }
 
-    // =====================================================
-    // 🔥 EMPLOYEES SANS FACE
-    // =====================================================
     @GetMapping("/no-face")
     public List<Employee> getWithoutFace() {
         return employeeRepository.findByFaceRegisteredFalse();
     }
 
-    // =====================================================
-    // 🎭 FACE MANAGEMENT (PYTHON INTEGRATION — SOC camera)
-    // =====================================================
     @PostMapping("/register-face/{id}")
     public Object registerFace(@PathVariable Long id) {
         faceService.registerFaceByEmployeeId(id);
@@ -253,17 +208,13 @@ public class EmployeeController {
         return Map.of("status", "success", "message", "Face deleted");
     }
 
-    // =====================================================
-    // 📸 FACE REGISTER — IMAGE NAVIGATEUR (STATELESS + NOTIFICATION)
-    // =====================================================
     @PostMapping(value = "/register-face-image/{id}", consumes = {"multipart/form-data"})
     public Object registerFaceImage(
             @PathVariable Long id,
             @RequestParam("image") MultipartFile image,
             Authentication auth) {
 
-        Employee employee = employeeRepository.findById(id)
-                .orElse(null);
+        Employee employee = employeeRepository.findById(id).orElse(null);
         if (employee == null) {
             return Map.of("status", "error", "message", "Employé introuvable.");
         }
@@ -275,16 +226,13 @@ public class EmployeeController {
             return Map.of("status", "error", "message", "Lecture image impossible.");
         }
 
-        // Appel Python AI stateless
         Map<String, Object> result = faceService.registerFromImage(
                 bytes, image.getOriginalFilename(), employee.getEmail(), employee.getId());
 
         if ("success".equals(result.get("status"))) {
-            // Mise à jour JPA
             employee.setFaceRegistered(true);
             employeeRepository.save(employee);
 
-            // ─── Créer la notification pour l'admin ───
             FaceNotification notif = new FaceNotification();
             notif.setEmployeeId(employee.getId());
             notif.setEmployeeName(employee.getName());
@@ -294,10 +242,12 @@ public class EmployeeController {
             notif.setRegisteredAt(LocalDateTime.now());
             notif.setRead(false);
 
-            // Stocker la miniature en base64 (max ~100 ko)
             try {
                 String b64 = Base64.getEncoder().encodeToString(bytes);
-                notif.setFaceSnapshot("data:image/jpeg;base64," + b64);
+                String dataUrl = "data:image/jpeg;base64," + b64;
+                notif.setFaceSnapshot(dataUrl);
+                employee.setFacePhotoData(dataUrl);
+                employeeRepository.save(employee);
             } catch (Exception ignored) {}
 
             faceNotificationRepository.save(notif);

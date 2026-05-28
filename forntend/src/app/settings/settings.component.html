@@ -6,7 +6,6 @@
       </div>
     </div>
 
-    <!-- ALERT MESSAGE -->
     <div *ngIf="message" class="alert-banner mb-4" [ngClass]="isError ? 'bg-light-danger border-danger' : 'bg-light-success border-success'" (click)="message = ''" style="padding: 16px; border-radius: 12px; display: flex; align-items: center; border-left: 4px solid; cursor: pointer; transition: opacity 0.3s;">
       <i class="material-icons mr-3" [style.color]="isError ? '#ef4444' : '#10b981'">{{ isError ? 'error_outline' : 'check_circle' }}</i>
       <span class="font-weight-bold" [style.color]="isError ? '#7f1d1d' : '#064e3b'">{{ message }}</span>
@@ -14,7 +13,6 @@
     </div>
 
     <div class="row">
-      <!-- 👤 PROFIL -->
       <div class="col-md-6">
         <div class="dept-card fade-in">
           <div class="card-header border-0 pb-0 pt-4 px-4">
@@ -24,11 +22,11 @@
           <div class="card-body p-4">
             <form (ngSubmit)="updateProfile()">
               <div class="form-group">
-                <label>{{ langService.t('PRÉNOM', 'FIRST NAME') }}</label>
+                <label>{{ langService.t('PRÉNOM', 'FIRST NAME') }} <span class="req">*</span></label>
                 <input type="text" class="form-control" [(ngModel)]="user.firstName" name="firstName" required>
               </div>
               <div class="form-group mt-3">
-                <label>{{ langService.t('NOM', 'LAST NAME') }}</label>
+                <label>{{ langService.t('NOM', 'LAST NAME') }} <span class="req">*</span></label>
                 <input type="text" class="form-control" [(ngModel)]="user.lastName" name="lastName" required>
               </div>
               <div class="form-group mt-3">
@@ -48,7 +46,6 @@
         </div>
       </div>
 
-      <!-- 🔐 MOT DE PASSE -->
       <div class="col-md-6">
         <div class="dept-card fade-in">
           <div class="card-header border-0 pb-0 pt-4 px-4">
@@ -58,15 +55,15 @@
           <div class="card-body p-4">
             <form (ngSubmit)="changePassword()">
               <div class="form-group">
-                <label>{{ langService.t('ANCIEN MOT DE PASSE', 'OLD PASSWORD') }}</label>
+                <label>{{ langService.t('ANCIEN MOT DE PASSE', 'OLD PASSWORD') }} <span class="req">*</span></label>
                 <input type="password" class="form-control" [(ngModel)]="passwords.oldPassword" name="oldPass" required>
               </div>
               <div class="form-group mt-3">
-                <label>{{ langService.t('NOUVEAU MOT DE PASSE', 'NEW PASSWORD') }}</label>
+                <label>{{ langService.t('NOUVEAU MOT DE PASSE', 'NEW PASSWORD') }} <span class="req">*</span></label>
                 <input type="password" class="form-control" [(ngModel)]="passwords.newPassword" name="newPass" required>
               </div>
               <div class="form-group mt-3">
-                <label>{{ langService.t('CONFIRMER LE MOT DE PASSE', 'CONFIRM PASSWORD') }}</label>
+                <label>{{ langService.t('CONFIRMER LE MOT DE PASSE', 'CONFIRM PASSWORD') }} <span class="req">*</span></label>
                 <input type="password" class="form-control" [(ngModel)]="passwords.confirmPassword" name="confirmPass" required>
               </div>
               <button type="submit" class="btn btn-save w-100 mt-4" [disabled]="loading">
@@ -80,7 +77,6 @@
     </div>
     
     <div class="row">
-      <!-- 🌐 PRÉFÉRENCES -->
       <div class="col-md-12">
         <div class="dept-card fade-in">
           <div class="card-header border-0 pb-0 pt-4 px-4">
@@ -106,7 +102,6 @@
     </div>
 
     <div class="row">
-      <!-- 👤 RECONNAISSANCE FACIALE -->
       <div class="col-md-12">
         <div class="dept-card fade-in">
           <div class="card-header border-0 pb-0 pt-4 px-4">
@@ -144,7 +139,6 @@
   </div>
 </div>
 
-<!-- 📷 CAMERA PREVIEW MODAL -->
 <div *ngIf="showCamera" class="camera-overlay fade-in" (click)="$event.target === $event.currentTarget && stopCamera()">
   <div class="camera-modal">
     <div class="camera-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 15px 20px;">
@@ -158,13 +152,11 @@
     </div>
 
     <div class="camera-body p-4" style="background: #ffffff;">
-      <!-- Status bar -->
       <div class="camera-status p-3 mb-4 rounded d-flex align-items-center" [ngClass]="{'bg-light-success text-success': cameraReady && !capturing, 'bg-light-warning text-warning': capturing}" style="font-weight: 600; font-size: 14px;">
         <i class="material-icons mr-2 pulse-icon">{{ capturing ? 'hourglass_top' : (cameraReady ? 'videocam' : 'videocam_off') }}</i>
         <span>{{ cameraStatus }}</span>
       </div>
 
-      <!-- Video feed / captured image -->
       <div class="camera-view" style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; border-radius: 16px; overflow: hidden; background: #0f172a;">
         <div class="face-guide" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: 10;">
           <div class="guide-circle" [ngClass]="{'face-detected': faceDetected}" style="width: 200px; height: 250px; border: 3px dashed rgba(255,255,255,0.5); border-radius: 50%; transition: border-color 0.3s;"></div>
@@ -180,7 +172,6 @@
         <img *ngIf="capturedImage" [src]="capturedImage" [alt]="'Photo capturée - ' + user.firstName" title="Photo capturée" class="captured-preview" style="width: 100%; display: block;" />
       </div>
 
-      <!-- Action buttons -->
       <div class="camera-actions mt-4 text-center">
         <ng-container *ngIf="!capturedImage">
           <button class="btn-capture mx-auto" (click)="captureAndRegister()" [disabled]="!cameraReady || capturing" style="width: 70px; height: 70px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">

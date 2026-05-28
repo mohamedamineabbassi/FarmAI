@@ -16,9 +16,6 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    // =========================
-    // 👤 EMPLOYEE ACCOUNT CREATED
-    // =========================
     @Async
     public void sendEmployeeCreated(String to, String name) {
 
@@ -40,9 +37,6 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // 📧 EMAIL 1 – WELCOME (ON APPROVAL)
-    // =========================
     @Async
     public void sendWelcomeEmail(String to, String name) {
         if (to == null || to.isEmpty()) return;
@@ -63,9 +57,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // 🔐 MANAGER ACCOUNT (ACTIVATION + FACE)
-    // =========================
+    @Async
     public void sendManagerAccount(String to, String password, String token) {
 
         if (to == null || to.isEmpty()) return;
@@ -98,9 +90,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // 🔥 VIEWER ACTIVATION EMAIL
-    // =========================
+    @Async
     public void sendViewerAccount(String to, String password, String token) {
 
         if (to == null || to.isEmpty()) return;
@@ -127,9 +117,6 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // 📌 ASSIGNMENT / UPDATE
-    // =========================
     public void sendAssignment(String to, String depName, LocalTime start, LocalTime end) {
 
         if (to == null || to.isEmpty()) return;
@@ -150,9 +137,6 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // 📧 EMAIL 2 – TEAM VALIDATION TO ADMIN
-    // =========================
     @Async
     public void sendTeamValidationToAdmin(String to, String managerName, String departmentName, java.util.List<String> employeeNames, String schedule) {
         if (to == null || to.isEmpty()) return;
@@ -178,9 +162,6 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // 📧 EMAIL 3 – MANAGER CONFIRMATION
-    // =========================
     @Async
     public void sendManagerConfirmation(String to, String departmentName, java.util.List<String> employeeNames) {
         if (to == null || to.isEmpty()) return;
@@ -205,9 +186,6 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // 📧 EMAIL 4 – ASSIGNMENT TO EMPLOYEE
-    // =========================
     @Async
     public void sendAssignmentNotification(String to,
                                            String name,
@@ -251,9 +229,6 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    // =========================
-    // ❌ DELETE
-    // =========================
     public void sendDelete(String to, String depName) {
 
         if (to == null || to.isEmpty()) return;

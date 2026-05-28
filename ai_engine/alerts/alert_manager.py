@@ -1,80 +1,131 @@
+"""
+AlertManager — envoi asynchrone d'alertes vers le backend Spring Boot.
+
+Paramètres supplémentaires vs v1 :
+  severity     : "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+                 CRITICAL réduit le cooldown anti-spam à 5 s.
+  animal_label : libellé de l'animal détecté (ex. "LOUP / PREDATEUR")
+                 transmis dans le payload JSON pour affichage frontend.
+"""
+
 import time
 import cv2
 import base64
 import requests
 import logging
-import os
 from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
+
 class AlertManager:
-    _instance = None
+    _instance  = None
     _cooldowns = {}
-    _executor = ThreadPoolExecutor(max_workers=5)
-    
-    # URL du backend Spring Boot (ajuster si besoin)
-    # Dans un environnement de prod, ceci devrait être dans un fichier de config
+    _executor  = ThreadPoolExecutor(max_workers=5)
+
     BACKEND_URL = "http://localhost:8081/api/alerts/ai-detection"
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(AlertManager, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
         return cls._instance
 
+    # ─────────────────────────────────────────────────────────────────────────
     @classmethod
-    def trigger_alert(cls, alert_type, camera_id, tracking_id=None, frame=None, location="Camera"):
+    def trigger_alert(
+        cls,
+        alert_type:   str,
+        camera_id:    int,
+        tracking_id:  str  = None,
+        frame               = None,
+        location:     str  = "Camera",
+        severity:     str  = None,
+        animal_label: str  = None,
+    ):
         """
-        Déclenche une alerte vers le backend Spring Boot.
-        Gère le cooldown anti-spam (10 secondes par type/id).
-        L'envoi HTTP et l'encodage image se font en asynchrone (ThreadPool).
-        """
-        # 1. Vérification Anti-Spam (10 secondes)
-        cooldown_key = f"{camera_id}_{alert_type}_{tracking_id}"
-        
-        current_time = time.time()
-        last_time = cls._cooldowns.get(cooldown_key, 0)
-        
-        if current_time - last_time < 10.0:
-            return # Cooldown actif, on ignore silencieusement (anti-spam)
-            
-        # Mise à jour du cooldown
-        cls._cooldowns[cooldown_key] = current_time
-        
-        # 2. Préparation et Envoi Asynchrone
-        # On copie la frame pour éviter qu'elle soit modifiée par le thread principal pendant l'encodage
-        frame_copy = frame.copy() if frame is not None else None
-        
-        cls._executor.submit(cls._send_alert_async, alert_type, camera_id, tracking_id, frame_copy, location)
+        Déclenche une alerte.
 
+        Cooldown anti-spam
+        ──────────────────
+        • Alertes CRITICAL (prédateurs) : cooldown 5 s
+        • Toutes les autres             : cooldown 10 s
+        """
+        cooldown_key = f"{camera_id}_{alert_type}_{tracking_id}"
+
+        # Cooldown réduit pour les urgences
+        cooldown_secs = 5.0 if severity == "CRITICAL" else 10.0
+
+        now       = time.time()
+        last_time = cls._cooldowns.get(cooldown_key, 0.0)
+        if now - last_time < cooldown_secs:
+            return  # Anti-spam silencieux
+
+        cls._cooldowns[cooldown_key] = now
+
+        # Copie de la frame pour éviter une modification par le thread principal
+        frame_copy = frame.copy() if frame is not None else None
+
+        cls._executor.submit(
+            cls._send_async,
+            alert_type, camera_id, tracking_id,
+            frame_copy, location, severity, animal_label,
+        )
+
+    # ─────────────────────────────────────────────────────────────────────────
     @classmethod
-    def _send_alert_async(cls, alert_type, camera_id, tracking_id, frame, location):
+    def _send_async(
+        cls,
+        alert_type:   str,
+        camera_id:    int,
+        tracking_id:  str,
+        frame,
+        location:     str,
+        severity:     str,
+        animal_label: str,
+    ):
         try:
+            # Encodage JPEG de la frame (qualité 70)
             image_b64 = ""
             if frame is not None:
-                # Compression JPEG (qualité 70 pour réseau rapide)
-                ret, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+                ret, buf = cv2.imencode(
+                    ".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70]
+                )
                 if ret:
-                    image_b64 = "data:image/jpeg;base64," + base64.b64encode(buffer).decode('utf-8')
-            
+                    image_b64 = (
+                        "data:image/jpeg;base64,"
+                        + base64.b64encode(buf).decode("utf-8")
+                    )
+
             payload = {
-                "type": alert_type,
-                "location": f"Camera {camera_id}",
-                "cameraId": camera_id,
-                "trackingId": str(tracking_id) if tracking_id is not None else None,
-                "imageBase64": image_b64
+                "type":        alert_type,
+                "location":    f"Camera {camera_id}",
+                "cameraId":    camera_id,
+                "trackingId":  str(tracking_id) if tracking_id is not None else None,
+                "imageBase64": image_b64,
             }
-            
-            headers = {'Content-Type': 'application/json'}
-            # Note: Si Spring Boot exige un Bearer token pour cette route, il faut l'ajouter ici.
-            # Dans AlertController, /ai-detection semble être publique ou autorisée sans auth dans SecurityConfig
-            
-            response = requests.post(cls.BACKEND_URL, json=payload, headers=headers, timeout=5)
-            
-            if response.status_code in [200, 201]:
-                logger.info(f"🚨 [ALERT] Sent successfully: {alert_type} on Camera {camera_id}")
+
+            # Champs optionnels
+            if severity:
+                payload["severity"]    = severity
+            if animal_label:
+                payload["animalLabel"] = animal_label
+
+            resp = requests.post(
+                cls.BACKEND_URL,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=5,
+            )
+
+            if resp.status_code in (200, 201):
+                logger.info(
+                    f"[ALERT OK] {alert_type} | camera {camera_id}"
+                    + (f" | {animal_label}" if animal_label else "")
+                )
             else:
-                logger.error(f"❌ [ALERT] Failed to send {alert_type}: HTTP {response.status_code} - {response.text}")
-                
+                logger.error(
+                    f"[ALERT FAIL] {alert_type} HTTP {resp.status_code}: {resp.text}"
+                )
+
         except Exception as e:
-            logger.error(f"❌ [ALERT] Connection error sending alert {alert_type}: {e}")
+            logger.error(f"[ALERT ERROR] {alert_type}: {e}")

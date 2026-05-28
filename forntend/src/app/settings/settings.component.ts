@@ -31,7 +31,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   isError = false;
   cameraStatus = '';
 
-  // Camera preview
   showCamera = false;
   cameraReady = false;
   faceDetected = false;
@@ -74,10 +73,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // =========================
-  // 📷 CAMERA MANAGEMENT (Shared Stream)
-  // =========================
-
   openCamera() {
     this.showCamera = true;
     this.capturedImage = null;
@@ -97,16 +92,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.capturedImage = null;
   }
 
-  // =========================
-  // 📸 CAPTURE & REGISTER
-  // =========================
-
   captureAndRegister() {
     this.capturing = true;
     this.cameraStatus = this.langService.t('Analyse du visage en cours...', 'Analyzing face...');
 
-    // 🔥 Passe par le backend Spring Boot (qui appelle lui-même le serveur IA)
-    // Cela garantit que faceRegistered est mis à jour en base de données
     const request$ = this.faceRegistered
       ? this.http.put<any>('http://localhost:8081/api/face/update', {})
       : this.http.post<any>('http://localhost:8081/api/face/register', {});
@@ -131,7 +120,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         const msg = err.error?.error || err.error?.message || err.error?.detail ||
           this.langService.t('Erreur lors de l\'enregistrement du visage', 'Error saving face');
 
-        // Cas spécial : aucun visage détecté dans le flux caméra
         if (msg.toLowerCase().includes('face') || msg.toLowerCase().includes('visage')) {
           this.cameraStatus = this.langService.t(
             '❌ Aucun visage détecté. Réessayez.',
@@ -152,10 +140,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       'Camera active — Position your face in the center'
     );
   }
-
-  // =========================
-  // 🔧 FACE ACTIONS (using camera preview)
-  // =========================
 
   onRegisterFace() {
     this.openCamera();
@@ -192,10 +176,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  // =========================
-  // 👤 PROFILE & PASSWORD
-  // =========================
 
   updateProfile() {
     this.loading = true;

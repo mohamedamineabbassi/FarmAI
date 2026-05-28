@@ -37,9 +37,6 @@ public class AuthController {
         this.faceService = faceService;
     }
 
-    // =========================
-    // 🔐 LOGIN
-    // =========================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
 
@@ -60,7 +57,6 @@ public class AuthController {
                     .body(Map.of("message", "Email ou mot de passe incorrect ❌"));
         }
 
-        // 🔥 check if enabled
         if (!db.get().isEnabled()) {
             return ResponseEntity.status(403)
                     .body(Map.of("message", "Compte non activé. Vérifiez votre email."));
@@ -80,9 +76,6 @@ public class AuthController {
         ));
     }
 
-    // =========================
-    // 🔗 ACTIVATE
-    // =========================
     @PostMapping("/activate")
     public Object activate(@RequestParam String token) {
         var db = repo.findByActivationToken(token);
@@ -129,7 +122,6 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // Call FaceService to register face (it will sync to Employee if it exists)
         faceService.registerFace(user.getId());
 
         return Map.of(
@@ -140,15 +132,6 @@ public class AuthController {
         );
     }
 
-    // =========================
-    // 👤 FACE LOGIN (STATELESS — browser snapshot)
-    // =========================
-    /**
-     * Reçoit une image capturée par le navigateur (getUserMedia + canvas snapshot)
-     * et l'envoie au moteur IA pour reconnaissance. Si match → JWT.
-     *
-     * Pas de dépendance au SOC Engine côté caméra ; tout est stateless.
-     */
     @PostMapping(value = "/face-login", consumes = {"multipart/form-data"})
     public Object faceLogin(@RequestParam("image") MultipartFile image) {
         if (image == null || image.isEmpty()) {
@@ -209,13 +192,6 @@ public class AuthController {
         return response;
     }
 
-    // =========================
-    // 📸 FACE REGISTER — IMAGE NAVIGATEUR (STATELESS)
-    // =========================
-    /**
-     * Reçoit une image capturée par le navigateur (getUserMedia + canvas snapshot)
-     * et enregistre l'embedding en BD. Pas de dépendance au SOC Engine.
-     */
     @PostMapping(value = "/face/register-image", consumes = {"multipart/form-data"})
     public Object registerFaceFromImage(
             @RequestParam("image") MultipartFile image,
@@ -256,9 +232,33 @@ public class AuthController {
         return result;
     }
 
-    // =========================
-    // 🔥 ADMIN CREATE USER
-    // =========================
+    @GetMapping("/me")
+    public ResponseEntity<?> whoAmI(
+            @org.springframework.web.bind.annotation.RequestHeader(
+                value = "Authorization", required = false) String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Token manquant"));
+        }
+
+        String token = authHeader.substring(7);
+
+        if (!JwtUtil.isValid(token)) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Token invalide ou expiré"));
+        }
+
+        String username = JwtUtil.getUsername(token);
+        String role     = JwtUtil.getRole(token);
+
+        return ResponseEntity.ok(Map.of(
+                "username", username,
+                "role",     role,
+                "valid",    true
+        ));
+    }
+
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/register")
     public Object register(@RequestBody RegisterRequest request) {
@@ -278,11 +278,9 @@ public class AuthController {
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("No department found"));
 
-            // 🔥 employee
             Employee emp = new Employee();
-            emp.setName(request.email); 
-            emp.setEmail(request.email); // 🔥 FIX: Set email field
-
+            emp.setName(request.email);
+            emp.setEmail(request.email);
             emp.setJob(Job.valueOf(request.job.toUpperCase()));
             emp.setStatus(EmployeeStatus.APPROVED);
             emp.setDepartment(dep);
@@ -291,7 +289,6 @@ public class AuthController {
 
             employeeRepository.save(emp);
 
-            // 🔥 user
             User user = new User();
             user.setEmail(request.email);
             user.setPassword(encoder.encode(request.password));
@@ -299,7 +296,6 @@ public class AuthController {
             user.setFaceRegistered(false);
             repo.save(user);
 
-            // 🔥 LANCER PYTHON (via FaceService)
             faceService.registerFace(user.getId());
 
             return Map.of("msg", "USER CREATED + FACE STARTED");
@@ -310,9 +306,6 @@ public class AuthController {
         }
     }
 
-    // =========================
-    // 🔥 MANAGER CREATE VIEWER
-    // =========================
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/create-viewer")
     public Object createViewer(@RequestBody User user) {

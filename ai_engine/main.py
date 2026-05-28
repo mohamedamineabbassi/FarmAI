@@ -35,6 +35,14 @@ soc_engine = Engine()
 async def startup_event():
     logger.info("✓ Engine online")
     soc_engine.start()
+    # Pre-warm AI models in background so the first face scan is instant
+    import threading
+    def _preload():
+        logger.info("⏳ Pré-chargement InsightFace + YOLOv8 en arrière-plan...")
+        ModelManager().get_face_app()
+        ModelManager().get_yolo_model()
+        logger.info("✓ Modèles IA prêts en mémoire.")
+    threading.Thread(target=_preload, daemon=True).start()
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -218,6 +226,21 @@ def register_latest_frame(request: RegisterLatestFrameRequest):
         return {"status": "error", "message": "Plusieurs visages détectés. Assurez-vous d'être seul."}
 
     face = faces[0]
+
+    # Vérifier la confiance de détection (visage trop flou ou de profil)
+    if hasattr(face, 'det_score') and face.det_score is not None:
+        if float(face.det_score) < 0.65:
+            return {"status": "no_face", "message": "Visage mal détecté. Regardez directement la caméra et assurez-vous d'être bien éclairé."}
+
+    # Vérifier l'orientation du visage (yaw = rotation gauche/droite)
+    if hasattr(face, 'pose') and face.pose is not None:
+        try:
+            yaw = abs(float(face.pose[1]))
+            if yaw > 35:
+                return {"status": "no_face", "message": "Visage trop tourné. Regardez directement la caméra (de face)."}
+        except Exception:
+            pass
+
     emb = face.embedding
     if emb is None:
         return {"status": "error", "message": "Impossible d'extraire les caractéristiques du visage."}
@@ -331,6 +354,12 @@ async def recognize_face_from_image(image: UploadFile = File(...)):
 
     # On prend le visage de plus grande surface (le plus proche de la caméra)
     face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
+
+    # Vérifier qualité minimale
+    if hasattr(face, 'det_score') and face.det_score is not None:
+        if float(face.det_score) < 0.55:
+            return {"status": "no_face", "message": "Visage mal détecté. Regardez directement la caméra."}
+
     emb = face.embedding
     if emb is None:
         return {"status": "no_match"}

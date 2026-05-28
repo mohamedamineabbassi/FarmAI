@@ -18,7 +18,6 @@ export class AlertsComponent implements OnInit {
   ngOnInit(): void {
     this.load();
 
-    // 🔥 refresh automatique
     setInterval(() => this.load(), 3000);
   }
 
@@ -71,19 +70,32 @@ export class AlertsComponent implements OnInit {
 
   resolve(id?: number): void {
     if (!id) return;
-    
+
     // Décrémentation visuelle immédiate (optimisation UX)
     this.alerts = this.alerts.filter(a => a.id !== id);
     if (this.activeCount > 0) this.activeCount--;
-    
+
     this.service.resolveAlert(id).subscribe({
-      next: () => {
-         // Le polling fera le reste, pas besoin de reload manuel synchrone
-      },
+      next: () => {},
       error: (err) => {
-         console.error(err);
-         this.load(); // Rollback visuel en cas d'erreur
+        console.error(err);
+        this.load(); // Rollback visuel en cas d'erreur
       }
     });
+  }
+
+  /** True si au moins une alerte PREDATOR_DETECTED non résolue est présente. */
+  get hasPredatorAlert(): boolean {
+    return this.alerts.some(
+      a => a.type === 'PREDATOR_DETECTED' && !a.resolved
+    );
+  }
+
+  /** Résout toutes les alertes PREDATOR_DETECTED en une seule action. */
+  resolveAllPredators(): void {
+    const predatorAlerts = this.alerts.filter(
+      a => a.type === 'PREDATOR_DETECTED' && !a.resolved && a.id != null
+    );
+    predatorAlerts.forEach(a => this.resolve(a.id));
   }
 }

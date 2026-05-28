@@ -23,13 +23,10 @@ public class AttendanceRecord {
 
     private LocalDateTime timestamp;
 
-    // 👉 auto date
     @PrePersist
     protected void onCreate() {
         this.timestamp = LocalDateTime.now();
     }
-
-    // ===== GETTERS =====
 
     public Long getId() {
         return id;
@@ -54,8 +51,6 @@ public class AttendanceRecord {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
-
-    // ===== SETTERS =====
 
     public void setEmployeeName(String employeeName) {
         this.employeeName = employeeName;

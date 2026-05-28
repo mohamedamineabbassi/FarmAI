@@ -38,7 +38,6 @@ export class FaceSetupComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     if (!this.error) {
-      // Petit délai pour laisser Angular finir le rendu du <video>
       setTimeout(() => this.startCamera(), 200);
     }
   }
@@ -47,24 +46,18 @@ export class FaceSetupComponent implements OnInit, AfterViewInit, OnDestroy {
     this.stopStream();
   }
 
-  // ─────────────────────────────────────────────
-  // CAMÉRA
-  // ─────────────────────────────────────────────
-
   startCamera(): void {
     this.cameraError = '';
     this.cameraReady = false;
 
     navigator.mediaDevices.getUserMedia({
-      video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
       audio: false
     })
     .then((stream) => {
-      // ✅ zone.run() → Angular détecte les changements après l'appel async
       this.zone.run(() => {
         this.mediaStream = stream;
 
-        // Attendre un tick pour que Angular rende le <video> avec le nouveau state
         setTimeout(() => {
           const video = this.videoEl?.nativeElement;
           if (!video) {
@@ -116,10 +109,6 @@ export class FaceSetupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // SCAN
-  // ─────────────────────────────────────────────
-
   scanFace(): void {
     const video = this.videoEl?.nativeElement;
 
@@ -143,7 +132,6 @@ export class FaceSetupComponent implements OnInit, AfterViewInit, OnDestroy {
     this.success    = '';
     this.scanStatus = 'Capture de l\'image...';
 
-    // ── Capture snapshot ──
     const canvas = document.createElement('canvas');
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -151,54 +139,56 @@ export class FaceSetupComponent implements OnInit, AfterViewInit, OnDestroy {
     ctx.drawImage(video, 0, 0);
 
     canvas.toBlob((blob) => {
-      if (!blob) {
-        this.loading    = false;
-        this.scanStatus = '';
-        this.error      = 'Impossible de capturer l\'image.';
-        return;
-      }
+      this.zone.run(() => {
+        if (!blob) {
+          this.loading    = false;
+          this.scanStatus = '';
+          this.error      = 'Impossible de capturer l\'image.';
+          return;
+        }
 
-      this.scanStatus = 'Envoi au moteur IA (max 25s)...';
+        this.scanStatus = 'Analyse IA en cours...';
 
-      const form = new FormData();
-      form.append('image', blob, 'face.jpg');
-      form.append('userId', userIdStr);
+        const form = new FormData();
+        form.append('image', blob, 'face.jpg');
+        form.append('userId', userIdStr);
 
-      this.http.post<any>('http://localhost:8081/api/auth/face/register-image', form)
-        .pipe(timeout(25000))
-        .subscribe({
-          next: (res) => {
-            this.loading    = false;
-            this.scanStatus = '';
+        this.http.post<any>('http://localhost:8081/api/auth/face/register-image', form)
+          .pipe(timeout(25000))
+          .subscribe({
+            next: (res) => {
+              this.loading    = false;
+              this.scanStatus = '';
 
-            if (res.status === 'success') {
-              this.success = 'Visage enregistré avec succès !';
-              localStorage.setItem('faceRegistered', 'true');
-              this.stopStream();
+              if (res.status === 'success') {
+                this.success = 'Visage enregistré avec succès !';
+                localStorage.setItem('faceRegistered', 'true');
+                this.stopStream();
 
-              setTimeout(() => {
-                const role = localStorage.getItem('role');
-                if      (role === 'ROLE_MANAGER') this.router.navigate(['/dashboard/manager']);
-                else if (role === 'ROLE_VIEWER')  this.router.navigate(['/dashboard/viewer']);
-                else if (role === 'ROLE_ADMIN')   this.router.navigate(['/dashboard']);
-                else                              this.router.navigate(['/login']);
-              }, 1500);
+                setTimeout(() => {
+                  const role = localStorage.getItem('role');
+                  if      (role === 'ROLE_MANAGER') this.router.navigate(['/dashboard/manager']);
+                  else if (role === 'ROLE_VIEWER')  this.router.navigate(['/dashboard/viewer']);
+                  else if (role === 'ROLE_ADMIN')   this.router.navigate(['/dashboard']);
+                  else                              this.router.navigate(['/login']);
+                }, 1500);
 
-            } else {
-              this.error = res.message || 'Aucun visage détecté. Rapprochez-vous de la caméra et réessayez.';
+              } else {
+                this.error = res.message || 'Aucun visage détecté. Regardez directement la caméra.';
+              }
+            },
+            error: (err) => {
+              this.loading    = false;
+              this.scanStatus = '';
+
+              if (err.name === 'TimeoutError' || err.constructor?.name === 'TimeoutError') {
+                this.error = '⏱ Délai dépassé (25s). Vérifiez que le serveur IA est démarré sur le port 8000.';
+              } else {
+                this.error = err.error?.message || err.error?.error || 'Erreur de connexion au serveur.';
+              }
             }
-          },
-          error: (err) => {
-            this.loading    = false;
-            this.scanStatus = '';
-
-            if (err.name === 'TimeoutError' || err.constructor?.name === 'TimeoutError') {
-              this.error = '⏱ Délai dépassé (25s). Vérifiez que le serveur IA est démarré sur le port 8000.';
-            } else {
-              this.error = err.error?.message || err.error?.error || 'Erreur de connexion au serveur.';
-            }
-          }
-        });
+          });
+      });
     }, 'image/jpeg', 0.85);
   }
 }

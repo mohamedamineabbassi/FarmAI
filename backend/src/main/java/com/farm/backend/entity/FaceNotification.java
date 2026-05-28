@@ -21,9 +21,10 @@ public class FaceNotification {
     private String faceSnapshot;   // image JPEG encodée en base64
 
     private LocalDateTime registeredAt;
+
+    @Column(name = "is_read")
     private boolean read = false;
 
-    // ===== GETTERS =====
     public Long getId()                  { return id; }
     public Long getEmployeeId()          { return employeeId; }
     public String getEmployeeName()      { return employeeName; }
@@ -34,7 +35,6 @@ public class FaceNotification {
     public LocalDateTime getRegisteredAt(){ return registeredAt; }
     public boolean isRead()              { return read; }
 
-    // ===== SETTERS =====
     public void setId(Long id)                          { this.id = id; }
     public void setEmployeeId(Long employeeId)          { this.employeeId = employeeId; }
     public void setEmployeeName(String employeeName)    { this.employeeName = employeeName; }

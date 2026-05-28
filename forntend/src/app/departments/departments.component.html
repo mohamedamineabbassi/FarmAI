@@ -7,7 +7,6 @@
       </div>
     </div>
 
-    <!-- 🏢 SECTION : FORMULAIRE -->
     <div class="row">
       <div class="col-md-12">
         <div class="card glass-card fade-in">
@@ -16,17 +15,33 @@
             <p class="category">Définissez les zones de surveillance et les horaires</p>
           </div>
           <div class="card-body p-4">
+
+            <div *ngIf="successMsg" class="dept-alert dept-alert-success mb-3">
+              <i class="material-icons">check_circle</i>
+              <span>{{ successMsg }}</span>
+              <button type="button" class="close-alert" (click)="successMsg=''">
+                <i class="material-icons">close</i>
+              </button>
+            </div>
+            <div *ngIf="errorMsg" class="dept-alert dept-alert-error mb-3">
+              <i class="material-icons">error_outline</i>
+              <span>{{ errorMsg }}</span>
+              <button type="button" class="close-alert" (click)="errorMsg=''">
+                <i class="material-icons">close</i>
+              </button>
+            </div>
+
             <form (ngSubmit)="save()">
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>NOM DU DÉPARTEMENT</label>
+                    <label>NOM DU DÉPARTEMENT <span class="req">*</span></label>
                     <input type="text" class="form-control" [(ngModel)]="department.name" name="name" placeholder="Ex: Entrepôt Principal" required>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>RESPONSABLE (MANAGER)</label>
+                    <label>RESPONSABLE (MANAGER) <span class="req">*</span></label>
                     <select class="form-control" [(ngModel)]="department.manager.id" name="manager" aria-label="Sélectionnez un responsable" required>
                       <option [ngValue]="null" disabled selected>Sélectionnez un responsable...</option>
                       <option *ngFor="let m of managers" [ngValue]="m.id">{{ m.firstName }} {{ m.lastName }}</option>
@@ -88,9 +103,9 @@
                   <button type="button" class="btn btn-outline-cancel mr-2" (click)="reset()" *ngIf="editMode">
                     <i class="material-icons">close</i> ANNULER
                   </button>
-                  <button type="submit" class="btn btn-save">
-                    <i class="material-icons">{{ editMode ? 'save' : 'add_business' }}</i>
-                    {{ editMode ? 'METTRE À JOUR' : 'ENREGISTRER' }}
+                  <button type="submit" class="btn btn-save" [disabled]="saving">
+                    <i class="material-icons">{{ saving ? 'hourglass_empty' : (editMode ? 'save' : 'add_business') }}</i>
+                    {{ saving ? 'En cours...' : (editMode ? 'METTRE À JOUR' : 'ENREGISTRER') }}
                   </button>
                 </div>
               </div>
@@ -100,7 +115,6 @@
       </div>
     </div>
 
-    <!-- 📋 SECTION : CARTES DES DÉPARTEMENTS -->
     <div class="row mt-5">
       <div class="col-md-12">
         <div class="units-header">
@@ -118,11 +132,9 @@
         <div class="row">
           <div class="col-lg-4 col-md-6" *ngFor="let dept of departments; let i = index">
             <div class="dept-card mb-4" [style.animation-delay]="(i * 0.1) + 's'">
-              <!-- Top gradient bar -->
               <div class="dept-card-accent"></div>
-              
+
               <div class="dept-card-body">
-                <!-- Header -->
                 <div class="dept-card-header">
                   <div class="dept-icon-modern">
                     <i class="material-icons">apartment</i>
@@ -136,7 +148,6 @@
                   </div>
                 </div>
 
-                <!-- Time -->
                 <div class="dept-time-row">
                   <div class="dept-time-chip">
                     <i class="material-icons">schedule</i>
@@ -144,7 +155,6 @@
                   </div>
                 </div>
 
-                <!-- Staff Progress -->
                 <div class="dept-staff-section">
                   <div class="dept-staff-header">
                     <span class="dept-staff-label">EFFECTIF AFFECTÉ</span>
@@ -162,7 +172,6 @@
                   </div>
                 </div>
 
-                <!-- Actions -->
                 <div class="dept-actions">
                   <button class="dept-action-btn dept-action-edit" (click)="edit(dept)" title="Modifier">
                     <i class="material-icons">edit</i>

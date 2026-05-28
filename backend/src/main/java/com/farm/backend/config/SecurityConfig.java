@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,11 +35,9 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // 🔓 AUTH
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
-                // 🔓 PUBLIC - DASHBOARD & ANALYTICS
                 .requestMatchers("/api/departments/public").permitAll()
                 .requestMatchers("/api/department-status/**").permitAll()
                 .requestMatchers("/api/attendance/**").permitAll()
@@ -53,17 +52,17 @@ public class SecurityConfig {
 
 
 
-                // 🔥 USERS → AUTHENTICATED (Check roles in Controller)
                 .requestMatchers("/api/users/**").authenticated()
                 .requestMatchers("/api/manager/**").authenticated()
-                
-                // 🎭 FACE RECOGNITION (ACCESS TO ALL AUTHENTICATED)
                 .requestMatchers("/api/employees/register-face/**").authenticated()
                 .requestMatchers("/api/employees/delete-face/**").authenticated()
                 .requestMatchers("/api/employees/me").authenticated()
 
-                // 🔒 AUTRES
-                .requestMatchers("/api/departments/**").authenticated()
+                .requestMatchers(HttpMethod.POST,   "/api/departments").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.PUT,    "/api/departments/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/departments/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers(HttpMethod.GET,    "/api/departments/**").authenticated()
+
                 .requestMatchers("/api/cameras/**").authenticated()
 
                 .anyRequest().authenticated()
@@ -82,7 +81,7 @@ public class SecurityConfig {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
         configuration.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

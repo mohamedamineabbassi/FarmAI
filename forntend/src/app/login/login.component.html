@@ -16,12 +16,12 @@
 
     <form #loginForm="ngForm" (ngSubmit)="login()">
       <div class="input-group">
-        <label>{{ langService.t('EMAIL', 'EMAIL') }}</label>
+        <label>{{ langService.t('EMAIL', 'EMAIL') }} <span style="color:#ef4444;font-weight:700;">*</span></label>
         <input type="text" class="cyber-input" name="username" [(ngModel)]="email" placeholder="admin@farmai.com" required>
       </div>
 
       <div class="input-group">
-        <label>{{ langService.t('MOT DE PASSE', 'ACCESS KEY') }}</label>
+        <label>{{ langService.t('MOT DE PASSE', 'ACCESS KEY') }} <span style="color:#ef4444;font-weight:700;">*</span></label>
         <input type="password" class="cyber-input" name="password" [(ngModel)]="password" placeholder="********" required>
       </div>
 
@@ -48,7 +48,6 @@
   </div>
 </div>
 
-<!-- 📷 CAMERA PREVIEW MODAL -->
 <div *ngIf="showCamera" class="camera-overlay" (click)="$event.target === $event.currentTarget && stopCamera()">
   <div class="camera-modal">
     <div class="camera-header">
@@ -71,12 +70,10 @@
     </div>
 
     <div class="camera-body">
-      <!-- Status bar -->
       <div class="camera-status" [ngClass]="{'status-error': error, 'status-busy': faceLoading, 'status-ok': !error && !faceLoading}">
         <span>{{ cameraStatus }}</span>
       </div>
 
-      <!-- 🎥 Browser webcam (getUserMedia) — pas de dépendance au SOC Engine -->
       <div class="camera-view">
         <div class="face-guide">
           <div class="guide-circle" [ngClass]="{'face-scanning': faceLoading}"></div>
@@ -89,7 +86,6 @@
                muted></video>
       </div>
 
-      <!-- Action buttons -->
       <div class="camera-actions">
         <button class="cyber-btn primary" (click)="faceLogin()" [disabled]="faceLoading">
           <span *ngIf="!faceLoading">{{ langService.t('SCANNER LE VISAGE', 'SCAN FACE') }}</span>

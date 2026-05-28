@@ -25,15 +25,11 @@ public class Alert {
     private Long employeeId;
     private int count = 1;
 
-    // 🔥 IMPORTANT → pas stocké en base (juste pour affichage)
     @Transient
     private String departmentName;
 
     private LocalDateTime timestamp;
 
-    // =========================
-    // GETTERS
-    // =========================
     public Long getId() { return id; }
     public String getType() { return type; }
     public String getMessage() { return message; }
@@ -49,9 +45,6 @@ public class Alert {
     public String getDepartmentName() { return departmentName; }
     public LocalDateTime getTimestamp() { return timestamp; }
 
-    // =========================
-    // SETTERS
-    // =========================
     public void setId(Long id) { this.id = id; }
     public void setType(String type) { this.type = type; }
     public void setMessage(String message) { this.message = message; }
@@ -66,7 +59,6 @@ public class Alert {
     public void setCount(int count) { this.count = count; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 
-    // 🔥 TRÈS IMPORTANT (SINON RIEN NE S’AFFICHE)
     public void setDepartmentName(String departmentName) {
         this.departmentName = departmentName;
     }

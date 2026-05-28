@@ -28,8 +28,7 @@ public class CameraMonitorService {
 
         for (CameraEntity cam : cameras) {
 
-            // 🔥 IDENTIFIER WEBCAM LOCALE
-            boolean isLocal = cam.getSource() != null && 
+            boolean isLocal = cam.getSource() != null &&
                 (cam.getSource().equals("0") || cam.getSource().equals("1") || cam.getSource().equalsIgnoreCase("local"));
 
             if (isLocal) {
@@ -40,12 +39,10 @@ public class CameraMonitorService {
 
             boolean reachable = false;
 
-            // 🔥 TEST URL (Caméras IP seulement)
             if (cam.getSource() != null && !cam.getSource().isEmpty()) {
                 reachable = healthService.isReachable(cam.getSource());
             }
 
-            // 🔥 TEST IMAGE (Python)
             boolean recentImage = false;
 
             if (cam.getLastSeen() != null) {
@@ -53,7 +50,6 @@ public class CameraMonitorService {
                         .isAfter(LocalDateTime.now().minusSeconds(30));
             }
 
-            // 🔥 LOGIQUE FINALE
             if (reachable || recentImage) {
                 cam.setStatus("ACTIVE");
             } else {

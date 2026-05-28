@@ -17,13 +17,11 @@ public class DepartmentRequirement {
     private String job;
     private int requiredCount;
 
-    // ===== GETTERS =====
     public Long getId() { return id; }
     public Department getDepartment() { return department; }
     public String getJob() { return job; }
     public int getRequiredCount() { return requiredCount; }
 
-    // ===== SETTERS =====
     public void setId(Long id) { this.id = id; }
     public void setDepartment(Department department) { this.department = department; }
     public void setJob(String job) { this.job = job; }

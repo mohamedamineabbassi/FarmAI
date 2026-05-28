@@ -22,9 +22,6 @@ export class ViewersComponent implements OnInit {
     this.load();
   }
 
-  // =========================
-  // LOAD
-  // =========================
   load() {
     this.loading = true;
 
@@ -41,9 +38,6 @@ export class ViewersComponent implements OnInit {
     });
   }
 
-  // =========================
-  // SAVE (CREATE + UPDATE)
-  // =========================
   save() {
 
     if (!this.viewer.email) {
@@ -51,9 +45,6 @@ export class ViewersComponent implements OnInit {
       return;
     }
 
-    // =====================
-    // UPDATE
-    // =====================
     if (this.editMode && this.editId !== null) {
 
       this.service.update(this.editId, this.viewer).subscribe({
@@ -79,15 +70,9 @@ export class ViewersComponent implements OnInit {
 
     } else {
 
-      // =====================
-      // CREATE
-      // =====================
       this.service.createViewer(this.viewer).subscribe({
         next: (newViewer: User) => {
-
-          // 🔥 AJOUT DIRECT UI (avec ID backend)
           this.viewers.unshift(newViewer);
-
           alert("Viewer créé + email envoyé ✅");
           this.reset();
         },
@@ -108,18 +93,12 @@ export class ViewersComponent implements OnInit {
     }
   }
 
-  // =========================
-  // EDIT
-  // =========================
   edit(v: User) {
     this.viewer = { ...v };
     this.editMode = true;
     this.editId = v.id!;
   }
 
-  // =========================
-  // DELETE
-  // =========================
   delete(id: number) {
 
     if (!id) return;
@@ -128,10 +107,7 @@ export class ViewersComponent implements OnInit {
 
       this.service.delete(id).subscribe({
         next: () => {
-
-          // 🔥 suppression immédiate UI
           this.viewers = this.viewers.filter(v => v.id !== id);
-
           alert("Viewer supprimé ✅");
         },
         error: (err) => {
@@ -148,18 +124,12 @@ export class ViewersComponent implements OnInit {
     }
   }
 
-  // =========================
-  // RESET
-  // =========================
   reset() {
     this.viewer = this.resetForm();
     this.editMode = false;
     this.editId = null;
   }
 
-  // =========================
-  // FORM INIT
-  // =========================
   resetForm(): User {
     return {
       firstName: '',

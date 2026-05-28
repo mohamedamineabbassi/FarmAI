@@ -24,18 +24,13 @@ public class CameraController {
         this.departmentRepository = departmentRepository;
     }
 
-    // =========================
-    // ADD CAMERA
-    // =========================
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping
     public CameraEntity addCamera(@RequestBody CameraEntity camera) {
-
         if (camera.getDepartment() != null && camera.getDepartment().getId() != null) {
             Department dept = departmentRepository
                     .findById(camera.getDepartment().getId())
                     .orElse(null);
-
             camera.setDepartment(dept);
         } else {
             camera.setDepartment(null);
@@ -48,18 +43,12 @@ public class CameraController {
         return cameraRepository.save(camera);
     }
 
-    // =========================
-    // GET ALL
-    // =========================
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping
     public List<CameraEntity> getAll() {
         return cameraRepository.findAll();
     }
 
-    // =========================
-    // DELETE
-    // =========================
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
@@ -75,16 +64,10 @@ public class CameraController {
         cameraRepository.deleteById(id);
     }
 
-    
-
-    // =========================
-    // UPDATE CAMERA
-    // =========================
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public CameraEntity updateCamera(@PathVariable Long id,
                                      @RequestBody CameraEntity updated) {
-
         CameraEntity cam = cameraRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Camera not found"));
 

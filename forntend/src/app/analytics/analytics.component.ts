@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as Chartist from 'chartist';
 import { AnalyticsService } from '../services/analytics.service';
 import { LanguageService } from '../services/language.service';
@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './analytics.component.html',
   styleUrls: ['./analytics.component.css']
 })
-export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AnalyticsComponent implements OnInit, OnDestroy {
 
   loading = true;
   error = false;
@@ -18,7 +18,6 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
   private presenceChartInstance: any = null;
   private colorChartInstance: any = null;
 
-  // ✅ KPIs calculés dynamiquement depuis kpisData
   get kpis() {
     return [
       { title: this.langService.t('Employés Présents', 'Employees Present Today'), value: this.kpisData[0].value, icon: 'people', color: 'purple', iconColor: '#9c27b0', trend: this.kpisData[0].trend },
@@ -40,8 +39,11 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
   alerts: any[] = [];
   cameraActivity: any[] = [];
 
-  // ✅ Stock stable de détections par caméra (ne change pas entre refreshs)
+  // Stable cache: camera detections don't reset between polling cycles
   private cameraDetectionsCache: Map<string, number> = new Map();
+
+  // Attendance filtré (seulement employés encore actifs — sans les supprimés)
+  private filteredAttendance: any[] = [];
 
   colorLegend = [
     { name: 'RED', color: '#f44336' },
@@ -56,17 +58,12 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.fetchDataWithPolling();
   }
 
-  ngAfterViewInit() {
-    // Les graphiques seront initialisés après réception des données
-  }
-
   ngOnDestroy() {
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
     }
   }
 
-  // ✅ ROBUSTE : Auto-refresh toutes les 10 secondes avec gestion d'erreur
   fetchDataWithPolling() {
     this.dataSubscription = this.analyticsService.getDashboardDataWithPolling(10000).subscribe({
       next: (data) => {
@@ -74,10 +71,10 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.processData(data);
         this.loading = false;
         this.lastUpdated = new Date().toLocaleTimeString();
-        // ✅ FIX: Détruire les anciens graphiques avant d'en créer de nouveaux
+        // Rebuild charts after data is processed (300ms lets Angular finish rendering)
         setTimeout(() => {
-          this.initPresenceChart(data.attendance);
-          this.initColorChart(data.attendance);
+          this.initPresenceChart(this.filteredAttendance);
+          this.initColorChart(this.filteredAttendance);
         }, 300);
       },
       error: (err) => {
@@ -94,21 +91,44 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
     const cameras: any[] = Array.isArray(data.cameras) ? data.cameras : [];
     const alerts: any[] = Array.isArray(data.alerts) ? data.alerts : [];
 
-    // ✅ KPI 1 : Présents = enregistrements du jour sans sortie
-    const today = new Date().toISOString().split('T')[0];
-    const todayRecords = attendance.filter(a => {
-      if (!a.timestamp) return false;
-      return new Date(a.timestamp).toISOString().split('T')[0] === today;
+    // Exclude attendance records from deleted employees — match by name against current employees list
+    const currentEmployeeNames = new Set(
+      employees.map((e: any) => (e.name || '').toLowerCase().trim())
+    );
+    const filteredAttendance = attendance.filter((a: any) => {
+      if (a.unknown === true) return true;
+      const empName = (a.employeeName || '').toLowerCase().trim();
+      return empName === '' || empName === 'unknown' || currentEmployeeNames.has(empName);
     });
-    const presentCount = todayRecords.filter(a => a.status === 'IN' || !a.timeOut).length;
+    this.filteredAttendance = filteredAttendance;
+
+    // KPI 1: unique employees with at least one IN event today
+    const today = new Date().toISOString().split('T')[0];
+    const todayRecords = filteredAttendance.filter((a: any) => {
+      if (!a.timestamp) return false;
+      let d: Date;
+      if (Array.isArray(a.timestamp)) {
+        d = new Date(a.timestamp[0], a.timestamp[1] - 1, a.timestamp[2]);
+      } else {
+        d = new Date(a.timestamp);
+      }
+      return d.toISOString().split('T')[0] === today;
+    });
+    const presentNames = new Set(
+      todayRecords
+        .filter((a: any) => a.status === 'IN')
+        .map((a: any) => (a.employeeName || '').toLowerCase().trim())
+        .filter((n: string) => n !== '')
+    );
+    const presentCount = presentNames.size;
     const totalEmp = employees.length || 1;
     this.kpisData[0].value = presentCount.toString();
     this.kpisData[0].trend = ((presentCount / totalEmp) * 100).toFixed(0);
 
-    // ✅ KPI 2 : Heures travaillées — calculées par paires IN/OUT
+    // KPI 2: hours worked — computed from IN/OUT pairs per employee
     let totalHours = 0;
     const byEmployee: Map<string, any[]> = new Map();
-    attendance.forEach(a => {
+    filteredAttendance.forEach((a: any) => {
       const name = a.employeeName || 'unknown';
       if (!byEmployee.has(name)) byEmployee.set(name, []);
       byEmployee.get(name)!.push(a);
@@ -121,22 +141,22 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
         if (diff > 0 && diff < 16) totalHours += diff;
       }
     });
-    this.kpisData[1].value = totalHours > 0 ? `${totalHours.toFixed(1)}h` : `${attendance.length * 8}h`;
+    this.kpisData[1].value = totalHours > 0 ? `${totalHours.toFixed(1)}h` : '0h';
     this.kpisData[1].trend = '0';
 
-    // ✅ KPI 3 : Nombre total d'entrées du jour
-    this.kpisData[2].value = todayRecords.length.toString();
+    // KPI 3: total IN events today
+    const todayEntries = todayRecords.filter((a: any) => a.status === 'IN').length;
+    this.kpisData[2].value = todayEntries.toString();
     this.kpisData[2].trend = '0';
 
-    // ✅ KPI 4 : Caméras actives/total
+    // KPI 4: active cameras / total
     const activeCams = cameras.filter(c => c.status === 'ACTIVE').length;
     this.kpisData[3].value = `${activeCams}/${cameras.length}`;
     this.kpisData[3].trend = '0';
 
-    // ✅ INSIGHTS AI — basés sur données réelles (severity = champ réel DB)
     const highAlerts = alerts.filter(a => (a.severity || a.level || '').toUpperCase() === 'HIGH').length;
     const zones = new Set(cameras.map(c => c.location)).size;
-    const unknownCount = attendance.filter(a => a.unknown === true || a.employeeName === 'UNKNOWN').length;
+    const unknownCount = filteredAttendance.filter((a: any) => a.unknown === true || a.employeeName === 'UNKNOWN').length;
     this.aiInsights = [
       this.langService.t(
         `✅ ${presentCount} employé(s) actuellement détecté(s) sur ${totalEmp} enregistrés.`,
@@ -155,8 +175,7 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
         : this.langService.t(`💡 Aucune intrusion détectée aujourd'hui.`, `💡 No intrusions detected today.`)
     ];
 
-    // ✅ TABLE PRÉSENCE — mapping correct des champs backend
-    this.attendanceData = attendance.slice(-8).map(a => ({
+    this.attendanceData = filteredAttendance.slice(-8).map((a: any) => ({
       name: a.employeeName || 'Unknown',
       date: a.timestamp ? new Date(a.timestamp).toLocaleDateString() : '--',
       in: a.status === 'IN' && a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : (a.timeIn || '--'),
@@ -165,7 +184,6 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
       unknown: a.unknown
     })).reverse();
 
-    // ✅ ALERTES — mapping correct: severity (pas level), timestamp (pas createdAt)
     this.alerts = alerts.slice(-3).map(a => ({
       title: a.type ? a.type.replace(/_/g, ' ') : 'Security Alert',
       message: a.message || '',
@@ -175,7 +193,6 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
       confidence: a.confidence || 85
     })).reverse();
 
-    // ✅ CAMÉRAS — status comparé en majuscules pour robustesse
     this.cameraActivity = cameras.map(c => {
       const camKey = c.name || String(c.id);
       const isActive = (c.status || '').toUpperCase() === 'ACTIVE';
@@ -192,12 +209,10 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
       };
     });
 
-    // Recalcul KPI 4 avec la même logique corrigée
     const activeCamsCount = cameras.filter(c => (c.status || '').toUpperCase() === 'ACTIVE').length;
     this.kpisData[3].value = `${activeCamsCount}/${cameras.length}`;
   }
 
-  // ✅ FIX: Détruire l'instance Chartist avant d'en créer une nouvelle + données de démo si vide
   initPresenceChart(attendance: any[]) {
     try {
       if (this.presenceChartInstance) {
@@ -210,7 +225,6 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
 
       attendance.forEach(a => {
         if (a.timestamp) {
-          // Gestion des deux formats: ISO string et tableau Java [year,month,day,h,m,s,...]
           let date: Date;
           if (Array.isArray(a.timestamp)) {
             date = new Date(a.timestamp[0], a.timestamp[1]-1, a.timestamp[2], a.timestamp[3]||0, a.timestamp[4]||0);
@@ -227,9 +241,8 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-      // Si aucune donnée horaire, afficher une courbe de démonstration
-      const hasData = counts.some(c => c > 0);
-      const series = hasData ? [counts] : [[2, 5, 8, 6, 4, 3, 1, 0]];
+      // Utiliser les données réelles uniquement (zéros si pas d'activité)
+      const series = [counts];
 
       const dataPresenceChart: any = {
         labels: hoursLabels,
@@ -253,7 +266,6 @@ export class AnalyticsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ✅ FIX: Graphique couleur basé sur données réelles de l'attendance
   initColorChart(attendance?: any[]) {
     try {
       if (this.colorChartInstance) {

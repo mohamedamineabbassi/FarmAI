@@ -22,8 +22,9 @@ import { ViewersComponent } from './viewers/viewers.component';
 import { CamerasComponent } from './cameras/cameras.component';
 import { AlertsComponent } from './alerts/alerts.component';
 
-// Interceptor
+// Interceptors
 import { AuthInterceptor } from './services/auth.interceptor';
+import { TokenErrorInterceptor } from './services/token-error.interceptor';
 import { EmployeesComponent } from './pages/employees/employees.component';
 import { FaceRegistrationComponent } from './pages/face-registration/face-registration.component';
 import { ActivateComponent } from './pages/activate/activate.component';
@@ -65,7 +66,12 @@ import { SettingsComponent } from './settings/settings.component';
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
+      useClass: AuthInterceptor,      // 1) Ajoute le token Authorization
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenErrorInterceptor, // 2) Gère les 401 (session expirée → login)
       multi: true
     }
   ],

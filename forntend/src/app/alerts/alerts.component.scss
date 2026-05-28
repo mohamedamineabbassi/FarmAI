@@ -287,3 +287,304 @@ $success:       #10b981;
 
 .text-right { text-align: right !important; }
 
+// ==========================================
+// SECTION TITLE
+// ==========================================
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+
+  i { color: #ef4444; font-size: 26px; vertical-align: middle; }
+}
+
+// ==========================================
+// SHARED CARD (dept-card mirror)
+// ==========================================
+.dept-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+}
+
+.fade-in {
+  animation: fadeSlideIn 0.4s ease both;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ==========================================
+// ALERT HEADER ICON
+// ==========================================
+.alert-header-icon {
+  width: 52px;
+  height: 52px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+
+  i { font-size: 28px; color: #ef4444; }
+}
+
+// ==========================================
+// SAVE / REFRESH BUTTON
+// ==========================================
+.btn-save {
+  background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+  }
+
+  i { font-size: 18px; vertical-align: middle; }
+}
+
+// ==========================================
+// ALERT TABLE ROWS
+// ==========================================
+.alert-row {
+  transition: background 0.2s;
+
+  &:hover td { background: rgba(248, 250, 252, 0.8); }
+}
+
+.row-predator td {
+  background: rgba(239, 68, 68, 0.05) !important;
+  border-left: 3px solid #ef4444;
+}
+
+.row-critical td {
+  background: rgba(239, 68, 68, 0.03) !important;
+}
+
+.row-high td {
+  background: rgba(245, 158, 11, 0.04) !important;
+}
+
+// ==========================================
+// ALERT IMAGE BOX
+// ==========================================
+.alert-img-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.img-box-predator { border-color: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.35); }
+  &.img-box-critical { border-color: #f59e0b; }
+}
+
+.alert-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #94a3b8;
+
+  i { font-size: 28px; }
+}
+
+// ==========================================
+// PREDATOR TYPE BADGE (table cell)
+// ==========================================
+.predator-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+
+  i { font-size: 16px; animation: blink 1s infinite; }
+}
+
+// ==========================================
+// SEV BADGES (overrides for light theme)
+// ==========================================
+.sev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  i { font-size: 14px; }
+
+  &.sev-critical {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+  }
+  &.sev-high {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+  &.sev-medium {
+    background: rgba(234, 179, 8, 0.12);
+    color: #ca8a04;
+    border: 1px solid rgba(234, 179, 8, 0.35);
+  }
+  &.sev-low {
+    background: rgba(59, 130, 246, 0.12);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.35);
+  }
+}
+
+// ==========================================
+// EMPTY STATE CARD
+// ==========================================
+.empty-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  .empty-state-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    i { font-size: 36px; }
+  }
+
+  h4 { font-size: 20px; margin-bottom: 8px; }
+  p { font-size: 14px; max-width: 360px; line-height: 1.6; }
+}
+
+// ==========================================
+// PREDATOR BANNER
+// ==========================================
+.predator-banner {
+  background: linear-gradient(135deg, #7f1d1d, #991b1b, #b91c1c);
+  border-radius: 16px;
+  padding: 4px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(185, 28, 28, 0.45);
+  animation: predatorPulse 2s ease-in-out infinite;
+}
+
+.predator-banner-inner {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 13px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.predator-icon-pulse {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 28px;
+    color: #fef2f2;
+    animation: blink 0.8s infinite;
+  }
+}
+
+.predator-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.predator-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fef2f2;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.predator-sub {
+  font-size: 13px;
+  color: rgba(255, 220, 220, 0.85);
+  line-height: 1.4;
+}
+
+.predator-resolve-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  padding: 9px 18px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background 0.2s;
+  flex-shrink: 0;
+
+  &:hover { background: rgba(255, 255, 255, 0.25) !important; }
+  i { font-size: 16px; }
+}
+
+@keyframes predatorPulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(185, 28, 28, 0.45); }
+  50%       { box-shadow: 0 8px 48px rgba(239, 68, 68, 0.75); }
+}
+

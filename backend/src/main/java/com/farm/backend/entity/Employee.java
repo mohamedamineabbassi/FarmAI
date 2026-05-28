@@ -32,14 +32,15 @@ public class Employee {
     @Column(columnDefinition = "TEXT")
     private String embedding;
 
+    @Column(columnDefinition = "LONGTEXT")
+    private String facePhotoData;   // base64 snapshot captured during face enrollment
+
     private boolean faceRegistered = false;
 
-    // 🔥 AJOUT IMPORTANT
     private boolean available = true;
 
     private LocalDateTime createdAt;
 
-    // ===== GETTERS =====
     public Long getId() { return id; }
     public String getName() { return name; }
     public Job getJob() { return job; }
@@ -51,9 +52,9 @@ public class Employee {
     public boolean isAvailable() { return available; }
     public String getEmbedding() { return embedding; }
     public String getPhotoPath() { return photoPath; }
+    public String getFacePhotoData() { return facePhotoData; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 
-    // ===== SETTERS =====
     public void setId(Long id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setJob(Job job) { this.job = job; }
@@ -65,5 +66,6 @@ public class Employee {
     public void setAvailable(boolean available) { this.available = available; }
     public void setEmbedding(String embedding) { this.embedding = embedding; }
     public void setPhotoPath(String photoPath) { this.photoPath = photoPath; }
+    public void setFacePhotoData(String facePhotoData) { this.facePhotoData = facePhotoData; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

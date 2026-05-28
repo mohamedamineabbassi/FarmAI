@@ -14,7 +14,6 @@ export class AuthInterceptor implements HttpInterceptor {
 
     const token = localStorage.getItem('token');
 
-    // 🔥 si token existe → on l’ajoute
     if (token) {
       const clonedRequest = req.clone({
         setHeaders: {
@@ -25,7 +24,6 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(clonedRequest);
     }
 
-    // 🔥 sinon → requête normale
     return next.handle(req);
   }
 }

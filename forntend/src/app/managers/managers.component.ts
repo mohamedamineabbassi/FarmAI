@@ -10,11 +10,14 @@ import { ManagerService, Manager } from '../services/manager.service';
 export class ManagersComponent implements OnInit {
 
   managers: Manager[] = [];
+  manager: Manager    = this.resetForm();
 
-  manager: Manager = this.resetForm();
+  isEdit   = false;
+  loading  = false;
+  saving   = false;
 
-  isEdit = false;
-  loading = false;
+  successMsg = '';
+  errorMsg   = '';
 
   constructor(private service: ManagerService) {}
 
@@ -22,116 +25,105 @@ export class ManagersComponent implements OnInit {
     this.loadManagers();
   }
 
-  // =========================
-  // 🔥 LOAD MANAGERS
-  // =========================
   loadManagers() {
     this.loading = true;
-
     this.service.getManagers().subscribe({
-      next: (res) => {
-        this.managers = res;
-        this.loading = false;
-      },
+      next:  (res) => { this.managers = res; this.loading = false; },
       error: (err) => {
         console.error(err);
-        alert("Erreur chargement ❌");
         this.loading = false;
+        this.showError('Impossible de charger les gestionnaires.');
       }
     });
   }
 
-  // =========================
-  // 🔥 CREATE / UPDATE
-  // =========================
   save() {
+    this.clearMessages();
 
-    if (!this.manager.firstName || !this.manager.email) {
-      alert("Remplir les champs ⚠️");
+    if (!this.manager.firstName?.trim()) {
+      this.showError('Le prénom est obligatoire.');
+      return;
+    }
+    if (!this.manager.email?.trim()) {
+      this.showError("L'adresse email est obligatoire.");
       return;
     }
 
-    // 🔥 UPDATE
-    if (this.isEdit && this.manager.id) {
+    this.saving = true;
 
+    if (this.isEdit && this.manager.id) {
       this.service.update(this.manager.id, this.manager).subscribe({
         next: () => {
-          alert("Modifié ✅");
+          this.saving = false;
+          this.showSuccess('Gestionnaire modifié avec succès ✅');
           this.afterSave();
         },
         error: (err) => {
-          console.error(err);
-          alert("Erreur modification ❌");
+          this.saving = false;
+          this.showError(this.extractError(err, 'Erreur lors de la modification.'));
         }
       });
-
     } else {
-
-      // 🔥 CREATE
       this.service.create(this.manager).subscribe({
         next: () => {
-          alert("Créé ✅");
+          this.saving = false;
+          this.showSuccess('Gestionnaire créé ! Un email d\'activation a été envoyé. ✅');
           this.afterSave();
         },
         error: (err) => {
-          console.error(err);
-
-          if (err.status === 403) {
-            alert("ADMIN requis ❌");
-          } else {
-            alert("Erreur création ❌");
-          }
+          this.saving = false;
+          this.showError(this.extractError(err, 'Erreur lors de la création.'));
         }
       });
-
     }
   }
 
-  // =========================
-  // 🔥 EDIT
-  // =========================
   edit(m: Manager) {
     this.manager = { ...m };
-    this.isEdit = true;
+    this.isEdit  = true;
+    this.clearMessages();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // =========================
-  // 🔥 DELETE
-  // =========================
   delete(id: number) {
-
-    if (!confirm("Supprimer ce manager ?")) return;
-
+    if (!confirm('Supprimer ce gestionnaire ?')) return;
     this.service.delete(id).subscribe({
-      next: () => {
-        alert("Supprimé ✅");
-        this.loadManagers();
-      },
-      error: (err) => {
-        console.error(err);
-        alert("Erreur suppression ❌");
-      }
+      next:  () => { this.showSuccess('Gestionnaire supprimé.'); this.loadManagers(); },
+      error: (err) => { this.showError(this.extractError(err, 'Erreur lors de la suppression.')); }
     });
   }
 
-  // =========================
-  // 🔥 RESET FORM
-  // =========================
-  resetForm(): Manager {
-    return {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: ''
-    };
+  private extractError(err: any, fallback: string): string {
+    if (err?.error?.error)   return err.error.error;
+    if (err?.error?.message) return err.error.message;
+    if (err?.status === 403) return 'Permission refusée. Seul un administrateur peut effectuer cette action.';
+    if (err?.status === 409) return 'Cet email est déjà utilisé par un autre compte.';
+    return fallback;
   }
 
-  // =========================
-  // 🔥 AFTER SAVE
-  // =========================
+  private showSuccess(msg: string) {
+    this.successMsg = msg;
+    this.errorMsg   = '';
+    setTimeout(() => this.successMsg = '', 5000);
+  }
+
+  private showError(msg: string) {
+    this.errorMsg   = msg;
+    this.successMsg = '';
+  }
+
+  private clearMessages() {
+    this.successMsg = '';
+    this.errorMsg   = '';
+  }
+
+  resetForm(): Manager {
+    return { firstName: '', lastName: '', email: '', phone: '' };
+  }
+
   afterSave() {
     this.manager = this.resetForm();
-    this.isEdit = false;
+    this.isEdit  = false;
     this.loadManagers();
   }
 }

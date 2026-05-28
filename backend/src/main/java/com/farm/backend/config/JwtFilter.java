@@ -38,7 +38,6 @@ public class JwtFilter extends OncePerRequestFilter {
                     String username = JwtUtil.getUsername(token);
                     String role = JwtUtil.getRole(token);
 
-                    // 🔥 CORRECTION ICI
                     String finalRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
                     
                     System.out.println("✅ JWT FILTER - Token Valid! User: " + username + " | Role: " + finalRole);

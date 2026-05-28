@@ -18,6 +18,10 @@ export class DepartmentsComponent implements OnInit {
   editMode = false;
   editId: number | null = null;
 
+  saving   = false;
+  successMsg = '';
+  errorMsg   = '';
+
   constructor(
     private service: DepartmentService,
     private managerService: ManagerService
@@ -29,114 +33,147 @@ export class DepartmentsComponent implements OnInit {
   }
 
   loadDepartments() {
-    this.service.getDepartments().subscribe(res => {
-      this.departments = res;
+    this.service.getDepartments().subscribe({
+      next: (res) => this.departments = res,
+      error: () => this.showError('Impossible de charger les départements.')
     });
   }
 
   loadManagers() {
-    this.managerService.getManagers().subscribe(res => {
-      this.managers = res;
+    this.managerService.getManagers().subscribe({
+      next:  (res) => this.managers = res,
+      error: ()    => {}
     });
   }
 
   save() {
 
     if (!this.department.manager?.id) {
-      alert('Select manager');
+      this.showError('Veuillez sélectionner un responsable.');
       return;
     }
 
-    this.department.doctors = Number(this.department.doctors || 0);
+    this.department.doctors      = Number(this.department.doctors      || 0);
     this.department.electricians = Number(this.department.electricians || 0);
-    this.department.workers = Number(this.department.workers || 0);
+    this.department.workers      = Number(this.department.workers      || 0);
 
     if (this.department.doctors < 0 || this.department.electricians < 0 || this.department.workers < 0) {
-      alert("Les nombres d'employes doivent etre positifs");
+      this.showError('Les effectifs doivent être des nombres positifs.');
       return;
     }
 
-    if (this.department.startTime === '' || this.department.endTime === '') {
-      alert("Veuillez saisir les horaires");
+    if (!this.department.startTime || !this.department.endTime) {
+      this.showError('Veuillez saisir les horaires de travail.');
       return;
     }
 
     const payload = {
       ...this.department,
       startTime: this.department.startTime + ':00',
-      endTime: this.department.endTime + ':00'
+      endTime:   this.department.endTime   + ':00'
     };
+
+    this.saving     = true;
+    this.successMsg = '';
+    this.errorMsg   = '';
 
     if (this.editMode) {
       this.service.update(this.editId!, payload).subscribe({
         next: () => {
-          alert('Département mis à jour ✅');
+          this.showSuccess('Département mis à jour avec succès ✅');
           this.loadDepartments();
           this.reset();
+          this.saving = false;
         },
         error: (err) => {
-          const msg = err?.error?.error || err?.message || 'Erreur inconnue';
-          alert('Erreur lors de la mise à jour : ' + msg);
+          this.saving = false;
+          this.showError(this.extractError(err, 'Erreur lors de la mise à jour.'));
         }
       });
     } else {
       this.service.create(payload).subscribe({
         next: () => {
-          alert('Département créé avec succès ✅');
+          this.showSuccess('Département créé avec succès ✅');
           this.loadDepartments();
           this.reset();
+          this.saving = false;
         },
         error: (err) => {
-          const msg = err?.error?.error || err?.message || 'Erreur inconnue';
-          alert('Erreur lors de la création : ' + msg);
+          this.saving = false;
+          this.showError(this.extractError(err, 'Erreur lors de la création.'));
         }
       });
     }
   }
 
   edit(dep: any) {
+    this.successMsg = '';
+    this.errorMsg   = '';
     this.department = {
       ...dep,
-      manager: { id: dep.manager?.id },
-      startTime: dep.startTime?.substring(0, 5),
-      endTime: dep.endTime?.substring(0, 5),
-      doctors: Number(dep.doctors || 0),
+      manager:      { id: dep.manager?.id },
+      startTime:    dep.startTime?.substring(0, 5),
+      endTime:      dep.endTime?.substring(0, 5),
+      doctors:      Number(dep.doctors      || 0),
       electricians: Number(dep.electricians || 0),
-      workers: Number(dep.workers || 0)
+      workers:      Number(dep.workers      || 0)
     };
-
     this.editMode = true;
-    this.editId = dep.id;
+    this.editId   = dep.id;
   }
 
   delete(id: number) {
-    if (confirm('Delete department ?')) {
-      this.service.delete(id).subscribe(() => {
-        alert('Deleted');
-        this.loadDepartments();
+    if (confirm('Supprimer ce département ?')) {
+      this.service.delete(id).subscribe({
+        next: () => {
+          this.showSuccess('Département supprimé.');
+          this.loadDepartments();
+        },
+        error: (err) => this.showError(this.extractError(err, 'Erreur lors de la suppression.'))
       });
     }
   }
 
   reset() {
     this.department = this.resetForm();
-    this.editMode = false;
-    this.editId = null;
+    this.editMode   = false;
+    this.editId     = null;
+    this.successMsg = '';
+    this.errorMsg   = '';
   }
 
   resetForm() {
     return {
-      name: '',
-      startTime: '',
-      endTime: '',
-      doctors: 0,
+      name:         '',
+      startTime:    '',
+      endTime:      '',
+      doctors:      0,
       electricians: 0,
-      workers: 0,
-      manager: { id: null }
+      workers:      0,
+      manager:      { id: null }
     };
   }
 
   getRequiredTotal(dep: any = this.department): number {
     return Number(dep.doctors || 0) + Number(dep.electricians || 0) + Number(dep.workers || 0);
+  }
+
+  private showSuccess(msg: string) {
+    this.successMsg = msg;
+    this.errorMsg   = '';
+    setTimeout(() => this.successMsg = '', 4000);
+  }
+
+  private showError(msg: string) {
+    this.errorMsg   = msg;
+    this.successMsg = '';
+  }
+
+  private extractError(err: any, fallback: string): string {
+    if (err?.error?.error)   return err.error.error;
+    if (err?.error?.message) return err.error.message;
+    if (err?.status === 401) return '⏱️ Session expirée — veuillez vous reconnecter.';
+    if (err?.status === 403) return '🔒 Accès refusé — permission insuffisante. Veuillez vous reconnecter et réessayer.';
+    return fallback;
   }
 }

@@ -8,38 +8,25 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
-  // ==================
-  // BASE URL
-  // ==================
   private API = 'http://localhost:8081/api';
   private refreshInterval: any;
 
-  // ==================
-  // DATA
-  // ==================
   departments: any[] = [];
   cameras: any[] = [];
   statuses: any[] = [];
   alerts: any[] = [];
 
-  // ==================
-  // STATS CARDS
-  // ==================
   totalDepartments = 0;
   totalCameras = 0;
   totalAlerts = 0;
   activeCameras = 0;
 
-  // ==================
-  // LOADING
-  // ==================
   loading = true;
 
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
     this.loadAll();
-    // Auto-refresh every 10 seconds
     this.refreshInterval = setInterval(() => this.loadAll(), 10000);
   }
 
@@ -86,7 +73,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadStatuses(): void {
     this.http.get<any[]>(`${this.API}/department-status`).subscribe({
       next: (data) => {
-        this.statuses = data.slice(-20).reverse(); // last 20, newest first
+        this.statuses = data.slice(-20).reverse();
         this.alerts = data.filter(s => s.status === 'alert');
         this.totalAlerts = this.alerts.length;
       },

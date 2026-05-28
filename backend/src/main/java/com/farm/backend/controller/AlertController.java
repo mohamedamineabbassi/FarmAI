@@ -25,35 +25,29 @@ public class AlertController {
         this.cameraRepository = cameraRepository;
     }
 
-    // 🔥 GET ALL ALERTS
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping
     public List<Alert> getAll() {
         return service.getAll();
     }
 
-    // 🔥 GET UNRESOLVED ALERTS (Optimisé pour le Polling Angular)
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/unresolved")
     public List<Alert> getUnresolved() {
         return service.getUnresolved();
     }
 
-    // 🔥 GET ACTIVE COUNT
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping("/active-count")
     public Map<String, Long> getActiveCount() {
         return Map.of("activeCount", service.getActiveCount());
     }
 
-    // 🔥 CREATE ALERT (IA)
     @PostMapping
     public void create(@RequestBody Map<String, Object> data) {
-
         String status = (String) data.get("status");
 
         if ("alert".equals(status)) {
-
             Long cameraId = Long.valueOf(data.get("cameraId").toString());
 
             CameraEntity camera = cameraRepository.findById(cameraId)
@@ -63,23 +57,15 @@ public class AlertController {
                     ? camera.getDepartment().getId()
                     : null;
 
-            service.create(
-                    "AI_ALERT",
-                    "Intrusion détectée",
-                    "HIGH",
-                    cameraId,
-                    departmentId
-            );
+            service.create("AI_ALERT", "Intrusion détectée", "HIGH", cameraId, departmentId);
         }
     }
 
-    // 🔥 CREATE ALERT FROM AI SYSTEM
     @PostMapping("/ai-detection")
     public Alert createFromAI(@RequestBody AIDetectionDTO dto) {
         return service.handleAIDetection(dto);
     }
 
-    // 🔥 RESOLVE ALERT
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/resolve")
     public Alert resolveAlert(@PathVariable Long id) {

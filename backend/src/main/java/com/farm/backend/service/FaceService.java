@@ -28,7 +28,6 @@ public class FaceService {
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
 
-    // ✅ RestTemplate avec timeouts : connect 5s, read 20s
     private final RestTemplate restTemplate;
 
     public FaceService(EmployeeRepository employeeRepository, UserRepository userRepository) {

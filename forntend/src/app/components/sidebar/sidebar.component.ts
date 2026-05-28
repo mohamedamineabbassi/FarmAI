@@ -5,7 +5,6 @@ import { FaceNotificationService, FaceNotification } from '../../services/face-n
 
 declare const $: any;
 
-// ✅ Conservé pour compatibilité avec navbar.component.ts
 export interface RouteInfo { path: string; title: string; icon: string; class: string; }
 export const ROUTES: RouteInfo[] = [];
 
@@ -18,7 +17,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   menuItems: any[] = [];
 
-  // ── Notifications ──
   notifications: FaceNotification[] = [];
   unreadCount = 0;
   showNotifPanel = false;

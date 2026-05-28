@@ -7,7 +7,6 @@
       </div>
     </div>
 
-    <!-- 👁️ SECTION : FORMULAIRE -->
     <div class="row">
       <div class="col-md-12">
         <div class="card dept-card mb-4 fade-in">
@@ -20,13 +19,13 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>PRÉNOM</label>
+                    <label>PRÉNOM <span class="req">*</span></label>
                     <input type="text" class="form-control" [(ngModel)]="viewer.firstName" name="fn" placeholder="" required>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>NOM DE FAMILLE</label>
+                    <label>NOM DE FAMILLE <span class="req">*</span></label>
                     <input type="text" class="form-control" [(ngModel)]="viewer.lastName" name="ln" placeholder="" required>
                   </div>
                 </div>
@@ -35,7 +34,7 @@
               <div class="row mt-3">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>ADRESSE EMAIL</label>
+                    <label>ADRESSE EMAIL <span class="req">*</span></label>
                     <input type="email" class="form-control" [(ngModel)]="viewer.email" name="em" placeholder="" required>
                   </div>
                 </div>
@@ -64,7 +63,6 @@
       </div>
     </div>
 
-    <!-- 📋 SECTION : LISTE -->
     <div class="row mt-4">
       <div class="col-md-12">
         <div class="units-header">

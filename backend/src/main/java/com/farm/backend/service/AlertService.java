@@ -34,12 +34,8 @@ public class AlertService {
         this.cameraRepository = cameraRepository;
     }
 
-    // =========================
-    // 🔥 CREATE ALERT
-    // =========================
     public Alert create(String type, String message, String severity,
                         Long cameraId, Long departmentId) {
-
         Alert alert = new Alert();
         alert.setType(type);
         alert.setMessage(message);
@@ -47,58 +43,39 @@ public class AlertService {
         alert.setCameraId(cameraId);
         alert.setDepartmentId(departmentId);
         alert.setTimestamp(LocalDateTime.now());
-
         return repo.save(alert);
     }
 
-    // =========================
-    // 🔥 GET ALL ALERTS (WITH DEPARTMENT NAME)
-    // =========================
     public List<Alert> getAll() {
-
         List<Alert> alerts = repo.findAll();
-
         for (Alert alert : alerts) {
-
             Long deptId = alert.getDepartmentId();
-
             if (deptId != null) {
-
-                departmentRepository.findById(deptId).ifPresent(dept -> {
-                    alert.setDepartmentName(dept.getName()); // 🔥 KEY FIX
-                });
+                departmentRepository.findById(deptId).ifPresent(dept ->
+                    alert.setDepartmentName(dept.getName())
+                );
             }
         }
-
         return alerts;
     }
 
-    // =========================
-    // 🔥 GET UNRESOLVED ALERTS
-    // =========================
     public List<Alert> getUnresolved() {
         List<Alert> alerts = repo.findTop50ByResolvedFalseOrderByTimestampDesc();
         for (Alert alert : alerts) {
             Long deptId = alert.getDepartmentId();
             if (deptId != null) {
-                departmentRepository.findById(deptId).ifPresent(dept -> {
-                    alert.setDepartmentName(dept.getName());
-                });
+                departmentRepository.findById(deptId).ifPresent(dept ->
+                    alert.setDepartmentName(dept.getName())
+                );
             }
         }
         return alerts;
     }
 
-    // =========================
-    // 🔥 GET ACTIVE ALERT COUNT
-    // =========================
     public long getActiveCount() {
         return repo.countByResolvedFalse();
     }
 
-    // =========================
-    // 🔥 HANDLE AI DETECTION
-    // =========================
     public Alert handleAIDetection(AIDetectionDTO dto) {
         String uniqueHash = dto.getType() + "_" + dto.getLocation() + "_";
         if (dto.getEmbeddingHash() != null) {
@@ -109,41 +86,57 @@ public class AlertService {
             uniqueHash += dto.getTrackingId();
         }
 
-        // SUPPRESSION DE LA DÉDUPLICATION (5 min) ICI
-        // Chaque alerte envoyée par le moteur IA doit créer une NOUVELLE ligne
-        // car le cooldown anti-spam (10s) est géré dans le moteur Python (AlertManager)
-
-        // Determine severity
         String severity = "LOW";
-        String message = "Alerte générée";
-        
+        String message  = "Alerte générée";
+
         if ("UNKNOWN_PERSON".equals(dto.getType())) {
             severity = "HIGH";
-            message = "Personne inconnue détectée";
+            message  = "Personne inconnue détectée";
+
         } else if ("UNKNOWN_ROLE".equals(dto.getType())) {
             severity = "HIGH";
-            message = "Intrus détecté - rôle inconnu";
+            message  = "Intrus détecté — rôle inconnu";
+
         } else if ("ENTRY_EVENT".equals(dto.getType())) {
             severity = "LOW";
-            message = "Franchissement : Entrée";
+            message  = "Franchissement : Entrée";
+
         } else if ("EXIT_EVENT".equals(dto.getType())) {
             severity = "LOW";
-            message = "Franchissement : Sortie";
+            message  = "Franchissement : Sortie";
+
         } else if ("NO_FACE".equals(dto.getType())) {
             severity = "MEDIUM";
-            message = "Employé reconnu mais sans visage enregistré";
+            message  = "Employé reconnu mais sans visage enregistré";
+
         } else if ("INTRUSION".equals(dto.getType())) {
             severity = "CRITICAL";
-            message = "Intrusion dans une zone sécurisée";
+            message  = "Intrusion dans une zone sécurisée";
+
+        } else if ("PREDATOR_DETECTED".equals(dto.getType())) {
+            severity = "CRITICAL";
+            String animal = (dto.getAnimalLabel() != null && !dto.getAnimalLabel().isEmpty())
+                    ? dto.getAnimalLabel()
+                    : "Animal dangereux";
+            message = "🚨 PREDATEUR DETECTE : " + animal
+                    + " — Danger pour les animaux de ferme !";
+
+        } else if ("DANGEROUS_ANIMAL".equals(dto.getType())) {
+            severity = "CRITICAL";
+            message  = "Animal dangereux détecté dans la zone surveillée";
         }
 
-        // Handle Image
+        // Severity transmitted by the Python engine takes priority
+        if (dto.getSeverity() != null && !dto.getSeverity().isBlank()) {
+            severity = dto.getSeverity();
+        }
+
         String imagePath = null;
         if (dto.getImageBase64() != null && !dto.getImageBase64().isEmpty()) {
             try {
                 String base64Data = dto.getImageBase64();
                 if (base64Data.contains(",")) {
-                    base64Data = base64Data.split(",")[1]; // remove prefix e.g. data:image/jpeg;base64,
+                    base64Data = base64Data.split(",")[1];
                 }
                 byte[] decodedBytes = Base64.getDecoder().decode(base64Data);
 
@@ -154,7 +147,7 @@ public class AlertService {
                 String filename = UUID.randomUUID().toString() + ".jpg";
                 Path path = Paths.get(uploadDir + filename);
                 Files.write(path, decodedBytes);
-                
+
                 imagePath = "/uploads/alerts/" + filename;
             } catch (Exception e) {
                 System.out.println("Error saving AI image: " + e.getMessage());
@@ -186,11 +179,9 @@ public class AlertService {
         return repo.save(newAlert);
     }
 
-    // =========================
-    // 🔥 RESOLVE ALERT
-    // =========================
     public Alert resolveAlert(Long id) {
-        Alert alert = repo.findById(id).orElseThrow(() -> new RuntimeException("Alert not found"));
+        Alert alert = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Alert not found"));
         alert.setResolved(true);
         return repo.save(alert);
     }

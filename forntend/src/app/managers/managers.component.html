@@ -7,7 +7,6 @@
       </div>
     </div>
 
-    <!-- 🤵 SECTION : FORMULAIRE -->
     <div class="row">
       <div class="col-md-12">
         <div class="card dept-card mb-4 fade-in">
@@ -16,18 +15,29 @@
             <p class="text-muted small">Gestion des accès et privilèges administratifs</p>
           </div>
           <div class="card-body px-4 pb-4">
+
+            <div *ngIf="errorMsg" class="alert-inline error mb-3">
+              <i class="material-icons">error_outline</i>
+              <span>{{ errorMsg }}</span>
+              <button class="close-alert" (click)="errorMsg=''"><i class="material-icons">close</i></button>
+            </div>
+            <div *ngIf="successMsg" class="alert-inline success mb-3">
+              <i class="material-icons">check_circle</i>
+              <span>{{ successMsg }}</span>
+            </div>
+
             <form (ngSubmit)="save()">
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>PRÉNOM</label>
-                    <input type="text" class="form-control" [(ngModel)]="manager.firstName" name="fn" placeholder="" required>
+                    <label>PRÉNOM <span class="req">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="manager.firstName" name="fn" placeholder="Ex: Mohamed Amine" required>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>NOM DE FAMILLE</label>
-                    <input type="text" class="form-control" [(ngModel)]="manager.lastName" name="ln" placeholder="Ex: Dupont" required>
+                    <input type="text" class="form-control" [(ngModel)]="manager.lastName" name="ln" placeholder="Ex: Abbassi">
                   </div>
                 </div>
               </div>
@@ -35,14 +45,15 @@
               <div class="row mt-3">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>ADRESSE EMAIL</label>
-                    <input type="email" class="form-control" [(ngModel)]="manager.email" name="em" placeholder="" required>
+                    <label>ADRESSE EMAIL <span class="req">*</span></label>
+                    <input type="email" class="form-control" [(ngModel)]="manager.email" name="em" placeholder="Ex: manager@farm.com" required>
+                    <small class="text-muted" *ngIf="!isEdit">Un email d'activation sera envoyé automatiquement.</small>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>NUMÉRO DE TÉLÉPHONE</label>
-                    <input type="text" class="form-control" [(ngModel)]="manager.phone" name="ph" placeholder="">
+                    <input type="text" class="form-control" [(ngModel)]="manager.phone" name="ph" placeholder="Ex: +216 XX XXX XXX">
                   </div>
                 </div>
               </div>
@@ -52,9 +63,9 @@
                   <button type="button" class="btn btn-outline-cancel mr-2" (click)="afterSave()" *ngIf="isEdit">
                     <i class="material-icons">close</i> ANNULER
                   </button>
-                  <button type="submit" class="btn btn-save" [disabled]="loading">
-                    <i class="material-icons">{{ isEdit ? 'save' : 'person_add' }}</i>
-                    {{ isEdit ? 'METTRE À JOUR' : 'ENREGISTRER' }}
+                  <button type="submit" class="btn btn-save" [disabled]="saving">
+                    <i class="material-icons">{{ saving ? 'hourglass_empty' : (isEdit ? 'save' : 'person_add') }}</i>
+                    {{ saving ? 'En cours...' : (isEdit ? 'METTRE À JOUR' : 'ENREGISTRER') }}
                   </button>
                 </div>
               </div>
@@ -64,7 +75,6 @@
       </div>
     </div>
 
-    <!-- 📋 SECTION : LISTE -->
     <div class="row mt-4">
       <div class="col-md-12">
         <div class="units-header">

@@ -66,14 +66,13 @@ public class TeamSuggestionService {
                 throw new RuntimeException("Employee already assigned: " + emp.getName());
             }
 
-            // 🔥 STRICT VALIDATION
             if (!emp.isFaceRegistered() || emp.getStatus() != EmployeeStatus.APPROVED) {
                 throw new RuntimeException("Employee not validated: " + emp.getName());
             }
 
             emp.setDepartment(dep);
             emp.setAvailable(false);
-            emp.setStatus(EmployeeStatus.APPROVED); // 🔥 Garder APPROVED pour éviter l'erreur MySQL ENUM si la table n'est pas à jour
+            emp.setStatus(EmployeeStatus.APPROVED);
             employeeRepository.save(emp);
         }
     }

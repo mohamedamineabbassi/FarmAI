@@ -42,7 +42,6 @@ public class Department {
     @JsonIgnore
     private List<Employee> employees;
 
-    // ===== GETTERS =====
     public Long getId() { return id; }
     public String getName() { return name; }
     public LocalTime getStartTime() { return startTime; }
@@ -62,7 +61,6 @@ public class Department {
     public void setWorkers(int workers) { this.workers = workers; }
 
 
-    // ===== SETTERS =====
     public void setId(Long id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setStartTime(LocalTime startTime) { this.startTime = startTime; }

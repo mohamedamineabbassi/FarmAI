@@ -19,37 +19,30 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ GET VIEWERS
   getViewers() {
     return this.http.get<User[]>(`${this.API}/viewers`);
   }
 
-  // ✅ CREATE
   createViewer(user: User) {
     return this.http.post<User>(`${this.API}/viewers`, user);
   }
 
-  // ✅ UPDATE
   update(id: number, user: User) {
     return this.http.put<User>(`${this.API}/viewers/${id}`, user);
   }
 
-  // ✅ DELETE
   delete(id: number) {
     return this.http.delete(`${this.API}/viewers/${id}`);
   }
 
-  // ✅ ACTIVATE
   activate(token: string) {
     return this.http.post(`http://localhost:8081/api/auth/activate?token=${token}`, {});
   }
 
-  // ✅ REGISTER FACE
   registerFace(userId: number) {
     return this.http.post(`http://localhost:8081/api/auth/face/register`, { userId });
   }
 
-  // ✅ SETTINGS
   getProfile() {
     return this.http.get<User>(`${this.API}/get-profile`);
   }

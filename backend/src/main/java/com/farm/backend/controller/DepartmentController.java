@@ -41,9 +41,6 @@ public class DepartmentController {
         this.employeeRepository = employeeRepository;
     }
 
-    // =========================
-    // 🔓 PUBLIC
-    // =========================
     @GetMapping("/public")
     public List<Department> getPublicDepartments() {
         List<Department> deps = departmentRepository.findAll();
@@ -51,9 +48,6 @@ public class DepartmentController {
         return deps;
     }
 
-    // =========================
-    // 🔒 CREATE
-    // =========================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping
     public Department createDepartment(@RequestBody Department department) {
@@ -77,7 +71,6 @@ public class DepartmentController {
 
         Department saved = departmentRepository.save(department);
 
-        // 📧 EMAIL CREATE
         try {
             emailService.sendAssignment(
                     manager.getEmail(),
@@ -92,9 +85,6 @@ public class DepartmentController {
         return saved;
     }
 
-    // =========================
-    // 🔒 UPDATE
-    // =========================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public Department updateDepartment(@PathVariable Long id,
@@ -127,7 +117,6 @@ public class DepartmentController {
 
             dep.setManager(manager);
 
-            // 📧 EMAIL UPDATE
             try {
                 emailService.sendAssignment(
                         manager.getEmail(),
@@ -143,9 +132,6 @@ public class DepartmentController {
         return departmentRepository.save(dep);
     }
 
-    // =========================
-    // 🔒 GET ALL
-    // =========================
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_VIEWER')")
     @GetMapping
     public List<Department> getAllDepartments() {
@@ -161,9 +147,6 @@ public class DepartmentController {
         return list;
     }
 
-    // =========================
-    // 🔒 DELETE
-    // =========================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public String deleteDepartment(@PathVariable Long id) {
@@ -171,7 +154,6 @@ public class DepartmentController {
         Department dep = departmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Department not found"));
 
-        // 🔥 récupérer email AVANT suppression
         String email = null;
         String depName = dep.getName();
 
@@ -181,7 +163,6 @@ public class DepartmentController {
 
         departmentRepository.delete(dep);
 
-        // 📧 EMAIL DELETE
         if (email != null) {
             try {
                 emailService.sendDelete(email, depName);
@@ -193,9 +174,6 @@ public class DepartmentController {
         return "Department deleted successfully";
     }
 
-    // =========================
-    // REQUIREMENTS
-    // =========================
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/{departmentId}/requirements")
     public DepartmentRequirement addRequirement(@PathVariable Long departmentId, @RequestBody DepartmentRequirement req) {

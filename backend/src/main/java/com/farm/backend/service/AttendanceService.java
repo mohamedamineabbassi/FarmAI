@@ -16,7 +16,6 @@ public class AttendanceService {
         this.repository = repository;
     }
 
-    // 🔥 SAVE
     public AttendanceRecord saveAttendance(AttendanceRequest request) {
 
         System.out.println("DATA RECUE: " + request.getEmployeeName());
@@ -31,7 +30,6 @@ public class AttendanceService {
         return repository.save(record);
     }
 
-    // 🔥 GET ALL
     public List<AttendanceRecord> getAllAttendances() {
         return repository.findAll();
     }

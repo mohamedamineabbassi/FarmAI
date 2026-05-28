@@ -18,12 +18,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     List<Employee> findByDepartmentIdAndJob(Long departmentId, String job);
 
-    List<Employee> findByAvailableTrue();
-
-    List<Employee> findByJobAndAvailableTrue(Job job);
-
-    List<Employee> findByJobAndDepartmentIsNullAndAvailableTrue(Job job);
-
     List<Employee> findByAvailableTrueAndDepartmentIsNull();
 
     List<Employee> findByJob(Job job);

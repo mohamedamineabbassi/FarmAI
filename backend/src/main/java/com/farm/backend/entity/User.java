@@ -2,21 +2,16 @@ package com.farm.backend.entity;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "users")
 public class User {
 
-    // =========================
-    // 🔥 ID
-    // =========================
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // =========================
-    // 🔥 INFOS
-    // =========================
     private String firstName;
     private String lastName;
 
@@ -26,20 +21,14 @@ public class User {
     private String phone;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    // =========================
-    // 🔥 ROLE
-    // =========================
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // =========================
-    // 🔥 IA / SYSTEM
-    // =========================
     private boolean faceRegistered = false;
 
-    // 🔥 activation compte (viewer)
     private boolean enabled = true;
 
     private String activationToken;
@@ -47,9 +36,6 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String embedding;
 
-    // =========================
-    // 🔥 GETTERS
-    // =========================
     public Long getId() { return id; }
 
     public String getFirstName() { return firstName; }
@@ -72,9 +58,6 @@ public class User {
 
     public String getEmbedding() { return embedding; }
 
-    // =========================
-    // 🔥 SETTERS
-    // =========================
     public void setId(Long id) { this.id = id; }
 
     public void setFirstName(String firstName) { this.firstName = firstName; }

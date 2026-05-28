@@ -8,7 +8,6 @@ import { EmployeeService, Employee } from '../../services/employee.service';
 })
 export class EmployeesComponent implements OnInit {
 
-  // ── Data ──────────────────────────────────────────────────────────────────
   employees: Employee[] = [];
   jobs = [
     { value: 'DOCTOR', label: 'Vétérinaire' },
@@ -16,20 +15,16 @@ export class EmployeesComponent implements OnInit {
     { value: 'WORKER', label: 'Ouvrier Agricole' }
   ];
 
-  // ── Form ──────────────────────────────────────────────────────────────────
   form: any = { name: '', email: '', phone: '', job: '', department: null };
   submitted = false;
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
   showToast = false;
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
   private toastTimer: any;
 
-  // ── Dark mode ─────────────────────────────────────────────────────────────
   isDarkMode = true;
 
-  // ── Email regex ───────────────────────────────────────────────────────────
   private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   constructor(private service: EmployeeService) { }
@@ -39,7 +34,6 @@ export class EmployeesComponent implements OnInit {
     this.load();
   }
 
-  // ── Load employees ────────────────────────────────────────────────────────
   load() {
     this.service.getEmployees().subscribe({
       next: res => this.employees = res,
@@ -47,13 +41,12 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // ── Validation helpers ────────────────────────────────────────────────────
   get nameValid(): boolean {
     return this.form.name?.trim().length > 0;
   }
 
   get emailValid(): boolean {
-    if (!this.form.email) return true; // optional
+    if (!this.form.email) return true;
     return this.emailRegex.test(this.form.email);
   }
 
@@ -61,12 +54,10 @@ export class EmployeesComponent implements OnInit {
     return this.nameValid && this.emailValid && !!this.form.job;
   }
 
-  // ── Create employee ───────────────────────────────────────────────────────
   save() {
     this.submitted = true;
     if (!this.formValid) return;
 
-    // ✅ DO NOT send status — backend controls it (always PENDING on creation)
     const payload: Employee = {
       name: this.form.name.trim(),
       email: this.form.email || '',
@@ -87,7 +78,6 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // ── Delete employee ───────────────────────────────────────────────────────
   delete(id?: number) {
     if (!id) return;
     if (!confirm('Supprimer cet employé ?')) return;
@@ -101,7 +91,6 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // ── Approve Employee (ADMIN action) ───────────────────────────────────────
   approve(id?: number) {
     if (!id) return;
 
@@ -114,7 +103,6 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // ── Validate face (VIEWER action) ─────────────────────────────────────────
   validateFace(id?: number) {
     if (!id) return;
 
@@ -127,7 +115,6 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // ── Dark mode toggle ──────────────────────────────────────────────────────
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
     this.applyTheme();
@@ -141,7 +128,6 @@ export class EmployeesComponent implements OnInit {
     }
   }
 
-  // ── Toast helper ──────────────────────────────────────────────────────────
   private toast(message: string, type: 'success' | 'error') {
     clearTimeout(this.toastTimer);
     this.toastMessage = message;
@@ -150,7 +136,3 @@ export class EmployeesComponent implements OnInit {
     this.toastTimer = setTimeout(() => this.showToast = false, 3000);
   }
 }
-
-
-
-

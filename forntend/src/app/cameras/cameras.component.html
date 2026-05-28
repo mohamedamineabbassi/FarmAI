@@ -7,7 +7,6 @@
       </div>
     </div>
 
-    <!-- 🎥 AJOUTER / MODIFIER CAMÉRA -->
     <div class="row">
       <div class="col-md-12">
         <div class="card dept-card mb-4 fade-in">
@@ -20,19 +19,19 @@
               <div class="row">
                 <div class="col-md-3">
                   <div class="form-group">
-                    <label>NOM DE L'APPAREIL</label>
+                    <label>NOM DE L'APPAREIL <span class="req">*</span></label>
                     <input type="text" class="form-control" [(ngModel)]="cameraForm.name" name="name" placeholder="Ex: CAM-ENTRÉE-01" required>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="form-group">
-                    <label>ZONE / LOCALISATION</label>
+                    <label>ZONE / LOCALISATION <span class="req">*</span></label>
                     <input type="text" class="form-control" [(ngModel)]="cameraForm.location" name="location" placeholder="Ex: Hall Principal" required>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="form-group">
-                    <label>DÉPARTEMENT</label>
+                    <label>DÉPARTEMENT <span class="req">*</span></label>
                     <select class="form-control" [(ngModel)]="cameraForm.departmentId" name="deptId" title="Sélectionner un département" required>
                       <option [ngValue]="null" disabled selected>Choisir un département...</option>
                       <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.name }}</option>
@@ -41,7 +40,7 @@
                 </div>
                 <div class="col-md-3">
                   <div class="form-group">
-                    <label>MODE INTELLIGENT (IA)</label>
+                    <label>MODE INTELLIGENT (IA) <span class="req">*</span></label>
                     <select class="form-control" [(ngModel)]="cameraForm.type" name="type" title="Sélectionner le mode intelligent" required>
                       <option value="" disabled selected>Choisir le mode...</option>
                       <option value="FACE">RECONNAISSANCE FACIALE</option>
@@ -54,7 +53,7 @@
               <div class="row mt-3">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label>SOURCE VIDÉO (URL OU INDEX)</label>
+                    <label>SOURCE VIDÉO (URL OU INDEX) <span class="req">*</span></label>
                     <input type="text" class="form-control" [(ngModel)]="cameraForm.source" name="source" placeholder="rtsp://admin:pass@192.168.1.100..." required>
                   </div>
                 </div>
@@ -77,7 +76,6 @@
       </div>
     </div>
 
-    <!-- 🎥 GRILLE DES CAMÉRAS -->
     <div class="row mt-4">
       <div class="col-md-12">
         <div class="units-header">
@@ -107,36 +105,26 @@
             <div class="dept-card mb-4 hover-glow" [style.animation-delay]="(i * 0.1) + 's'">
               <div class="dept-card-accent"></div>
               
-              <!-- HEADER CAMERA PREVIEW -->
               <div class="camera-preview">
                 <div *ngIf="cam.status === 'ACTIVE'" class="live-indicator">
                   <span class="dot"></span> LIVE
                 </div>
                 
-                <!-- CAMERA FEED -->
-                <ng-container *ngIf="cam.status === 'ACTIVE'">
-                  <!-- Flux IP Externe (Si pas d'IA active) -->
+                  <ng-container *ngIf="cam.status === 'ACTIVE'">
                   <img *ngIf="isUrl(cam.source) && !aiStatus[cam.id!]" [src]="getSafeUrl(cam.source)" [alt]="'Flux vidéo ' + cam.name" title="Flux vidéo caméra" class="camera-feed" />
-                  
-                  <!-- Flux SOC AI Engine (MJPEG) -->
                   <img *ngIf="aiStatus[cam.id!]" [src]="'http://localhost:8000/api/camera/' + cam.id + '/stream'" [alt]="'Flux IA ' + cam.name" title="Flux IA caméra" class="camera-feed" />
-
-                  <!-- Caméra Locale (Direct Browser - Fallback if no AI) -->
-                  <video *ngIf="isLocal(cam.source) && !aiStatus[cam.id!]" #videoPlayer [id]="'video-' + cam.id" class="camera-feed" autoplay muted playsinline></video>
+                  <video *ngIf="isLocal(cam.source) && !aiStatus[cam.id!]" [id]="'video-' + cam.id" class="camera-feed" autoplay muted playsinline></video>
                 </ng-container>
 
-                <!-- OFFLINE ICON -->
                 <div class="overlay" *ngIf="cam.status !== 'ACTIVE'">
                   <i class="material-icons">videocam_off</i>
                 </div>
               </div>
               
-              <!-- BODY -->
               <div class="dept-card-body">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <h4 class="text-dark font-weight-bold mb-0" style="font-size: 17px; letter-spacing:-0.3px;">{{ cam.name }}</h4>
                   <div class="d-flex align-items-center">
-                    <!-- Toggle IA pour cette caméra -->
                     <button class="btn btn-sm btn-icon mr-2" 
                             [ngStyle]="{'background': aiStatus[cam.id!] ? '#fef3c7' : 'transparent', 'color': aiStatus[cam.id!] ? '#d97706' : '#94a3b8', 'border': '1px solid ' + (aiStatus[cam.id!] ? '#fde68a' : '#e2e8f0'), 'border-radius':'8px', 'padding':'4px 8px'}"
                             (click)="toggleAI(cam)"

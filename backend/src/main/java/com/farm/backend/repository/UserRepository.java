@@ -10,18 +10,13 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // 🔍 LOGIN
     Optional<User> findByEmail(String email);
 
-    // 🔍 CHECK EMAIL
     boolean existsByEmail(String email);
 
-    // 🔍 BY ROLE
     List<User> findByRole(Role role);
 
-    // 🔥 MANAGERS AVEC FACE
     List<User> findByRoleAndFaceRegisteredTrue(Role role);
 
-    // 🔥 ACTIVATION VIEWER
     Optional<User> findByActivationToken(String token);
 }

@@ -46,7 +46,6 @@ public class TeamController {
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/validate")
     public String validateTeam(@RequestBody TeamRequest request) {
-        // 🔥 SECURITY: Only Admin can re-validate or modify an existing team
         Department dep = departmentRepository.findById(request.getDepartmentId()).orElse(null);
         if (dep != null && dep.getEmployees() != null && !dep.getEmployees().isEmpty()) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -88,7 +87,6 @@ public class TeamController {
         String schedule = dep.getStartTime() + " - " + dep.getEndTime();
         String managerName = dep.getManager() != null ? dep.getManager().getFirstName() + " " + dep.getManager().getLastName() : "Manager";
 
-        // 📧 EMAIL 2 -> ADMIN
         userRepository.findByRole(com.farm.backend.entity.Role.ROLE_ADMIN).stream()
                 .findFirst()
                 .ifPresent(admin -> emailService.sendTeamValidationToAdmin(
@@ -99,7 +97,6 @@ public class TeamController {
                         schedule
                 ));
 
-        // 📧 EMAIL 3 -> MANAGER
         if (dep.getManager() != null) {
             emailService.sendManagerConfirmation(
                     dep.getManager().getEmail(),
@@ -108,7 +105,6 @@ public class TeamController {
             );
         }
 
-        // 📧 EMAIL 4 -> EMPLOYEES
         for (Employee emp : assignedEmployees) {
             emailService.sendAssignmentNotification(
                     emp.getEmail(),
