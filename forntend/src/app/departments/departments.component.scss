@@ -498,3 +498,64 @@
   font-size: 14px;
   margin: 0;
 }
+
+// ── Department Camera Section ─────────────────────────────────
+.dept-cameras-section {
+  margin: 12px 0 8px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.dept-cameras-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.dept-camera-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dept-camera-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+
+  &.cam-active {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+
+    .material-icons { color: #22c55e; }
+  }
+
+  &.cam-off {
+    background: #f8fafc;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+  }
+}
+
+.dept-cameras-empty {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  font-style: italic;
+  border-style: dashed;
+}

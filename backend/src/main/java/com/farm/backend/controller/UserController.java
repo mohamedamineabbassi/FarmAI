@@ -49,13 +49,13 @@ public class UserController {
         this.alertRepository = alertRepository;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @GetMapping("/viewers")
     public List<User> getViewers() {
         return repo.findByRole(Role.ROLE_VIEWER);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/viewers")
     public ResponseEntity<?> createViewer(@RequestBody User user) {
 
@@ -112,7 +112,7 @@ public class UserController {
         return ResponseEntity.ok(saved);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/viewers/{id}")
     public User updateViewer(@PathVariable Long id, @RequestBody User updated) {
 
@@ -126,7 +126,7 @@ public class UserController {
         return repo.save(user);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/viewers/{id}")
     public ResponseEntity<Void> deleteViewer(@PathVariable Long id) {
         User user = repo.findById(id)
@@ -147,14 +147,14 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @GetMapping("/managers")
     public List<User> getManagers(org.springframework.security.core.Authentication auth) {
         System.out.println("User role: " + (auth != null ? auth.getAuthorities() : "NULL AUTH"));
         return repo.findByRole(Role.ROLE_MANAGER);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/managers")
     public ResponseEntity<?> createManager(@RequestBody User user) {
 
@@ -211,7 +211,7 @@ public class UserController {
         return ResponseEntity.ok(saved);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/managers/{id}")
     public User updateManager(@PathVariable Long id, @RequestBody User updated) {
 
@@ -225,7 +225,7 @@ public class UserController {
         return repo.save(user);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/managers/{id}")
     public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
         User user = repo.findById(id)
@@ -290,7 +290,7 @@ public class UserController {
         return ResponseEntity.ok("Password updated ✅");
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public User getOne(@PathVariable Long id) {
         return repo.findById(id)

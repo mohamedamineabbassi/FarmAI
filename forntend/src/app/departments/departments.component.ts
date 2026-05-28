@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { DepartmentService } from '../services/department.service';
 import { ManagerService } from '../services/manager.service';
+import { CameraService, Camera } from '../services/camera.service';
 
 @Component({
   selector: 'app-departments',
@@ -12,6 +13,7 @@ export class DepartmentsComponent implements OnInit {
 
   departments: any[] = [];
   managers: any[] = [];
+  cameras: Camera[] = [];
 
   department: any = this.resetForm();
 
@@ -24,12 +26,14 @@ export class DepartmentsComponent implements OnInit {
 
   constructor(
     private service: DepartmentService,
-    private managerService: ManagerService
+    private managerService: ManagerService,
+    private cameraService: CameraService
   ) { }
 
   ngOnInit(): void {
     this.loadDepartments();
     this.loadManagers();
+    this.loadCameras();
   }
 
   loadDepartments() {
@@ -44,6 +48,17 @@ export class DepartmentsComponent implements OnInit {
       next:  (res) => this.managers = res,
       error: ()    => {}
     });
+  }
+
+  loadCameras() {
+    this.cameraService.getAll().subscribe({
+      next:  (res) => this.cameras = res,
+      error: ()    => {}
+    });
+  }
+
+  getCamerasForDept(deptId: number): Camera[] {
+    return this.cameras.filter(c => c.department?.id === deptId);
   }
 
   save() {

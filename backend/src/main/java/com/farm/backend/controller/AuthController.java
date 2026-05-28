@@ -306,7 +306,7 @@ public class AuthController {
         }
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasAuthority('ROLE_MANAGER')")
     @PostMapping("/create-viewer")
     public Object createViewer(@RequestBody User user) {
 

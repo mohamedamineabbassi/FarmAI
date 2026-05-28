@@ -18,7 +18,7 @@ public class AIController {
         this.aiService = aiService;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/start")
     public ResponseEntity<?> startAI(@RequestBody Map<String, Object> payload) {
         Long cameraId = Long.valueOf(payload.get("cameraId").toString());
@@ -29,7 +29,7 @@ public class AIController {
         return ResponseEntity.ok(Map.of("message", result, "running", aiService.isRunning(cameraId)));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping("/stop")
     public ResponseEntity<?> stopAI(@RequestBody Map<String, Long> payload) {
         Long cameraId = payload.get("cameraId");

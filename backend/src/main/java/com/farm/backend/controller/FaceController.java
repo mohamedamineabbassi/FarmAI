@@ -71,7 +71,7 @@ public class FaceController {
     }
 
     @GetMapping("/status/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> getStatusForUser(@PathVariable Long userId) {
         boolean registered = faceService.getFaceStatus(userId);
         return ResponseEntity.ok(Map.of("faceRegistered", registered));

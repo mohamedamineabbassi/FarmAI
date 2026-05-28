@@ -172,6 +172,29 @@
                   </div>
                 </div>
 
+                <!-- Caméras du département -->
+                <div class="dept-cameras-section" *ngIf="getCamerasForDept(dept.id).length > 0">
+                  <div class="dept-cameras-header">
+                    <i class="material-icons" style="font-size:14px; vertical-align:middle;">videocam</i>
+                    <span>CAMÉRAS ({{ getCamerasForDept(dept.id).length }})</span>
+                  </div>
+                  <div class="dept-camera-chips">
+                    <span class="dept-camera-chip"
+                          *ngFor="let cam of getCamerasForDept(dept.id)"
+                          [class.cam-active]="cam.status === 'ACTIVE'"
+                          [class.cam-off]="cam.status !== 'ACTIVE'">
+                      <i class="material-icons" style="font-size:12px; vertical-align:middle;">
+                        {{ cam.status === 'ACTIVE' ? 'fiber_manual_record' : 'radio_button_unchecked' }}
+                      </i>
+                      {{ cam.name }}
+                    </span>
+                  </div>
+                </div>
+                <div class="dept-cameras-section dept-cameras-empty" *ngIf="getCamerasForDept(dept.id).length === 0">
+                  <i class="material-icons" style="font-size:14px; vertical-align:middle; margin-right:4px;">videocam_off</i>
+                  <span>Aucune caméra assignée</span>
+                </div>
+
                 <div class="dept-actions">
                   <button class="dept-action-btn dept-action-edit" (click)="edit(dept)" title="Modifier">
                     <i class="material-icons">edit</i>

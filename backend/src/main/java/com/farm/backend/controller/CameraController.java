@@ -24,7 +24,7 @@ public class CameraController {
         this.departmentRepository = departmentRepository;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @PostMapping
     public CameraEntity addCamera(@RequestBody CameraEntity camera) {
         if (camera.getDepartment() != null && camera.getDepartment().getId() != null) {
@@ -43,13 +43,13 @@ public class CameraController {
         return cameraRepository.save(camera);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @GetMapping
     public List<CameraEntity> getAll() {
         return cameraRepository.findAll();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         try {
@@ -64,7 +64,7 @@ public class CameraController {
         cameraRepository.deleteById(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public CameraEntity updateCamera(@PathVariable Long id,
                                      @RequestBody CameraEntity updated) {

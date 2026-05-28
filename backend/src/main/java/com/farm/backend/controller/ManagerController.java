@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/manager")
 @CrossOrigin
-@PreAuthorize("hasRole('MANAGER')")
+@PreAuthorize("hasAuthority('ROLE_MANAGER')")
 public class ManagerController {
 
     private final CurrentUserService currentUserService;

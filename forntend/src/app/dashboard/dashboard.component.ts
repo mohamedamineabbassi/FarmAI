@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,11 +36,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
-  }
-
   loadAll(): void {
     this.loadDepartments();
     this.loadCameras();
@@ -59,8 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadCameras(): void {
-    const headers = this.getHeaders();
-    this.http.get<any[]>(`${this.API}/cameras`, { headers }).subscribe({
+    this.http.get<any[]>(`${this.API}/cameras`).subscribe({
       next: (data) => {
         this.cameras = data;
         this.totalCameras = data.length;

@@ -25,19 +25,19 @@ public class AlertController {
         this.cameraRepository = cameraRepository;
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @GetMapping
     public List<Alert> getAll() {
         return service.getAll();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @GetMapping("/unresolved")
     public List<Alert> getUnresolved() {
         return service.getUnresolved();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
     @GetMapping("/active-count")
     public Map<String, Long> getActiveCount() {
         return Map.of("activeCount", service.getActiveCount());
@@ -66,7 +66,7 @@ public class AlertController {
         return service.handleAIDetection(dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}/resolve")
     public Alert resolveAlert(@PathVariable Long id) {
         return service.resolveAlert(id);

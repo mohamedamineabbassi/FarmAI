@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Manager {
@@ -21,26 +21,19 @@ export class ManagerService {
 
   constructor(private http: HttpClient) {}
 
-  private getHeaders() {
-    const token = localStorage.getItem('token');
-    return {
-      headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
-    };
-  }
-
   getManagers(): Observable<Manager[]> {
-    return this.http.get<Manager[]>(`${this.API}/managers`, this.getHeaders());
+    return this.http.get<Manager[]>(`${this.API}/managers`);
   }
 
   create(manager: Manager) {
-    return this.http.post(`${this.API}/managers`, manager, this.getHeaders());
+    return this.http.post(`${this.API}/managers`, manager);
   }
 
   update(id: number, manager: Manager) {
-    return this.http.put(`${this.API}/managers/${id}`, manager, this.getHeaders());
+    return this.http.put(`${this.API}/managers/${id}`, manager);
   }
 
   delete(id: number) {
-    return this.http.delete(`${this.API}/managers/${id}`, this.getHeaders());
+    return this.http.delete(`${this.API}/managers/${id}`);
   }
 }
