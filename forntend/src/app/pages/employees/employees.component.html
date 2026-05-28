@@ -116,16 +116,37 @@
                       <span class="badge" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; font-size: 11px; padding: 6px 12px;">{{ emp.job }}</span>
                     </td>
                     <td class="px-4 py-3 align-middle">
-                      <span class="badge" [ngClass]="emp.status === 'APPROVED' ? 'badge-success' : 'badge-warning'" style="font-size: 10px; padding: 4px 8px;">
-                        {{ emp.status === 'APPROVED' ? 'VÉRIFIÉ' : 'EN ATTENTE' }}
-                      </span>
+                      <div class="d-flex flex-column" style="gap: 4px;">
+                        <span class="badge" [ngClass]="emp.status === 'APPROVED' ? 'badge-success' : 'badge-warning'" style="font-size: 10px; padding: 4px 8px;">
+                          {{ emp.status === 'APPROVED' ? '✓ APPROUVÉ' : '⏳ EN ATTENTE' }}
+                        </span>
+                        <span class="badge" [ngClass]="emp.faceRegistered ? 'badge-success' : 'badge-danger'" style="font-size: 10px; padding: 4px 8px; opacity: 0.85;">
+                          {{ emp.faceRegistered ? '🔒 FACE ID ✓' : '📷 FACE ID ✗' }}
+                        </span>
+                      </div>
                     </td>
                     <td class="px-4 py-3 align-middle text-right">
                       <div class="dept-actions d-inline-flex justify-content-end w-100 mt-0">
-                        <button class="dept-action-btn dept-action-edit mr-2" (click)="approve(emp.id)" *ngIf="emp.status !== 'APPROVED'" title="Approuver l'employé" style="width: auto; padding: 6px 12px;">
+                        <!-- Approuver si en attente -->
+                        <button class="dept-action-btn dept-action-edit mr-2"
+                                (click)="approve(emp.id)"
+                                *ngIf="emp.status !== 'APPROVED'"
+                                title="Approuver l'employé"
+                                style="width: auto; padding: 6px 12px;">
                           <i class="material-icons" style="font-size: 16px;">verified</i>
                         </button>
-                        <button class="dept-action-btn dept-action-delete" (click)="delete(emp.id)" title="Supprimer l'employé" style="width: auto; padding: 6px 12px;">
+                        <!-- Scanner le visage si approuvé mais pas de Face ID -->
+                        <button class="dept-action-btn dept-action-edit mr-2"
+                                (click)="captureFace(emp)"
+                                *ngIf="emp.status === 'APPROVED' && !emp.faceRegistered"
+                                title="Enregistrer le visage"
+                                style="width: auto; padding: 6px 12px; background: #f59e0b; border-color: #f59e0b;">
+                          <i class="material-icons" style="font-size: 16px;">face</i>
+                        </button>
+                        <button class="dept-action-btn dept-action-delete"
+                                (click)="delete(emp.id)"
+                                title="Supprimer l'employé"
+                                style="width: auto; padding: 6px 12px;">
                           <i class="material-icons" style="font-size: 16px;">delete</i>
                         </button>
                       </div>
@@ -150,7 +171,66 @@
   </div>
 </div>
 
+<!-- ===== MODAL CAMÉRA FACE ID ===== -->
+<div *ngIf="showCameraModal" class="camera-overlay-emp" (click)="onOverlayClick($event)">
+  <div class="camera-modal-emp">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+      <h3 style="margin:0; font-size:15px; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:8px;">
+        <i class="material-icons" style="color:#4caf50;">face</i>
+        ENREGISTREMENT FACE ID — {{ activeEmployee?.name }}
+      </h3>
+      <button (click)="closeModal()" style="background:none; border:none; cursor:pointer; color:#64748b;">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+
+    <div style="padding:20px;">
+      <!-- Status -->
+      <div style="margin-bottom:16px; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600;"
+           [ngStyle]="{'background': scanSuccess ? '#f0fdf4' : (scanError ? '#fef2f2' : '#f8fafc'),
+                       'color': scanSuccess ? '#16a34a' : (scanError ? '#dc2626' : '#475569')}">
+        <i class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:6px;">
+          {{ scanSuccess ? 'check_circle' : (scanError ? 'error' : (cameraReady ? 'videocam' : 'hourglass_top')) }}
+        </i>
+        {{ scanSuccess || scanError || scanStatus || 'Initialisation de la caméra...' }}
+      </div>
+
+      <!-- Vidéo -->
+      <div style="position:relative; background:#0f172a; border-radius:12px; overflow:hidden; max-width:400px; margin:0 auto 20px;">
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:2; pointer-events:none;">
+          <div style="width:200px; height:250px; border:3px dashed rgba(255,255,255,0.4); border-radius:50%;"></div>
+        </div>
+        <video #captureVideo autoplay playsinline muted style="width:100%; display:block; border-radius:12px;"></video>
+      </div>
+
+      <!-- Actions -->
+      <div style="text-align:center;">
+        <ng-container *ngIf="!scanSuccess">
+          <button (click)="doScan()"
+                  [disabled]="!cameraReady || scanLoading"
+                  style="width:64px; height:64px; border-radius:50%; border:4px solid #e2e8f0; background:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; margin-bottom:8px;">
+            <div style="width:48px; height:48px; border-radius:50%; background:#4caf50; transition:transform 0.2s;"
+                 [ngStyle]="{'transform': scanLoading ? 'scale(0.85)' : 'scale(1)'}"></div>
+          </button>
+          <p style="font-size:12px; color:#64748b; margin:0;">
+            {{ scanLoading ? 'Analyse en cours...' : 'Appuyez pour capturer' }}
+          </p>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
+.camera-overlay-emp {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.camera-modal-emp {
+  background: #fff; border-radius: 16px; width: 480px;
+  max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
 .avatar-zoom {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
