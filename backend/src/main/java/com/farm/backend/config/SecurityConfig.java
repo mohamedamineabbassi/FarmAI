@@ -58,6 +58,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/employees/delete-face/**").authenticated()
                 .requestMatchers("/api/employees/me").authenticated()
 
+                // Admin-only endpoints (URL-level enforcement)
+                .requestMatchers("/api/employees/approve/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/face-notifications/**").hasAuthority("ROLE_ADMIN")
+
                 .requestMatchers(HttpMethod.POST,   "/api/departments").hasAuthority("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.PUT,    "/api/departments/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/departments/**").hasAuthority("ROLE_ADMIN")
