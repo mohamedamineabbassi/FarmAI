@@ -1,6 +1,13 @@
 <div class="main-content">
   <div class="container-fluid">
-    
+
+    <!-- status message -->
+    <div *ngIf="message" class="alert mb-3"
+         [ngClass]="isError ? 'alert-danger' : 'alert-success'"
+         style="border-radius: 10px;">
+      {{ message }}
+    </div>
+
     <div class="row">
       <div class="col-md-8">
         <div class="dept-card fade-in h-100">
@@ -9,29 +16,27 @@
               <i class="material-icons text-white" style="font-size: 24px;">manage_accounts</i>
             </div>
             <div>
-              <h4 class="text-dark font-weight-bold m-0" style="font-size: 18px;">MON PROFIL SÉCURISÉ</h4>
-              <p class="text-muted small m-0 mt-1">Gérez vos informations personnelles et identifiants</p>
+              <h4 class="text-dark font-weight-bold m-0" style="font-size: 18px;">
+                {{ viewingOther ? 'PROFIL EMPLOYÉ' : 'MON PROFIL SÉCURISÉ' }}
+              </h4>
+              <p class="text-muted small m-0 mt-1">Gérez les informations personnelles et identifiants</p>
             </div>
           </div>
           <div class="card-body p-4 mt-2">
-            <form>
+            <form (ngSubmit)="updateProfile()">
               <div class="row mt-3">
-                <div class="col-md-5">
+                <div class="col-md-6">
                   <div class="form-group">
-                    <label>RÔLE SYSTÈME</label>
-                    <input type="text" class="form-control" disabled value="Administrateur Principal">
+                    <label>NOM COMPLET</label>
+                    <input type="text" class="form-control" name="editName"
+                           [(ngModel)]="editName" placeholder="Nom de l'employé">
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                   <div class="form-group">
-                    <label>IDENTIFIANT</label>
-                    <input type="text" class="form-control" value="admin_farm">
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>ADRESSE EMAIL</label>
-                    <input type="email" class="form-control" value="admin@farm-ai.com">
+                    <label>POSTE</label>
+                    <input type="text" class="form-control" disabled
+                           [value]="currentEmployee?.job || ''">
                   </div>
                 </div>
               </div>
@@ -39,21 +44,42 @@
               <div class="row mt-4">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>PRÉNOM</label>
-                    <input type="text" class="form-control" value="Admin">
+                    <label>ADRESSE EMAIL</label>
+                    <input type="email" class="form-control" name="editEmail"
+                           [(ngModel)]="editEmail" placeholder="email@exemple.com">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>NOM</label>
-                    <input type="text" class="form-control" value="FarmAI">
+                    <label>TÉLÉPHONE</label>
+                    <input type="text" class="form-control" name="editPhone"
+                           [(ngModel)]="editPhone" placeholder="Numéro de téléphone">
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-2">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>STATUT</label>
+                    <input type="text" class="form-control" disabled
+                           [value]="currentEmployee?.status || ''">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>VISAGE ENREGISTRÉ</label>
+                    <input type="text" class="form-control" disabled
+                           [value]="currentEmployee?.faceRegistered ? 'Oui' : 'Non'">
                   </div>
                 </div>
               </div>
 
               <div class="row mt-4">
                 <div class="col-md-12 text-right">
-                  <button type="submit" class="btn btn-save px-4">METTRE À JOUR MES INFOS</button>
+                  <button type="submit" class="btn btn-save px-4" [disabled]="loading">
+                    {{ loading ? 'EN COURS...' : 'METTRE À JOUR LES INFOS' }}
+                  </button>
                 </div>
               </div>
             </form>
@@ -64,18 +90,27 @@
       <div class="col-md-4">
         <div class="dept-card text-center py-5 fade-in h-100 d-flex flex-column justify-content-center">
           <div class="card-body">
-            <div class="icon-security-wrapper mx-auto mb-4" style="width: 100px; height: 100px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #bbf7d0; box-shadow: 0 0 20px rgba(76, 175, 80, 0.1);">
-              <i class="material-icons text-success" style="font-size: 50px;">face</i>
+            <div class="icon-security-wrapper mx-auto mb-4" style="width: 120px; height: 120px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #bbf7d0; box-shadow: 0 0 20px rgba(76, 175, 80, 0.1); overflow: hidden;">
+              <img *ngIf="currentEmployee?.facePhotoData" [src]="currentEmployee?.facePhotoData"
+                   alt="visage" style="width: 100%; height: 100%; object-fit: cover;">
+              <i *ngIf="!currentEmployee?.facePhotoData" class="material-icons text-success" style="font-size: 50px;">face</i>
             </div>
             <h4 class="text-dark font-weight-bold mb-3" style="font-size: 18px;">BIOMÉTRIE FACIALE</h4>
-            <p class="text-muted px-3 small font-weight-bold" style="line-height: 1.5;">Enregistrez votre visage pour activer l'authentification biométrique sans mot de passe.</p>
-            
+            <p class="text-muted px-3 small font-weight-bold" style="line-height: 1.5;">
+              Enregistrez le visage pour activer l'authentification biométrique.
+            </p>
+
             <div class="mt-4 px-3">
-               <button class="btn btn-save btn-block py-3 d-flex justify-content-center align-items-center mb-3" (click)="registerFace()" style="border-radius: 12px; font-size: 13px;">
-                 <i class="material-icons mr-2" style="font-size: 18px;">camera_enhance</i> ENREGISTRER MON VISAGE
+               <button type="button" class="btn btn-save btn-block py-3 d-flex justify-content-center align-items-center mb-3"
+                       (click)="openCamera()" style="border-radius: 12px; font-size: 13px;">
+                 <i class="material-icons mr-2" style="font-size: 18px;">camera_enhance</i>
+                 {{ currentEmployee?.faceRegistered ? 'METTRE À JOUR LE VISAGE' : 'ENREGISTRER LE VISAGE' }}
                </button>
-               <button class="btn btn-block btn-sm d-flex justify-content-center align-items-center" (click)="deleteFace()" style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; border-radius: 8px; font-weight: bold; padding: 10px;">
-                 <i class="material-icons mr-2" style="font-size: 16px;">delete_forever</i> SUPPRIMER MES DONNÉES BIO
+               <button type="button" class="btn btn-block btn-sm d-flex justify-content-center align-items-center"
+                       *ngIf="currentEmployee?.faceRegistered"
+                       (click)="deleteFace()"
+                       style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; border-radius: 8px; font-weight: bold; padding: 10px;">
+                 <i class="material-icons mr-2" style="font-size: 16px;">delete_forever</i> SUPPRIMER LES DONNÉES BIO
                </button>
             </div>
           </div>
@@ -83,5 +118,37 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ── Camera capture modal ─────────────────────────────────────── -->
+<div *ngIf="showCameraModal" class="camera-overlay" (click)="onOverlayClick($event)"
+     style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1050; display: flex; align-items: center; justify-content: center;">
+  <div class="camera-box" style="background: #fff; border-radius: 16px; padding: 24px; width: 520px; max-width: 92vw; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="font-weight-bold m-0">Capture du visage</h5>
+      <button type="button" class="btn btn-sm" (click)="closeModal()" style="background:none;border:none;">
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+
+    <div style="position: relative; background: #000; border-radius: 12px; overflow: hidden;">
+      <video #captureVideo autoplay playsinline muted
+             style="width: 100%; display: block; border-radius: 12px;"></video>
+    </div>
+
+    <p class="text-center mt-3 mb-2 small font-weight-bold"
+       [ngClass]="scanError ? 'text-danger' : (scanSuccess ? 'text-success' : 'text-muted')">
+      {{ scanError || scanSuccess || scanStatus }}
+    </p>
+
+    <div class="d-flex justify-content-center mt-2">
+      <button type="button" class="btn btn-save px-4 py-2"
+              (click)="doScan()" [disabled]="!cameraReady || scanLoading"
+              style="border-radius: 10px;">
+        <i class="material-icons mr-2" style="font-size: 18px; vertical-align: middle;">photo_camera</i>
+        {{ scanLoading ? 'ANALYSE...' : 'CAPTURER' }}
+      </button>
+    </div>
   </div>
 </div>

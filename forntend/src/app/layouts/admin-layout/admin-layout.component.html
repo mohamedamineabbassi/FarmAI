@@ -3,6 +3,12 @@
         <app-sidebar></app-sidebar>
     </div>
     <div class="main-panel">
+        <div class="back-bar">
+            <button type="button" class="btn-back" (click)="goBack()" title="Retour">
+                <i class="material-icons">arrow_back</i>
+                <span>Retour</span>
+            </button>
+        </div>
         <router-outlet></router-outlet>
         <div *ngIf="isMaps('maps')">
             <app-footer></app-footer>

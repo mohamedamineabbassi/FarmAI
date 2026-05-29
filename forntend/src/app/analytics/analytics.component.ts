@@ -91,41 +91,45 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
     const cameras: any[] = Array.isArray(data.cameras) ? data.cameras : [];
     const alerts: any[] = Array.isArray(data.alerts) ? data.alerts : [];
 
-    // Exclude attendance records from deleted employees — match by name against current employees list
-    const currentEmployeeNames = new Set(
-      employees.map((e: any) => (e.name || '').toLowerCase().trim())
-    );
-    const filteredAttendance = attendance.filter((a: any) => {
-      if (a.unknown === true) return true;
-      const empName = (a.employeeName || '').toLowerCase().trim();
-      return empName === '' || empName === 'unknown' || currentEmployeeNames.has(empName);
-    });
+    // Attendance status normalization: the check-in protocol uses ENTRY/EXIT,
+    // while older records may use IN/OUT — accept both.
+    const isEntry = (s: any) => { const u = (s || '').toUpperCase(); return u === 'IN' || u === 'ENTRY'; };
+    const isExit  = (s: any) => { const u = (s || '').toUpperCase(); return u === 'OUT' || u === 'EXIT'; };
+    const parseTs = (t: any): Date => Array.isArray(t)
+      ? new Date(t[0], t[1] - 1, t[2], t[3] || 0, t[4] || 0, t[5] || 0)
+      : new Date(t);
+
+    // Keep ALL attendance records: the attendance camera tracks employees AND
+    // managers/observers (who are Users, not in the /employees list), so we must
+    // not drop records whose name isn't found among employees.
+    const filteredAttendance = attendance;
     this.filteredAttendance = filteredAttendance;
 
-    // KPI 1: unique employees with at least one IN event today
-    const today = new Date().toISOString().split('T')[0];
+    // KPI 1: people currently present = their LAST event today is an entry
+    const today = new Date().toDateString();
     const todayRecords = filteredAttendance.filter((a: any) => {
       if (!a.timestamp) return false;
-      let d: Date;
-      if (Array.isArray(a.timestamp)) {
-        d = new Date(a.timestamp[0], a.timestamp[1] - 1, a.timestamp[2]);
-      } else {
-        d = new Date(a.timestamp);
-      }
-      return d.toISOString().split('T')[0] === today;
+      return parseTs(a.timestamp).toDateString() === today;
     });
-    const presentNames = new Set(
-      todayRecords
-        .filter((a: any) => a.status === 'IN')
-        .map((a: any) => (a.employeeName || '').toLowerCase().trim())
-        .filter((n: string) => n !== '')
-    );
-    const presentCount = presentNames.size;
+    const byEmpToday = new Map<string, any[]>();
+    todayRecords.forEach((a: any) => {
+      if (a.unknown === true) return;
+      const n = (a.employeeName || '').toLowerCase().trim();
+      if (!n || n === 'unknown') return;
+      if (!byEmpToday.has(n)) byEmpToday.set(n, []);
+      byEmpToday.get(n)!.push(a);
+    });
+    let presentCount = 0;
+    byEmpToday.forEach(recs => {
+      recs.sort((x, y) => +parseTs(x.timestamp) - +parseTs(y.timestamp));
+      if (isEntry(recs[recs.length - 1].status)) presentCount++;
+    });
     const totalEmp = employees.length || 1;
     this.kpisData[0].value = presentCount.toString();
     this.kpisData[0].trend = ((presentCount / totalEmp) * 100).toFixed(0);
 
-    // KPI 2: hours worked — computed from IN/OUT pairs per employee
+    // KPI 2: hours worked — prefer the backend-computed durationSeconds carried
+    // on EXIT records; fall back to pairing entries/exits chronologically.
     let totalHours = 0;
     const byEmployee: Map<string, any[]> = new Map();
     filteredAttendance.forEach((a: any) => {
@@ -134,18 +138,26 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
       byEmployee.get(name)!.push(a);
     });
     byEmployee.forEach(records => {
-      const ins = records.filter(r => r.status === 'IN').sort((a, b) => +new Date(a.timestamp) - +new Date(b.timestamp));
-      const outs = records.filter(r => r.status === 'OUT').sort((a, b) => +new Date(a.timestamp) - +new Date(b.timestamp));
+      let usedDuration = false;
+      records.forEach(r => {
+        if (isExit(r.status) && r.durationSeconds != null) {
+          const h = r.durationSeconds / 3600;
+          if (h > 0 && h < 16) { totalHours += h; usedDuration = true; }
+        }
+      });
+      if (usedDuration) return;
+      const ins = records.filter(r => isEntry(r.status)).sort((a, b) => +parseTs(a.timestamp) - +parseTs(b.timestamp));
+      const outs = records.filter(r => isExit(r.status)).sort((a, b) => +parseTs(a.timestamp) - +parseTs(b.timestamp));
       for (let i = 0; i < Math.min(ins.length, outs.length); i++) {
-        const diff = (new Date(outs[i].timestamp).getTime() - new Date(ins[i].timestamp).getTime()) / 3600000;
+        const diff = (parseTs(outs[i].timestamp).getTime() - parseTs(ins[i].timestamp).getTime()) / 3600000;
         if (diff > 0 && diff < 16) totalHours += diff;
       }
     });
     this.kpisData[1].value = totalHours > 0 ? `${totalHours.toFixed(1)}h` : '0h';
     this.kpisData[1].trend = '0';
 
-    // KPI 3: total IN events today
-    const todayEntries = todayRecords.filter((a: any) => a.status === 'IN').length;
+    // KPI 3: total entry events today
+    const todayEntries = todayRecords.filter((a: any) => isEntry(a.status)).length;
     this.kpisData[2].value = todayEntries.toString();
     this.kpisData[2].trend = '0';
 
@@ -177,10 +189,10 @@ export class AnalyticsComponent implements OnInit, OnDestroy {
 
     this.attendanceData = filteredAttendance.slice(-8).map((a: any) => ({
       name: a.employeeName || 'Unknown',
-      date: a.timestamp ? new Date(a.timestamp).toLocaleDateString() : '--',
-      in: a.status === 'IN' && a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : (a.timeIn || '--'),
-      out: a.status === 'OUT' && a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : (a.timeOut || '--'),
-      status: a.status === 'IN' ? 'PRESENT' : (a.status === 'OUT' ? 'FINISHED' : (a.timeOut ? 'FINISHED' : 'PRESENT')),
+      date: a.timestamp ? parseTs(a.timestamp).toLocaleDateString() : '--',
+      in: isEntry(a.status) && a.timestamp ? parseTs(a.timestamp).toLocaleTimeString() : (a.timeIn || '--'),
+      out: isExit(a.status) && a.timestamp ? parseTs(a.timestamp).toLocaleTimeString() : (a.timeOut || '--'),
+      status: isEntry(a.status) ? 'PRESENT' : (isExit(a.status) ? 'FINISHED' : (a.timeOut ? 'FINISHED' : 'PRESENT')),
       unknown: a.unknown
     })).reverse();
 

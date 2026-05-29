@@ -299,6 +299,13 @@
     fill-opacity: 0.1 !important;
   }
 
+  /* Donut "DÉTECTION D'UNIFORMES" — slice colors must match colorLegend
+     (otherwise Chartist renders the ring solid black). */
+  ::ng-deep #colorChart .ct-series-a .ct-slice-donut { stroke: #f44336 !important; }
+  ::ng-deep #colorChart .ct-series-b .ct-slice-donut { stroke: #2196f3 !important; }
+  ::ng-deep #colorChart .ct-series-c .ct-slice-donut { stroke: #ffeb3b !important; }
+  ::ng-deep #colorChart .ct-series-d .ct-slice-donut { stroke: #9e9e9e !important; }
+
   .color-dot {
     width: 12px;
     height: 12px;

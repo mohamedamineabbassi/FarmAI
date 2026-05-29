@@ -1,5 +1,6 @@
 package com.farm.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -18,9 +19,17 @@ public class AttendanceRecord {
 
     private boolean unknown;
 
+    @Column(name = "employee_id")
+    private Long employeeId;
+
     @Column(name = "image_path")
     private String imagePath;
 
+    /** Durée de présence (en secondes) entre l'ENTRÉE et la SORTIE — renseignée uniquement sur l'enregistrement de SORTIE. */
+    @Column(name = "duration_seconds")
+    private Long durationSeconds;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 
     @PrePersist
@@ -44,8 +53,24 @@ public class AttendanceRecord {
         return unknown;
     }
 
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
+    }
+
     public String getImagePath() {
         return imagePath;
+    }
+
+    public Long getDurationSeconds() {
+        return durationSeconds;
+    }
+
+    public void setDurationSeconds(Long durationSeconds) {
+        this.durationSeconds = durationSeconds;
     }
 
     public LocalDateTime getTimestamp() {

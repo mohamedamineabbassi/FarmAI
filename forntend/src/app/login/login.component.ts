@@ -50,7 +50,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     });
     this.createCursorEffects();
-    this.animateGlow();
+    // La boucle d'animation ne touche que des div décoratives (pas d'état Angular).
+    // On l'exécute HORS de la zone Angular pour éviter une détection de changement
+    // ~60x/seconde qui sature le thread principal et fait "sauter" les frappes clavier.
+    this.zone.runOutsideAngular(() => this.animateGlow());
   }
 
   ngOnDestroy() {

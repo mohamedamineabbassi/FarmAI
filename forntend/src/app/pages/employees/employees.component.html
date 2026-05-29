@@ -97,7 +97,7 @@
                   <tr *ngFor="let emp of employees; let i = index" class="border-bottom">
                     <td class="px-4 py-3 align-middle">
                       <div class="d-flex align-items-center">
-                        <a routerLink="/user-profile" class="avatar-link" title="Voir le profil">
+                        <a routerLink="/dashboard/user-profile" [queryParams]="{ id: emp.id }" class="avatar-link" title="Voir le profil">
                           <div class="avatar-circle mr-3 avatar-zoom" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; background: linear-gradient(135deg, #4caf50, #388e3c); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);">
                             {{ emp.name?.charAt(0) }}
                           </div>

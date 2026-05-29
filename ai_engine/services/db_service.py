@@ -77,6 +77,70 @@ class DatabaseService:
         return embeddings
 
     @classmethod
+    def resolve_employee(cls, label: str):
+        """
+        Résout un employé à partir du label de détection.
+        Label format: "USER: <prefixe_email>" ou "UNKNOWN".
+        Retourne (employee_id, employee_name, unknown).
+        """
+        if not label or "UNKNOWN" in label.upper():
+            return (None, "Inconnu", True)
+
+        prefix = label.replace("USER:", "").strip()
+        if not prefix:
+            return (None, "Inconnu", True)
+
+        conn = cls.get_connection()
+        if not conn:
+            return (None, prefix, False)
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute(
+                "SELECT id, name, email FROM employees WHERE email LIKE %s LIMIT 1",
+                (prefix + "@%",)
+            )
+            row = cursor.fetchone()
+            cursor.close()
+            if row:
+                return (row["id"], row["name"] or prefix, False)
+            return (None, prefix, False)
+        except Error as e:
+            logger.error(f"Erreur resolve_employee: {e}")
+            return (None, prefix, False)
+        finally:
+            conn.close()
+
+    @classmethod
+    def save_attendance(cls, label: str, status: str, image_path: str = None):
+        """
+        Enregistre un événement de présence (ENTRY / EXIT) dans la table `attendance`.
+        Résout automatiquement l'employé à partir du label de reconnaissance faciale.
+        """
+        employee_id, employee_name, unknown = cls.resolve_employee(label)
+
+        conn = cls.get_connection()
+        if not conn:
+            logger.error("save_attendance: pas de connexion DB.")
+            return False
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                """INSERT INTO attendance
+                   (employee_name, employee_id, status, unknown, image_path, timestamp)
+                   VALUES (%s, %s, %s, %s, %s, NOW())""",
+                (employee_name, employee_id, status, 1 if unknown else 0, image_path)
+            )
+            conn.commit()
+            cursor.close()
+            logger.info(f"✓ Présence enregistrée: {employee_name} -> {status}")
+            return True
+        except Error as e:
+            logger.error(f"Erreur save_attendance: {e}")
+            return False
+        finally:
+            conn.close()
+
+    @classmethod
     def get_camera_info(cls, camera_id: int):
         conn = cls.get_connection()
         if not conn: return None

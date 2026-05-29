@@ -30,6 +30,14 @@ export class EmployeeService {
     return this.http.get<Employee>(`${this.API}/me?email=${email}`);
   }
 
+  getById(id: number): Observable<Employee> {
+    return this.http.get<Employee>(`${this.API}/${id}`);
+  }
+
+  update(id: number, emp: Partial<Employee>): Observable<Employee> {
+    return this.http.put<Employee>(`${this.API}/${id}`, emp);
+  }
+
   getEmployees(): Observable<Employee[]> {
     return this.http.get<Employee[]>(`${this.API}/only-employees`);
   }

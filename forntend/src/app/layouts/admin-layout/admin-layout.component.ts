@@ -167,4 +167,13 @@ export class AdminLayoutComponent implements OnInit {
       return bool;
   }
 
+  /** Retour vers la page précédente (historique du navigateur). */
+  goBack(): void {
+      if (window.history.length > 1) {
+          this.location.back();
+      } else {
+          this.router.navigate(['/dashboard']);
+      }
+  }
+
 }

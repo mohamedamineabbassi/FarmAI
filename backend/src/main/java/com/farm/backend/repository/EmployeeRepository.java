@@ -28,4 +28,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByDepartmentManagerId(Long managerId);
 
     List<Employee> findByJobAndAvailableTrueAndDepartmentIsNullAndFaceRegisteredTrueAndStatus(Job job, EmployeeStatus status);
+
+    // Suggestion query: no faceRegistered requirement (face check happens at validation)
+    List<Employee> findByJobAndAvailableTrueAndDepartmentIsNullAndStatus(Job job, EmployeeStatus status);
 }

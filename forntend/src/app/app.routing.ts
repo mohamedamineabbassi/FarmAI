@@ -19,6 +19,8 @@ import { FaceSetupComponent } from './pages/face-setup/face-setup.component';
 import { ManagerDashboardComponent } from './manager-dashboard/manager-dashboard.component';
 import { ViewerDashboardComponent } from './viewer-dashboard/viewer-dashboard.component';
 import { SettingsComponent } from './settings/settings.component';
+import { AttendanceComponent } from './attendance/attendance.component';
+import { WelcomeComponent } from './welcome/welcome.component';
 
 const routes: Routes = [
 
@@ -56,7 +58,9 @@ const routes: Routes = [
       { path: 'settings', component: SettingsComponent },
       { path: 'user-profile', component: UserProfileComponent },
       { path: 'analytics', component: AnalyticsComponent },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      { path: 'attendance', component: AttendanceComponent },
+      { path: 'home', component: WelcomeComponent },
+      { path: '', component: WelcomeComponent, pathMatch: 'full' }
     ]
   },
 

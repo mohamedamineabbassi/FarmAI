@@ -1,0 +1,62 @@
+<div class="main-content welcome-page">
+  <div class="container-fluid">
+
+    <!-- ── Hero de bienvenue ─────────────────────────────────── -->
+    <div class="welcome-hero fade-in">
+      <div class="welcome-hero-overlay"></div>
+      <div class="welcome-hero-content">
+        <div class="welcome-badge">
+          <i class="material-icons">verified_user</i>
+          <span>Surveillance Intelligente · IA</span>
+        </div>
+        <h1 class="welcome-title">
+          Bienvenue, <span class="welcome-name">{{ userName }}</span>
+        </h1>
+        <p class="welcome-subtitle">
+          Plateforme <strong>FARM&nbsp;AI</strong> — supervision agricole par reconnaissance faciale,
+          détection d'intrusion et analyse comportementale en temps réel.
+        </p>
+        <div class="welcome-meta">
+          <span class="welcome-chip"><i class="material-icons">calendar_today</i> {{ today | date:'EEEE d MMMM y' }}</span>
+          <span class="welcome-chip"><i class="material-icons">schedule</i> {{ today | date:'HH:mm' }}</span>
+          <span class="welcome-chip welcome-chip-live"><i class="material-icons">sensors</i> Système actif</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Accès rapides ─────────────────────────────────────── -->
+    <h4 class="welcome-section-title">
+      <i class="material-icons">grid_view</i> Accès rapides
+    </h4>
+    <div class="welcome-grid">
+      <a *ngFor="let q of quickLinks" [routerLink]="q.route" class="welcome-card fade-in">
+        <div class="welcome-card-icon" [style.background]="q.gradient">
+          <i class="material-icons">{{ q.icon }}</i>
+        </div>
+        <div class="welcome-card-text">
+          <h5>{{ q.label }}</h5>
+          <p>{{ q.desc }}</p>
+        </div>
+        <i class="material-icons welcome-card-arrow">arrow_forward</i>
+      </a>
+    </div>
+
+    <!-- ── À propos ──────────────────────────────────────────── -->
+    <div class="welcome-about fade-in">
+      <div class="welcome-about-icon">
+        <i class="material-icons">eco</i>
+      </div>
+      <div class="welcome-about-text">
+        <h4>À propos de Farm AI</h4>
+        <p>
+          Farm&nbsp;AI est une solution de vidéosurveillance intelligente dédiée aux exploitations
+          agricoles. Le système combine la <strong>reconnaissance faciale</strong>, le
+          <strong>comptage d'entrées/sorties</strong> et la <strong>détection d'intrusion</strong>
+          pour sécuriser les sites, automatiser le suivi des présences et fournir des analyses
+          opérationnelles fiables aux gestionnaires.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>

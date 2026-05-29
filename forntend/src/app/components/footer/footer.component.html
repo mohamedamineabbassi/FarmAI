@@ -1,33 +1,33 @@
-<footer class="footer ">
+<footer class="footer">
     <div class="container-fluid">
         <nav class="pull-left">
             <ul>
                 <li>
-                    <a href="https://www.creative-tim.com">
-                        Creative Tim
+                    <a routerLink="/dashboard/home">
+                        Farm AI
                     </a>
                 </li>
                 <li>
-                    <a href="https://creative-tim.com/about-us">
-                        About Us
+                    <a routerLink="/dashboard/home" fragment="about">
+                        À propos
                     </a>
                 </li>
                 <li>
-                    <a href="http://blog.creative-tim.com">
-                        Blog
+                    <a routerLink="/dashboard/analytics">
+                        Analyses
                     </a>
                 </li>
                 <li>
-                    <a href="https://www.creative-tim.com/license">
-                        Licenses
+                    <a routerLink="/dashboard/settings">
+                        Paramètres
                     </a>
                 </li>
             </ul>
         </nav>
         <div class="copyright pull-right">
             &copy;
-            {{test | date: 'yyyy'}}, made with love by
-            <a href="https://www.creative-tim.com" target="_blank">Creative Tim</a> for a better web.
+            {{test | date: 'yyyy'}} <strong>Farm&nbsp;AI</strong> — Surveillance agricole intelligente.
+            Tous droits réservés.
         </div>
     </div>
 </footer>

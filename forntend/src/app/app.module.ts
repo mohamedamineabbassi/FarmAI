@@ -32,6 +32,10 @@ import { FaceSetupComponent } from './pages/face-setup/face-setup.component';
 import { ManagerDashboardComponent } from './manager-dashboard/manager-dashboard.component';
 import { ViewerDashboardComponent } from './viewer-dashboard/viewer-dashboard.component';
 import { SettingsComponent } from './settings/settings.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
+import { AttendanceComponent } from './attendance/attendance.component';
+import { WelcomeComponent } from './welcome/welcome.component';
+import { FaceIdAttendanceComponent } from './faceid-attendance/faceid-attendance.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +53,11 @@ import { SettingsComponent } from './settings/settings.component';
     FaceSetupComponent,
     ManagerDashboardComponent,
     ViewerDashboardComponent,
-    SettingsComponent
+    SettingsComponent,
+    UserProfileComponent,
+    AttendanceComponent,
+    WelcomeComponent,
+    FaceIdAttendanceComponent
   ],
 
   imports: [

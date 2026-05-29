@@ -2,6 +2,7 @@ import cv2
 import logging
 from ai_engine.core.tracker import CentroidTracker
 from ai_engine.alerts.alert_manager import AlertManager
+from ai_engine.services.db_service import DatabaseService
 
 logger = logging.getLogger(__name__)
 
@@ -45,27 +46,45 @@ class LineCrossingLayer:
                         obj_data["crossed"] = True
                         obj_data["event_cooldown"] = 30 # Afficher l'event pendant ~30 frames
                         self.counter_in += 1
-                        
+
                         AlertManager.trigger_alert(
                             alert_type="ENTRY_EVENT",
                             camera_id=camera_id,
                             tracking_id=str(obj_id),
                             frame=frame
                         )
-                        
+
+                        # Persister la présence (ENTRY) en base
+                        try:
+                            DatabaseService.save_attendance(
+                                label=obj_data.get("label", "UNKNOWN"),
+                                status="ENTRY"
+                            )
+                        except Exception as e:
+                            logger.error(f"Erreur enregistrement présence ENTRY: {e}")
+
                     # Détection: Droite -> Gauche (SORTIE)
                     elif old_cx > line_x and new_cx <= line_x:
                         obj_data["direction"] = "SORTIE"
                         obj_data["crossed"] = True
                         obj_data["event_cooldown"] = 30
                         self.counter_out += 1
-                        
+
                         AlertManager.trigger_alert(
                             alert_type="EXIT_EVENT",
                             camera_id=camera_id,
                             tracking_id=str(obj_id),
                             frame=frame
                         )
+
+                        # Persister la présence (EXIT) en base
+                        try:
+                            DatabaseService.save_attendance(
+                                label=obj_data.get("label", "UNKNOWN"),
+                                status="EXIT"
+                            )
+                        except Exception as e:
+                            logger.error(f"Erreur enregistrement présence EXIT: {e}")
 
             # 4. Afficher les informations de tracking et d'événement
             x1, y1, x2, y2 = obj_data["bbox"]

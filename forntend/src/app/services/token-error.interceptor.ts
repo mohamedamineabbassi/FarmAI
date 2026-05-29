@@ -32,10 +32,15 @@ export class TokenErrorInterceptor implements HttpInterceptor {
   constructor(private router: Router) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Les endpoints d'authentification (login, face-login, activation...) gèrent
+    // eux-mêmes leurs erreurs. Un 401 ici = identifiants invalides, PAS une session
+    // expirée → on ne déclenche pas la déconnexion/redirection (sinon boucle de login).
+    const isAuthEndpoint = req.url.includes('/api/auth/');
+
     return next.handle(req).pipe(
       catchError((err: HttpErrorResponse) => {
 
-        if (err.status === 401) {
+        if (err.status === 401 && !isAuthEndpoint) {
           // Token expiré ou manquant
           console.warn('🔒 Session expirée — reconnexion requise');
           localStorage.clear();

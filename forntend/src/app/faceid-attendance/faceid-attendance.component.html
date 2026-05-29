@@ -1,0 +1,90 @@
+<div class="faceid-card fade-in">
+
+  <!-- En-tête -->
+  <div class="faceid-header">
+    <div class="faceid-title">
+      <div class="faceid-title-icon"><i class="material-icons">sensor_occupied</i></div>
+      <div>
+        <h3>CAMÉRA DE PRÉSENCE · FACE ID</h3>
+        <p>Caméra de la porte — pointage automatique des entrées et sorties</p>
+      </div>
+    </div>
+    <button class="faceid-btn" [class.is-stop]="running" (click)="toggle()" [disabled]="starting">
+      <i class="material-icons">{{ running ? 'stop_circle' : 'play_circle' }}</i>
+      {{ starting ? 'DÉMARRAGE...' : (running ? 'ARRÊTER' : 'DÉMARRER LE POINTAGE') }}
+    </button>
+  </div>
+
+  <div class="faceid-body">
+
+    <!-- Flux webcam -->
+    <div class="faceid-video-wrap">
+      <video #video class="faceid-video" autoplay muted playsinline></video>
+      <canvas #canvas class="faceid-canvas-hidden"></canvas>
+
+      <div class="faceid-scan-frame" *ngIf="running">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <div class="scan-line"></div>
+      </div>
+
+      <div class="faceid-live" *ngIf="running"><span class="dot"></span> EN DIRECT</div>
+
+      <div class="faceid-video-off" *ngIf="!running">
+        <i class="material-icons">videocam_off</i>
+        <span>Caméra inactive</span>
+      </div>
+    </div>
+
+    <!-- Panneau latéral : statut + dernier pointage + journal -->
+    <div class="faceid-side">
+
+      <div class="faceid-status" [ngClass]="'st-' + statusType">
+        <i class="material-icons">
+          {{ statusType === 'ok' ? 'check_circle' :
+             statusType === 'err' ? 'error' :
+             statusType === 'warn' ? 'info' :
+             statusType === 'scan' ? 'radar' : 'videocam_off' }}
+        </i>
+        <span>{{ statusMsg }}</span>
+      </div>
+
+      <!-- Dernier pointage (grande carte) -->
+      <div class="faceid-last" *ngIf="lastEvent"
+           [class.is-entry]="lastEvent.attendanceStatus === 'ENTRY'"
+           [class.is-exit]="lastEvent.attendanceStatus === 'EXIT'">
+        <div class="last-icon">
+          <i class="material-icons">{{ lastEvent.attendanceStatus === 'ENTRY' ? 'login' : 'logout' }}</i>
+        </div>
+        <div class="last-info">
+          <div class="last-name">{{ lastEvent.employeeName }}</div>
+          <div class="last-status">
+            {{ lastEvent.attendanceStatus === 'ENTRY' ? 'ENTRÉE' : 'SORTIE' }}
+            · {{ lastEvent.time | date:'HH:mm:ss' }}
+          </div>
+          <div class="last-duration" *ngIf="lastEvent.attendanceStatus === 'EXIT' && lastEvent.durationSeconds != null">
+            <i class="material-icons">schedule</i> Présence : {{ formatDuration(lastEvent.durationSeconds) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Journal de la session -->
+      <div class="faceid-log">
+        <div class="log-title">JOURNAL DE LA SESSION</div>
+        <div class="log-empty" *ngIf="events.length === 0">Aucun pointage pour le moment.</div>
+        <div class="log-item" *ngFor="let e of events"
+             [class.entry]="e.attendanceStatus === 'ENTRY'"
+             [class.exit]="e.attendanceStatus === 'EXIT'">
+          <i class="material-icons log-ico">{{ e.attendanceStatus === 'ENTRY' ? 'login' : 'logout' }}</i>
+          <span class="log-name">{{ e.employeeName }}</span>
+          <span class="log-badge">{{ e.attendanceStatus === 'ENTRY' ? 'ENTRÉE' : 'SORTIE' }}</span>
+          <span class="log-time">{{ e.time | date:'HH:mm' }}</span>
+          <span class="log-dur" *ngIf="e.attendanceStatus === 'EXIT' && e.durationSeconds != null">
+            {{ formatDuration(e.durationSeconds) }}
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

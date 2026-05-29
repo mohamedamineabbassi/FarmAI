@@ -184,6 +184,31 @@ public class EmployeeController {
         return employeeRepository.findByStatus(EmployeeStatus.PENDING);
     }
 
+    @GetMapping("/{id}")
+    public Employee getById(@PathVariable Long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+    }
+
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')")
+    @PutMapping("/{id}")
+    public Employee updateEmployee(@PathVariable Long id, @RequestBody Employee updated) {
+        Employee emp = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        if (updated.getName() != null && !updated.getName().isBlank()) {
+            emp.setName(updated.getName());
+        }
+        if (updated.getEmail() != null) {
+            emp.setEmail(updated.getEmail());
+        }
+        if (updated.getPhone() != null) {
+            emp.setPhone(updated.getPhone());
+        }
+
+        return employeeRepository.save(emp);
+    }
+
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public String delete(@PathVariable Long id) {

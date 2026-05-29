@@ -51,7 +51,10 @@ public class TeamSuggestionService {
     }
 
     public List<Employee> findAvailableEmployeesForJob(Job job) {
-        return employeeRepository.findByJobAndAvailableTrueAndDepartmentIsNullAndFaceRegisteredTrueAndStatus(job, EmployeeStatus.APPROVED);
+        // Return ALL approved+available employees without a department,
+        // regardless of faceRegistered — the frontend shows them in valid/invalid groups,
+        // and validateAndAssignTeam enforces faceRegistered at the point of confirmation.
+        return employeeRepository.findByJobAndAvailableTrueAndDepartmentIsNullAndStatus(job, EmployeeStatus.APPROVED);
     }
 
     public void validateAndAssignTeam(Long departmentId, List<Long> employeeIds) {

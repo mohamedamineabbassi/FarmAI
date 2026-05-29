@@ -10,6 +10,13 @@
 <div class="sidebar-wrapper">
   <ul class="nav">
 
+    <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <a class="nav-link" routerLink="/dashboard/home">
+        <i class="material-icons">home</i>
+        <p>{{ langService.t('Accueil', 'Home') }}</p>
+      </a>
+    </li>
+
     <li class="nav-item notif-bell-item" *ngIf="isAdmin">
       <a class="nav-link notif-bell-link" (click)="openNotifPanel()" style="cursor:pointer; position:relative;">
         <i class="material-icons">notifications</i>
@@ -64,6 +71,13 @@
       <a class="nav-link" routerLink="/dashboard/alerts">
         <i class="material-icons">notifications_active</i>
         <p>{{ langService.t('Centre d\'Alertes', 'Alert Center') }}</p>
+      </a>
+    </li>
+
+    <li class="nav-item" routerLinkActive="active">
+      <a class="nav-link" routerLink="/dashboard/attendance">
+        <i class="material-icons">sensor_door</i>
+        <p>{{ langService.t('Présences', 'Attendance') }}</p>
       </a>
     </li>
 
